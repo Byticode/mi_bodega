@@ -17,6 +17,10 @@ switch ($controller) {
         require_once './controllers/proveedoresController.php';
         $controller = new proveedoresController();
         break;
+    case 'clientesController':
+        require_once './controllers/clientesController.php';
+        $controller = new clientesController();
+        break;
 }
 
 
