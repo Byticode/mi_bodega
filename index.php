@@ -13,6 +13,10 @@ switch ($controller) {
         require_once './controllers/categoriasController.php';
         $controller = new categoriasController();
         break;
+    case 'proveedoresController':
+        require_once './controllers/proveedoresController.php';
+        $controller = new proveedoresController();
+        break;
 }
 
 
