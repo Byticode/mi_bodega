@@ -22,11 +22,10 @@
 
   <!-- SIDEBAR -->
 <?php 
-
-include '../../includes/sidebar.php';
+include ruta . '/includes/sidebar.php';
 ?>
 
-  <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
+  <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
     <div>
       <h2 class="text-2xl font-bold text-gray-900">Clientes</h2>
       <p class="text-xs text-gray-500">Gestión de datos de clientes frecuentes</p>
@@ -35,14 +34,49 @@ include '../../includes/sidebar.php';
     <!-- REGISTRO -->
     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
       <h3 class="font-bold text-gray-900 text-sm">Nuevo Cliente</h3>
-      <form class="grid grid-cols-1 sm:grid-cols-3 gap-3" onsubmit="event.preventDefault();">
-        <input type="text" placeholder="Nombre completo" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <input type="text" placeholder="Cédula / ID" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
+
+      <?php if (isset($_SESSION['error'])): ?>
+
+        <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+          <div class="flex-1">
+            <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
+          </div>
+          <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <?php unset($_SESSION['error']); ?>
+      <?php endif; ?>
+
+      <form class="grid grid-cols-1 sm:grid-cols-3 gap-3" action="index.php?controller=clientesController&action=crear" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre *" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive"  >
+        <input type="text" name="apellido" placeholder="Apellido *" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive"  >
+        <input type="text" name="cedula" placeholder="Cédula / ID *" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive"  >
+        <input type="text" name="telefono" placeholder="Teléfono (opcional)" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
+        <input type="email" name="correo" placeholder="Correo electrónico (opcional)" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
         <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold py-2 rounded-lg">
           Registrar Cliente
         </button>
       </form>
+      <p class="text-xs text-gray-400">* Campos obligatorios</p>
     </div>
+
+    <?php if (isset($_SESSION['success'])): ?>
+
+      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
+        <div class="flex-1">
+          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
     <!-- TABLA -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
@@ -50,28 +84,35 @@ include '../../includes/sidebar.php';
         <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
           <tr>
             <th class="p-3">Nombre</th>
+            <th class="p-3">Apellido</th>
             <th class="p-3">Cédula / ID</th>
+            <th class="p-3">Teléfono</th>
+            <th class="p-3">Correo</th>
             <th class="p-3 text-right">Acción</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr class="hover:bg-gray-50">
-            <td class="p-3 font-medium text-gray-900">María Pérez</td>
-            <td class="p-3 font-mono">V-12345678</td>
-            <td class="p-3 text-right">
-              <a href="clientes-editar.html?id=1" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-              </a>
-            </td>
-          </tr>
+          <?php foreach ($clientes as $cliente): ?>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($cliente['cliente_nombre']) ?></td>
+              <td class="p-3"><?= htmlspecialchars($cliente['cliente_apellido']) ?></td>
+              <td class="p-3 font-mono"><?= htmlspecialchars($cliente['cliente_cedula']) ?></td>
+              <td class="p-3"><?= htmlspecialchars($cliente['cliente_telefono'] ?? '-') ?></td>
+              <td class="p-3"><?= htmlspecialchars($cliente['cliente_correo'] ?? '-') ?></td>
+              <td class="p-3 text-right">
+                <a href="index.php?controller=clientesController&action=editar&id=<?= $cliente['cliente_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                </a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
         </tbody>
       </table>
     </div>
   </main>
+
 <?php 
-
-include './includes/sidebar.js';
-
+include ruta . '/includes/sidebar.js';
 ?>
 </body>
 </html>
