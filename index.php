@@ -21,6 +21,10 @@ switch ($controller) {
         require_once './controllers/clientesController.php';
         $controller = new clientesController();
         break;
+    case 'productosBaseController':
+        require_once './controllers/productosBaseController.php';
+        $controller = new productosBaseController();
+        break;
 }
 
 
