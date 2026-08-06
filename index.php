@@ -2,6 +2,7 @@
 
 session_start();
 define('RUTA_APP', __DIR__);
+define('ruta', __DIR__);
 
 require_once RUTA_APP . '/config/app.php';
 require_once RUTA_APP . '/includes/helpers.php';
@@ -24,29 +25,64 @@ spl_autoload_register(function ($class) {
     }
 });
 
-$action = isset($_GET['action']) ? trim($_GET['action']) : DEFAULT_ACTION;
-$controllerKey = isset($_GET['controller']) ? trim($_GET['controller']) : DEFAULT_CONTROLLER;
+$action = isset($_GET['action']) ? trim($_GET['action']) : 'pos';
+$controller = isset($_GET['controller']) ? trim($_GET['controller']) : 'ventasController';
 
-$allowedControllers = [
-    'categoriasController' => 'CategoriasController',
-    'proveedoresController' => 'ProveedoresController',
-    'clientesController' => 'ClientesController',
-];
-
-$allowedActions = ['listar', 'crear', 'editar', 'borrar', 'status'];
-
-$controllerClass = $allowedControllers[$controllerKey] ?? $allowedControllers[DEFAULT_CONTROLLER];
-
-if (!class_exists($controllerClass) || !in_array($action, $allowedActions, true)) {
-    set_flash('error', 'Controlador o acción no válida');
-    redirect('index.php?controller=' . DEFAULT_CONTROLLER . '&action=' . DEFAULT_ACTION);
+switch ($controller) {
+    case 'categoriasController':
+        require_once './controllers/categoriasController.php';
+        $controller = new categoriasController();
+        break;
+    case 'proveedoresController':
+        require_once './controllers/proveedoresController.php';
+        $controller = new proveedoresController();
+        break;
+    case 'clientesController':
+        require_once './controllers/clientesController.php';
+        $controller = new clientesController();
+        break;
+    case 'productosController':
+        require_once './controllers/productosController.php';
+        $controller = new productosController();
+        break;
+    case 'ventasController':
+        require_once './controllers/ventasController.php';
+        $controller = new ventasController();
+        break;
+    case 'surtidosController':
+        require_once './controllers/surtidosController.php';
+        $controller = new surtidosController();
+        break;
+    case 'unidadesController':
+        require_once './controllers/unidadesController.php';
+        $controller = new unidadesController();
+        break;
+    case 'tasaMonedaController':
+        require_once './controllers/tasaMonedaController.php';
+        $controller = new tasaMonedaController();
+        break;
+    case 'usuariosController':
+        require_once './controllers/usuariosController.php';
+        $controller = new usuariosController();
+        break;
+    default:
+        header("Location: index.php?controller=categoriasController&action=listar");
+        exit();
 }
 
-$controller = new $controllerClass();
+$actions_permitidos = ['listar', 'crear', 'borrar', 'editar', 'ver', 'pos', 'status'];
 
-if (!method_exists($controller, $action)) {
-    set_flash('error', 'Acción no válida');
-    redirect('index.php?controller=' . DEFAULT_CONTROLLER . '&action=' . DEFAULT_ACTION);
+if (!in_array($action, $actions_permitidos)) {
+    $_SESSION['error'] = "action no valido";
+    header("Location: index.php?action=listar");
+    exit();
 }
 
-$controller->$action();
+if (method_exists($controller, $action)) {
+    $controller->$action();
+} else {
+    $_SESSION['error'] = "action no valido";
+    header("Location: index.php?action=listar");
+    exit();
+}
+?>
