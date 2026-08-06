@@ -1,57 +1,45 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Editar Categoría</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
-
-    <!-- SIDEBAR -->
-   <!-- SIDEBAR -->
-<?php 
-
-include '../../includes/sidebar.php';
+<?php
+$page_title = 'Editar categoría';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
 ?>
 
-  
-  <main class="flex-1 p-6 space-y-6 max-w-2xl mx-auto">
-    <div class="flex items-center space-x-3">
-      <a href="categorias.html" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-      </a>
-      <h2 class="text-2xl font-bold text-gray-900">Editar Categoría</h2>
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="app-main">
+    <div class="max-w-xl space-y-6">
+
+      <!-- Page header -->
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 class="page-title">Editar categoría</h2>
+          <p class="page-sub">
+            <a href="index.php?controller=categoriasController&action=listar" class="text-olive hover:underline">Categorías</a>
+            <span class="text-ink-3"> / <?= htmlspecialchars($categoria['categorias_nombre']) ?></span>
+          </p>
+        </div>
+      </div>
+
+      <?php include ruta . '/includes/flash.php'; ?>
+
+      <!-- FORMULARIO -->
+      <div class="card p-5">
+        <form action="index.php?controller=categoriasController&action=editar" method="POST" class="space-y-4">
+          <input type="hidden" name="id" value="<?= $categoria['categorias_id'] ?>">
+
+          <div>
+            <label for="nombre" class="label">Nombre</label>
+            <input type="text" id="nombre" name="nombre" class="input" required
+              value="<?= htmlspecialchars($categoria['categorias_nombre']) ?>">
+          </div>
+
+          <div class="flex items-center gap-3 pt-2">
+            <button type="submit" class="btn btn-primary">Guardar cambios</button>
+            <a href="index.php?controller=categoriasController&action=listar" class="btn btn-secondary">Cancelar</a>
+          </div>
+        </form>
+      </div>
+
     </div>
-
-    <form  action="index.php?controller=categoriasController&action=editar&id=<?= $dato[0]['categorias_id'] ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4" >
-      <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre Categoría</label>
-        <input type="text" name="nombre" value="<?= $dato[0]['categorias_nombre'] ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-      </div>
-
-      <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="categorias.html" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive text-white text-xs font-bold rounded-lg">Guardar</button>
-      </div>
-    </form>
   </main>
-<?php 
 
-include './includes/sidebar.js';
-
-?>
-</body>
-</html>
+<?php include ruta . '/includes/footer.php'; ?>
