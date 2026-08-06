@@ -1,103 +1,81 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Credenciales de Acceso</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: {
-              DEFAULT: '#3a6341',
-              hover: '#2f5135',
-              light: '#eaf0eb'
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
-
-    <!-- SIDEBAR -->
-<?php 
-
-include '../../includes/sidebar.php';
+<?php
+$page_title = 'Credenciales de Acceso';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <main class="ml-64 flex-1 p-6 space-y-6 max-w-4xl">
-    <div>
-      <h2 class="text-2xl font-bold text-gray-900">Credenciales de Acceso</h2>
-      <p class="text-xs text-gray-500">Administra la clave de seguridad principal para ingresar al sistema de la bodega</p>
-    </div>
+  <main class="app-main">
+    <div class="max-w-3xl space-y-6">
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="md:col-span-2 bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-5">
-        <div class="flex items-center space-x-3 border-b border-gray-100 pb-4">
-          <div class="p-2.5 bg-olive-light text-olive rounded-lg">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-          </div>
-          <div>
-            <h3 class="font-bold text-gray-900 text-base">Contraseña Master</h3>
-            <p class="text-xs text-gray-500">Clave única requerida para iniciar sesión en la caja o administración</p>
-          </div>
+      <!-- Page header -->
+      <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h2 class="page-title">Credenciales de Acceso</h2>
+          <p class="page-sub">Administra la clave de seguridad principal para ingresar al sistema de la bodega.</p>
         </div>
+      </div>
 
-        <form class="space-y-4" onsubmit="event.preventDefault();">
-          <div>
-            <label class="block text-xs font-semibold text-gray-700 mb-1">Contraseña Actual</label>
-            <input type="password" placeholder="••••••••" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-          </div>
+      <?php include ruta . '/includes/flash.php'; ?>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
-              <input type="password" placeholder="Mínimo 6 caracteres" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- FORMULARIO -->
+        <div class="md:col-span-2 card p-5 space-y-5">
+          <div class="flex items-center gap-3 border-b border-rule pb-4">
+            <div class="p-2.5 bg-olive-light text-olive rounded-lg">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
             </div>
-
             <div>
-              <label class="block text-xs font-semibold text-gray-700 mb-1">Confirmar Nueva Contraseña</label>
-              <input type="password" placeholder="Repite la clave" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+              <h3 class="text-sm font-semibold text-ink">Contraseña Master</h3>
+              <p class="text-xs text-ink-3">Clave única requerida para iniciar sesión en la caja o administración.</p>
             </div>
           </div>
 
-          <div class="pt-2 flex justify-end">
-            <button type="submit" class="px-5 py-2.5 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg transition-colors">
-              Actualizar Contraseña
-            </button>
-          </div>
-        </form>
-      </div>
+          <form class="space-y-4" onsubmit="event.preventDefault();">
+            <div>
+              <label for="clave_actual" class="label">Contraseña Actual</label>
+              <input type="password" id="clave_actual" placeholder="••••••••" class="input">
+            </div>
 
-      <div class="bg-warmCard p-5 rounded-xl border border-gray-200/60 shadow-sm space-y-4 h-fit">
-        <h4 class="font-bold text-gray-900 text-sm flex items-center space-x-2">
-          <svg class="w-4 h-4 text-olive" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          <span>Acceso Directo</span>
-        </h4>
-        
-        <p class="text-xs text-gray-600 leading-relaxed">
-          El sistema está optimizado para inicio de sesión único. No requiere usuario ni correo electrónico para ingresar.
-        </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="clave_nueva" class="label">Nueva Contraseña</label>
+                <input type="password" id="clave_nueva" placeholder="Mínimo 6 caracteres" class="input">
+              </div>
 
-        <div class="border-t border-gray-300/50 pt-3">
-          <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider block mb-1">Último cambio</span>
-          <p class="text-xs font-medium text-gray-800">01 de Agosto de 2026</p>
+              <div>
+                <label for="clave_confirmar" class="label">Confirmar Nueva Contraseña</label>
+                <input type="password" id="clave_confirmar" placeholder="Repite la clave" class="input">
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-2">
+              <button type="submit" class="btn btn-primary">Actualizar Contraseña</button>
+            </div>
+          </form>
         </div>
+
+        <!-- INFO LATERAL -->
+        <div class="card bg-card-2 p-5 space-y-4 h-fit">
+          <h4 class="text-sm font-semibold text-ink flex items-center gap-2">
+            <svg class="w-4 h-4 text-olive" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+            <span>Acceso Directo</span>
+          </h4>
+
+          <p class="text-xs text-ink-2 leading-relaxed">
+            El sistema está optimizado para inicio de sesión único. No requiere usuario ni correo electrónico para ingresar.
+          </p>
+
+          <div class="border-t border-rule pt-3">
+            <span class="text-xs font-semibold text-ink-3 uppercase tracking-wider block mb-1">Último cambio</span>
+            <p class="text-xs font-medium text-ink">01 de Agosto de 2026</p>
+          </div>
+        </div>
+
       </div>
+
     </div>
   </main>
 
-  <!-- SIDEBAR -->
-<?php 
-
-include '../../includes/sidebar.js';
-?>
-</body>
-</html>
+<?php include ruta . '/includes/footer.php'; ?>
