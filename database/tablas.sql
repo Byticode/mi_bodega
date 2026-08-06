@@ -98,7 +98,19 @@ CREATE TABLE ventas_idempotency (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ==============================================================================
--- 7. DATOS INICIALES MÍNIMOS (SEED DATA)
+-- 7. ÍNDICES
+-- ==============================================================================
+CREATE INDEX idx_ventas_clientes_id ON ventas (clientes_id);
+CREATE INDEX idx_ventas_productos_id ON ventas (productos_id);
+CREATE INDEX idx_ventas_tasa_moneda_id ON ventas (tasa_moneda_id);
+CREATE INDEX idx_ventas_created_at ON ventas (created_at);
+CREATE INDEX idx_ventas_status_created_at ON ventas (status, created_at);
+CREATE INDEX idx_productos_categoria ON productos (categoria);
+CREATE INDEX idx_productos_precio_usd ON productos (precio_usd);
+CREATE INDEX idx_clientes_nombre ON clientes (nombre);
+
+-- ==============================================================================
+-- 8. DATOS INICIALES MÍNIMOS (SEED DATA)
 -- ==============================================================================
 INSERT INTO usuarios (username, password, nombre, rol, status) VALUES
 ('admin', '$2y$10$e8w6y...HASH_DE_CONTRASEÑA...', 'Administrador', 'administrador', 'activo'); -- Reemplaza el HASH_DE_CONTRASEÑA con uno real
