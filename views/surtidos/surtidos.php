@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Surtido</title>
+  <title>mi_bodega - Surtidos</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -12,11 +12,7 @@
           colors: {
             warmBg: '#fcfbf7',
             warmCard: '#f5f3ec',
-            olive: {
-              DEFAULT: '#3a6341',
-              hover: '#2f5135',
-              light: '#eaf0eb'
-            }
+            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
           }
         }
       }
@@ -25,72 +21,124 @@
 </head>
 <body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
 
-    <!-- SIDEBAR -->
-<?php 
-
-include '../../includes/sidebar.php';
-?>
+  <!-- SIDEBAR -->
+  <?php
+  include ruta . '/includes/sidebar.php';
+  ?>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <main class="ml-64 flex-1 p-6 space-y-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
+    <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Surtido</h2>
-        <p class="text-xs text-gray-500">Entradas de mercancía y reabastecimiento de inventario</p>
+        <h2 class="text-2xl font-bold text-gray-900">Surtidos</h2>
+        <p class="text-xs text-gray-500">Historial de compras y surtidos de productos</p>
       </div>
-      <div class="flex items-center space-x-2">
-        <input type="text" placeholder="Buscar mercancía..." class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:border-olive">
-        <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50">Filtrar</button>
-        <button class="px-4 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg">+ Registrar Surtido</button>
+      <a href="index.php?controller=surtidosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Nuevo Surtido
+      </a>
+    </div>
+
+    <?php if (isset($_SESSION['error'])): ?>
+      <div class="flex items-center gap-3 p-4 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
+        <div class="flex-1">
+          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
+
+    <?php if (isset($_SESSION['success'])): ?>
+      <div class="flex items-center gap-3 p-4 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
+        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
+        <div class="flex-1">
+          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
+        </div>
+        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
+
+    <!-- TABLA DE SURTIDOS -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+            <tr>
+              <th class="p-3"># Surtido</th>
+              <th class="p-3">Proveedor</th>
+              <th class="p-3 text-center">Productos</th>
+              <th class="p-3 text-right">Costo Total</th>
+              <th class="p-3 text-right">Fecha</th>
+              <th class="p-3 text-right">Acción</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <?php if (empty($surtidos)): ?>
+              <tr>
+                <td colspan="6" class="p-6 text-center text-gray-500">
+                  <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                  </svg>
+                  <p class="font-medium">No hay surtidos registrados</p>
+                  <p class="text-xs">Haz clic en "Nuevo Surtido" para comenzar</p>
+                </td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($surtidos as $surtido): ?>
+                <tr class="hover:bg-gray-50">
+                  <td class="p-3 font-mono font-semibold text-olive">#<?= $surtido['surtido_id'] ?></td>
+                  <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></td>
+                  <td class="p-3 text-center"><?= $surtido['total_productos'] ?></td>
+                  <td class="p-3 text-right font-semibold">Bs. <?= number_format($surtido['surtido_costo_total'], 2) ?></td>
+                  <td class="p-3 text-right text-gray-500"><?= date('d/m/Y H:i', strtotime($surtido['surtido_fecha'])) ?></td>
+                  <td class="p-3 text-right">
+                    <a href="index.php?controller=surtidosController&action=ver&id=<?= $surtido['surtido_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Ver detalles">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-warmCard p-4 rounded-xl border border-gray-200">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">ÚLTIMO REABASTECIMIENTO</span>
-        <p class="text-2xl font-bold text-gray-900 mt-1">Hoy, 10:30 AM</p>
+    <!-- Resumen rápido -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <p class="text-xs text-gray-500">Total Surtidos</p>
+        <p class="text-2xl font-bold text-gray-900"><?= count($surtidos) ?></p>
       </div>
-      <div class="bg-warmCard p-4 rounded-xl border border-gray-200">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">ITEMS RECIBIDOS (MES)</span>
-        <p class="text-2xl font-bold text-gray-900 mt-1">450 Unidades</p>
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <p class="text-xs text-gray-500">Inversión Total</p>
+        <p class="text-2xl font-bold text-olive">
+          Bs. <?= number_format(array_sum(array_column($surtidos, 'surtido_costo_total')), 2) ?>
+        </p>
       </div>
-    </div>
-
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-      <table class="w-full text-left border-collapse text-sm">
-        <thead>
-          <tr class="border-b border-gray-200 text-xs text-gray-400 uppercase tracking-wider">
-            <th class="py-3 px-4 font-semibold">FECHA</th>
-            <th class="py-3 px-4 font-semibold">PROVEEDOR</th>
-            <th class="py-3 px-4 font-semibold">PRODUCTOS</th>
-            <th class="py-3 px-4 font-semibold">UNID. ENTRANTE</th>
-            <th class="py-3 px-4 font-semibold">TOTAL COMPRA</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr>
-            <td class="py-3 px-4 text-gray-500">03/08/2026</td>
-            <td class="py-3 px-4 font-bold text-gray-900">Distribuidora Polaris</td>
-            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">2 productos</span></td>
-            <td class="py-3 px-4 font-bold text-emerald-700">+50</td>
-            <td class="py-3 px-4 font-bold text-gray-900">Bs 1.050,00</td>
-          </tr>
-          <tr>
-            <td class="py-3 px-4 text-gray-500">01/08/2026</td>
-            <td class="py-3 px-4 font-bold text-gray-900">Alimentos del Centro</td>
-            <td class="py-3 px-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">4 productos</span></td>
-            <td class="py-3 px-4 font-bold text-emerald-700">+24</td>
-            <td class="py-3 px-4 font-bold text-gray-900">Bs 1.440,00</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <p class="text-xs text-gray-500">Último Surtido</p>
+        <p class="text-lg font-bold text-gray-900">
+          <?= !empty($surtidos) ? date('d/m/Y', strtotime($surtidos[0]['surtido_fecha'])) : 'N/A' ?>
+        </p>
+      </div>
     </div>
   </main>
 
-   <!-- SIDEBAR -->
-<?php 
-
-include '../../includes/sidebar.php';
-?>
+  <?php
+  include ruta . '/includes/sidebar.js';
+  ?>
 </body>
 </html>
