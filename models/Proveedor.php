@@ -1,108 +1,70 @@
-<?php 
+<?php
 
-require_once './config/database.php';
-
-class Proveedor{
-
-    private $db;
-
-    public function __construct()
+class Proveedor extends BaseModel
+{
+    public function crear(string $proveedor_nombre, string $proveedor_telefono): bool
     {
-        $this->db = Conexion::conectar();
+        return $this->execute(
+            "INSERT INTO proveedores (proveedor_nombre, proveedor_telefono) VALUES (?, ?)",
+            [$proveedor_nombre, $proveedor_telefono]
+        );
     }
 
-    public function crear($proveedor_nombre, $proveedor_telefono)
+    public function listar(): array
     {
-        $sql = "INSERT INTO proveedores (proveedor_nombre, proveedor_telefono) VALUES (?, ?)";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$proveedor_nombre, $proveedor_telefono]);
-
-        return $resultado;
+        return $this->fetchAll("SELECT * FROM proveedores ORDER BY proveedor_id ASC");
     }
 
-    public function listar(){
-        $sql = "SELECT * FROM proveedores ORDER BY proveedor_id ASC;";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute();
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+    public function editar(string $proveedor_nombre, string $proveedor_telefono, int $proveedor_id): bool
+    {
+        return $this->execute(
+            "UPDATE proveedores SET proveedor_nombre = ?, proveedor_telefono = ? WHERE proveedor_id = ?",
+            [$proveedor_nombre, $proveedor_telefono, $proveedor_id]
+        );
     }
 
-    public function editar($proveedor_nombre, $proveedor_telefono, $proveedor_id){
-        
-        $sql = "UPDATE proveedores SET proveedor_nombre = ?, proveedor_telefono = ? WHERE proveedor_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$proveedor_nombre, $proveedor_telefono, $proveedor_id]);
-
-        return $resultado;
+    public function consultarPorId(int $proveedor_id): ?array
+    {
+        return $this->fetchOne(
+            "SELECT * FROM proveedores WHERE proveedor_id = ? LIMIT 1",
+            [$proveedor_id]
+        );
     }
 
-    public function consultarPorId($proveedor_id){
-        $sql = "SELECT * FROM proveedores WHERE proveedor_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$proveedor_id]);
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+    public function existsId(int $proveedor_id): bool
+    {
+        return $this->exists(
+            "SELECT 1 FROM proveedores WHERE proveedor_id = ? LIMIT 1",
+            [$proveedor_id]
+        );
     }
 
-    public function limpiarVerificarId($proveedor_id){
-        //verificar que ese ID exista en la BD
-
-        $statement = $this->db->prepare("SELECT * FROM proveedores WHERE proveedor_id = ? LIMIT 1");
-        $resultado = $statement->execute([$proveedor_id]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)){
-            $resultado = false;
-        } else {
-            $resultado = true;
-        }
-
-        return $resultado;
+    public function isDuplicateNombre(string $proveedor_nombre): bool
+    {
+        return $this->exists(
+            "SELECT 1 FROM proveedores WHERE proveedor_nombre = ? LIMIT 1",
+            [$proveedor_nombre]
+        );
     }
 
-    public function verificarDuplicado($proveedor_nombre){
-        //verificar si este nombre ya esta registrado
-        $sql = "SELECT * FROM proveedores WHERE proveedor_nombre = ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$proveedor_nombre]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)){
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+    public function isDuplicateNombreExceptId(string $proveedor_nombre, int $proveedor_id): bool
+    {
+        return $this->isDuplicateField(
+            'proveedores',
+            'proveedor_nombre',
+            $proveedor_nombre,
+            $proveedor_id,
+            'proveedor_id'
+        );
     }
 
-    public function verificarDuplicadoId($proveedor_nombre, $proveedor_id){
-        //verificar si mi nombre lo tiene otro aparte de mi.
-        $sql = "SELECT * FROM proveedores WHERE proveedor_nombre = ? AND proveedor_id != ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$proveedor_nombre, $proveedor_id]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
+    public function borrar(int $proveedor_id): bool
+    {
+        return $this->deleteById('proveedores', 'proveedor_id', $proveedor_id);
+    }
 
-        if (empty($dato)){
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-        
-        return $resultado;
+    public function changeStatus(int $proveedor_id, string $status): bool
+    {
+        return $this->updateStatusById('proveedores', 'status', $status, 'proveedor_id', $proveedor_id);
     }
 }
-?>
