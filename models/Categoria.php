@@ -1,127 +1,70 @@
-<?php 
+<?php
 
-require_once './config/database.php';
-
-
-
-class Categoria{
-
-    private $db;
-
-    public function __construct()
+class Categoria extends BaseModel
+{
+    public function crear(string $categorias_nombre): bool
     {
-        $this->db = Conexion::conectar();
+        return $this->execute(
+            "INSERT INTO categorias (categorias_nombre) VALUES (?)",
+            [$categorias_nombre]
+        );
     }
 
-    public function crear($categorias_nombre)
+    public function listar(): array
     {
-        $sql = "INSERT INTO categorias (categorias_nombre) VALUES (?)";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$categorias_nombre]);
-
-        return $resultado;
+        return $this->fetchAll("SELECT * FROM categorias ORDER BY categorias_id ASC");
     }
 
-    public function listar(){
-        $sql = "SELECT * FROM categorias  ORDER BY categorias_id ASC;";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute();
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+    public function editar(string $categorias_nombre, int $categorias_id): bool
+    {
+        return $this->execute(
+            "UPDATE categorias SET categorias_nombre = ? WHERE categorias_id = ?",
+            [$categorias_nombre, $categorias_id]
+        );
     }
 
-    
-
-    public function editar($categorias_nombre, $categorias_id){
-
-        
-        
-        $sql = "UPDATE categorias SET categorias_nombre= ? WHERE categorias_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$categorias_nombre, $categorias_id]);
-
-
-        return $resultado;
-
+    public function consultarPorId(int $categorias_id): ?array
+    {
+        return $this->fetchOne(
+            "SELECT * FROM categorias WHERE categorias_id = ? LIMIT 1",
+            [$categorias_id]
+        );
     }
 
-    public function consultarPorId($categorias_id){
-        $sql = "SELECT * FROM categorias where categorias_id= ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$categorias_id]);
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+    public function existsId(int $categorias_id): bool
+    {
+        return $this->exists(
+            "SELECT 1 FROM categorias WHERE categorias_id = ? LIMIT 1",
+            [$categorias_id]
+        );
     }
 
-    public function limpiarVerificarId($categorias_id){
-        //verificar que ese ID exista en la BD
-
-        $statment = $this->db->prepare("SELECT * FROM categorias Where categorias_id = ? LIMIT 1");
-        $resultado = $statment->execute([$categorias_id]);
-        $dato = $statment->fetchAll(PDO::FETCH_ASSOC);
-
-        
-
-        if (empty($dato)){
-            $resultado = false;
-        } else {
-            $resultado = true;
-        }
-
-        return $resultado;
-
+    public function isDuplicateNombre(string $categorias_nombre): bool
+    {
+        return $this->exists(
+            "SELECT 1 FROM categorias WHERE categorias_nombre = ? LIMIT 1",
+            [$categorias_nombre]
+        );
     }
 
-    public function verificarDuplicado($categorias_nombre){
-        //verificar si este nombre ya esta registrado
-        $sql = "SELECT * FROM categorias WHERE categorias_nombre = ? LIMIT 1";
-        $statment = $this->db->prepare($sql);
-        $resultado = $statment->execute([$categorias_nombre]);
-        $dato = $statment->fetchAll(PDO::FETCH_ASSOC);
-
-
-        if (empty($dato)){
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+    public function isDuplicateNombreExceptId(string $categorias_nombre, int $categorias_id): bool
+    {
+        return $this->isDuplicateField(
+            'categorias',
+            'categorias_nombre',
+            $categorias_nombre,
+            $categorias_id,
+            'categorias_id'
+        );
     }
 
-    public function verificarDuplicadoId($categorias_nombre, $categorias_id){
-        //verificar si mi nombre lo tiene otro aparte de mi.
-        $sql = "SELECT * FROM categorias WHERE categorias_nombre = ? AND categorias_id != ? LIMIT 1";
-        $statment = $this->db->prepare($sql);
-        $resultado = $statment->execute([$categorias_nombre, $categorias_id]);
-        $dato = $statment->fetchAll(PDO::FETCH_ASSOC);
-
-        
-
-
-        if (empty($dato)){
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-        
-        return $resultado;
-
-
+    public function borrar(int $categorias_id): bool
+    {
+        return $this->deleteById('categorias', 'categorias_id', $categorias_id);
     }
 
-   
-
+    public function changeStatus(int $categorias_id, string $status): bool
+    {
+        return $this->updateStatusById('categorias', 'status', $status, 'categorias_id', $categorias_id);
+    }
 }

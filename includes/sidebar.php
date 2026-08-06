@@ -1,5 +1,40 @@
+<?php
+// Rail de navegación compartido. Marca el ítem activo según $_GET['controller'].
+
+$current = $_GET['controller'] ?? 'categoriasController';
+
+$navLink = function (string $controller, string $label, string $iconPath) use ($current): string {
+    $active = $current === $controller;
+    $classes = $active
+        ? 'bg-olive-light text-olive font-semibold'
+        : 'text-ink-2 hover:bg-card-2 hover:text-ink';
+    $aria = $active ? ' aria-current="page"' : '';
+    return '<a href="index.php?controller=' . $controller . '&action=listar"' . $aria
+        . ' class="flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ' . $classes . '">'
+        . '<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">'
+        . '<path stroke-linecap="round" stroke-linejoin="round" d="' . $iconPath . '"/></svg>'
+        . '<span>' . $label . '</span></a>';
+};
+
+$configControllers = ['productosBaseController', 'credencialesController', 'proveedoresController', 'categoriasController', 'clientesController'];
+$configOpen = in_array($current, $configControllers, true);
+
+$dias  = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+$meses = [1 => 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+$fecha = ucfirst($dias[(int) date('w')]) . ' ' . date('j') . ' de ' . $meses[(int) date('n')];
+?>
+
+<!-- Botón para abrir el menú en móvil -->
+<button id="sidebarOpenBtn" type="button" aria-label="Abrir menú" aria-controls="sidebar"
+  class="btn-secondary btn fixed top-4 left-4 z-40 md:hidden px-2.5!">
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+</button>
+
+<!-- Overlay móvil -->
+<div id="sidebarOverlay" class="fixed inset-0 z-30 bg-ink/40 hidden md:hidden"></div>
+
 <!-- SIDEBAR -->
-<aside class="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col justify-between p-4 fixed left-0 top-0 bottom-0 z-10">
+<aside id="sidebar" class="w-64 bg-white border-r border-gray-200 min-h-screen flex flex-col justify-between p-4 fixed left-0 top-0 bottom-0 z-40 -translate-x-full md:translate-x-0 transition-transform duration-200">
     <div class="space-y-6">
         <div class="flex items-center space-x-3 px-2 py-1">
             <div class="w-10 h-10 bg-olive text-white font-bold rounded flex items-center justify-center shrink-0">MB</div>
