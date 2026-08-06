@@ -6,7 +6,7 @@ class Conexion
     private static $host = 'localhost';
     private static $dbName = 'mi_bodega';
     private static $username = 'root'; // Cambia esto si tu usuario de phpMyAdmin es diferente
-    private static $password = '123123';     // Cambia esto si tienes contraseña en tu servidor local
+    private static $password = '';     // Cambia esto si tienes contraseña en tu servidor local
 
     public static function conectar()
     {
