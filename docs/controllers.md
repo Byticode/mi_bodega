@@ -1,31 +1,104 @@
-# Controladores
+# 🎮 Controladores del Sistema — mi_bodega
 
-Los controladores disponibles son:
+Todos los controladores se ubican en la carpeta `controllers/` e heredan de `BaseController`. Actúan como el orquestador entre las peticiones HTTP del navegador, la capa de datos (Modelos) y la capa de representación (Vistas).
 
-- `CategoriasController`
-- `ProveedoresController`
-- `ClientesController`
+---
 
-Cada controlador extiende `BaseController` y contiene métodos CRUD mínimos:
+## 🛠️ Métodos Heredados de `BaseController` (`core/BaseController.php`)
 
-- `listar()`: obtiene los datos desde el modelo y llama a la vista.
-- `crear()`: procesa el formulario de creación.
-- `editar()`: procesa el formulario de edición.
-- `borrar()`: elimina un registro.
-- `status()`: actualiza el estado de un registro.
+Todos los controladores tienen acceso inmediato a las siguientes herramientas de infraestructura:
 
-### OOP en controladores
+| Método Base | Descripción | Uso típico |
+| :--- | :--- | :--- |
+| `requireAuth()` | Verifica la existencia de `$_SESSION['usuario']`. Si no existe, redirige a `/login`. | En el constructor de controladores protegidos. |
+| `requireRole(string $role)` | Verifica que el rol del usuario en sesión coincida. Si no coincide, renderiza la vista `403.php`. | En acciones restringidas a Administradores. |
+| `validateNumericId($id, $redirectUrl)` | Valida que `$id` sea un entero mayor a 0. En caso negativo, emite error flash y redirige. | En acciones de edición, eliminación o consulta por ID. |
+| `setFlash(string $type, string $message)` | Almacena un mensaje (`'success'` o `'error'`) en la sesión para mostrarlo en la siguiente página. | Tras procesar un formulario POST. |
+| `redirect(string $path)` | Redirige HTTP agregando el prefijo de la aplicación `BASE_URL`. | Al finalizar operaciones exitosas o fallidas. |
+| `renderError(int $code, string $message)` | Despacha la vista de error correspondiente (`403`, `404` o `500`) estableciendo la cabecera HTTP adecuada. | Cuando se detectan accesos denegados o fallos. |
+| `getAuthUserId(): ?int` | Retorna el ID numérico del usuario en sesión. | Al registrar ventas o surtidos para auditoría. |
 
-- **Herencia**: los controladores heredan métodos comunes de `BaseController`.
-- **Encapsulación**: se usan métodos privados para validaciones y limpieza de datos.
-- **Polimorfismo**: cada controlador implementa sus propias reglas de negocio sobre la misma estructura básica del controlador base.
+---
 
-### Funciones comunes en controladores
+## 📋 Catálogo Completo de Controladores y Acciones
 
-- `render($view, $data)`: carga la vista y le pasa datos.
-- `redirect($path)`: redirige usando `base_url()`.
-- `setFlash($type, $message)`: guarda mensajes en sesión.
+### 1. `LoginController` (`controllers/loginController.php`)
+* **Propósito**: Autenticación de usuarios, gestión de cierres de sesión, redirección automática al POS y bloqueo anti-fuerza bruta.
+* **Acciones**:
+  - `login()` (`GET` / `POST`): Muestra el formulario de ingreso. Si el usuario ya tiene sesión activa, emite un aviso flash y redirige directamente a `/pos`. En `POST`, verifica si la cuenta está bloqueada (máx. 5 intentos), retiene el usuario ingresado (`$_SESSION['old']['username']`), valida la clave con `password_verify()`, regenera el ID de sesión (`session_regenerate_id(true)`) y redirige al Punto de Venta (`/pos`).
+  - `logout()` (`GET`): Invalida y destruye la sesión del usuario (`session_destroy()`), redirigiendo a `/login`.
 
-### Validaciones
+### 2. `CategoriasController` (`controllers/categoriasController.php`)
+* **Propósito**: Administración del catálogo de categorías de productos.
+* **Ruta amigable base**: `/categorias`
+* **Acciones**:
+  - `listar()` (`GET`): Muestra la lista completa de categorías activas.
+  - `crear()` (`POST`): Valida el nombre de la categoría e inserta el nuevo registro.
+  - `editar()` (`GET` / `POST`): Carga el formulario de edición y actualiza los datos.
+  - `borrar()` (`GET`): Elimina una categoría por su ID.
+  - `status()` (`GET`): Alterna el estado activo/inactivo de la categoría.
 
-Cada controlador valida el `id` y los campos del formulario antes de llamar al modelo.
+### 3. `ProductosController` (`controllers/productosController.php`)
+* **Propósito**: Inventario general, precios, pesos, unidades de medida y alertas de stock.
+* **Ruta amigable base**: `/productos`
+* **Acciones**:
+  - `listar()` (`GET`): Carga los productos paginados o filtrados.
+  - `crear()` (`GET` / `POST`): Renderiza el formulario con selector de unidades/categorías y procesa la creación con combinación automática de peso/unidad.
+  - `editar()` (`GET` / `POST`): Modifica precios, stock y datos del producto.
+  - `inventario()` (`GET`): Presenta un reporte de auditoría de existencias.
+  - `borrar()` (`GET`) / `status()` (`GET`): Gestión de baja de productos.
+
+### 4. `VentasController` (`controllers/ventasController.php`)
+* **Propósito**: Punto de Venta (POS), procesamiento de tickets y control de facturación.
+* **Ruta amigable base**: `/ventas` / `/pos`
+* **Acciones**:
+  - `pos()` (`GET`): Carga la interfaz interactiva de punto de venta.
+  - `crear()` (`POST`): **Transacción atómica**. Procesa el carrito, registra la venta, inserta el detalle y descuenta el stock de cada producto.
+  - `listar()` (`GET`): Presenta el historial de ventas paginado con métricas del día.
+  - `ver()` (`GET`): Carga el detalle completo y desglose de un ticket de venta.
+  - `editar()` (`GET` / `POST`): Permite completar ventas en estado pendiente.
+
+### 5. `SurtidosController` (`controllers/surtidosController.php`)
+* **Propósito**: Registro de compras a proveedores e incremento de stock de inventario.
+* **Ruta amigable base**: `/surtidos`
+* **Acciones**:
+  - `listar()` (`GET`): Muestra la lista de surtidos realizados.
+  - `crear()` (`GET` / `POST`): **Transacción atómica**. Registra el surtido a un proveedor, inserta los ítems e incrementa el stock de los productos.
+  - `ver()` (`GET`): Muestra el desglose de productos y costos de un surtido específico.
+
+### 6. `ClientesController` (`controllers/clientesController.php`)
+* **Propósito**: Gestión de clientes frecuentes y datos de facturación.
+* **Ruta amigable base**: `/clientes`
+* **Acciones**:
+  - `listar()` (`GET`): Lista de clientes con paginación.
+  - `crear()` (`POST`): Registro de nuevo cliente con validación de cédula/ID único.
+  - `editar()` (`GET` / `POST`): Modificación de datos personales y de contacto.
+  - `borrar()` (`GET`) / `status()` (`GET`): Eliminación o cambio de estado.
+
+### 7. `ProveedoresController` (`controllers/proveedoresController.php`)
+* **Propósito**: Directorio de proveedores para compras y surtidos.
+* **Ruta amigable base**: `/proveedores`
+* **Acciones**:
+  - `listar()` (`GET`): Muestra la lista de proveedores registrados.
+  - `crear()` (`POST`): Alta de nuevo proveedor comercial.
+  - `editar()` (`GET` / `POST`): Modificación de teléfono y datos de contacto.
+  - `borrar()` (`GET`) / `status()` (`GET`): Gestión de estado del proveedor.
+
+### 8. `UsuariosController` (`controllers/usuariosController.php`)
+* **Propósito**: Administración de cuentas del sistema y roles de acceso.
+* **Seguridad Estricta**: **Restringido únicamente a rol `admin`** mediante `requireRole('admin')`.
+* **Ruta amigable base**: `/usuarios`
+* **Acciones**:
+  - `listar()` (`GET`): Muestra los usuarios del sistema.
+  - `crear()` (`POST`): Registra un nuevo usuario encriptando su clave con Bcrypt.
+  - `editar()` (`GET` / `POST`): Permite cambiar nombre, usuario, rol y actualizar clave opcionalmente.
+
+### 9. `UnidadesController` (`controllers/unidadesController.php`)
+* **Propósito**: Unidades de medida para el inventario (Kg, Litros, Paquetes, etc.).
+* **Ruta amigable base**: `/unidades`
+* **Acciones**: `listar()`, `crear()`, `editar()`, `borrar()`, `status()`.
+
+### 10. `TasaMonedaController` (`controllers/tasaMonedaController.php`)
+* **Propósito**: Control multi-moneda y valor de cambio del día (USD Oficial, Euro, Paralelo).
+* **Ruta amigable base**: `/tasa-moneda`
+* **Acciones**: `listar()`, `crear()`.

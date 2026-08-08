@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Categorías';
 $page_desc  = 'Agrupa tu mercancía para encontrarla más rápido.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -16,12 +16,12 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Registro -->
     <div class="card p-5 flex flex-col gap-4">
       <h2 class="section-title">Nueva categoría</h2>
-      <form class="flex flex-col sm:flex-row sm:items-end gap-3" action="index.php?controller=categoriasController&action=crear" method="POST">
+      <form class="flex flex-col sm:flex-row sm:items-end gap-3" action="<?= url('categorias/crear') ?>" method="POST">
         <div class="field flex-1">
           <label for="nombre" class="label">Nombre <span class="req" aria-hidden="true">*</span></label>
           <input type="text" id="nombre" name="nombre" class="input" placeholder="Ej: Víveres" required autocomplete="off">
@@ -60,7 +60,7 @@ include ruta . '/includes/sidebar.php';
                 <tr>
                   <td class="font-medium"><?= htmlspecialchars($categoria['categorias_nombre']) ?></td>
                   <td class="col-actions">
-                    <a href="index.php?controller=categoriasController&action=editar&id=<?= (int) $categoria['categorias_id'] ?>"
+                    <a href="<?= url('categorias/editar/' . $categoria['categorias_id']) ?>"
                        class="btn-icon" aria-label="Editar la categoría <?= htmlspecialchars($categoria['categorias_nombre'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
@@ -76,4 +76,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

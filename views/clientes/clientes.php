@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Clientes';
 $page_desc  = 'Datos de los clientes frecuentes de la bodega.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -16,13 +16,13 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Registro -->
     <div class="card p-5 flex flex-col gap-4">
       <h2 class="section-title">Nuevo cliente</h2>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" action="index.php?controller=clientesController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" action="<?= url('clientes/crear') ?>" method="POST">
         <div class="field">
           <label for="nombre" class="label">Nombre <span class="req" aria-hidden="true">*</span></label>
           <input type="text" id="nombre" name="nombre" class="input" required autocomplete="given-name">
@@ -87,7 +87,7 @@ include ruta . '/includes/sidebar.php';
                   <td class="tnum text-ink-2"><?= $cliente['cliente_telefono'] ? htmlspecialchars($cliente['cliente_telefono']) : '—' ?></td>
                   <td class="text-ink-2"><?= $cliente['cliente_correo'] ? htmlspecialchars($cliente['cliente_correo']) : '—' ?></td>
                   <td class="col-actions">
-                    <a href="index.php?controller=clientesController&action=editar&id=<?= (int) $cliente['cliente_id'] ?>"
+                    <a href="<?= url('clientes/editar/' . $cliente['cliente_id']) ?>"
                        class="btn-icon" aria-label="Editar a <?= htmlspecialchars($cliente['cliente_nombre'] . ' ' . $cliente['cliente_apellido'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
@@ -109,4 +109,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

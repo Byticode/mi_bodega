@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Inventario';
 $page_desc  = 'Catálogo de productos, precios y stock disponible.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $bajo_stock = array_filter($productos, fn($p) => $p['producto_stock'] > 0 && $p['producto_stock'] <= 10);
 $agotados   = array_filter($productos, fn($p) => $p['producto_stock'] <= 0);
@@ -18,13 +18,13 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         <h1 class="page-title">Inventario</h1>
         <p class="page-sub">Catálogo de productos, precios y stock disponible.</p>
       </div>
-      <a href="index.php?controller=productosController&action=crear" class="btn btn-primary">
+      <a href="<?= url('productos/crear') ?>" class="btn btn-primary">
         <i class="ti ti-plus text-base" aria-hidden="true"></i>
         Nuevo producto
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Resumen -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -83,7 +83,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <i class="ti ti-package empty-icon" aria-hidden="true"></i>
                     <p class="empty-title">No hay productos registrados</p>
                     <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
-                    <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Nuevo producto</a>
+                    <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Nuevo producto</a>
                   </div>
                 </td>
               </tr>
@@ -119,7 +119,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <?php endif; ?>
                   </td>
                   <td class="col-actions">
-                    <a href="index.php?controller=productosController&action=editar&id=<?= (int) $producto['producto_id'] ?>"
+                    <a href="<?= url('productos/editar/' . $producto['producto_id']) ?>"
                        class="btn-icon" aria-label="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
@@ -168,11 +168,11 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         if (coincide) visibles++;
       });
 
-      vacio.hidden = visibles > 0;
-      conteo.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
+      if (vacio) vacio.hidden = visibles > 0;
+      if (conteo) conteo.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
     });
   })();
 </script>
 <?php endif; ?>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

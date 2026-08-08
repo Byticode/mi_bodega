@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Surtido';
 $page_desc  = 'Historial de compras y entradas de mercancía.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $inversion = array_sum(array_column($surtidos, 'surtido_costo_total'));
 $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
@@ -17,13 +17,13 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
         <h1 class="page-title">Surtido</h1>
         <p class="page-sub">Entradas de mercancía al inventario y su costo.</p>
       </div>
-      <a href="index.php?controller=surtidosController&action=crear" class="btn btn-primary">
+      <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary">
         <i class="ti ti-plus text-base" aria-hidden="true"></i>
         Nuevo surtido
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Resumen -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -71,7 +71,7 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
                     <i class="ti ti-truck-delivery empty-icon" aria-hidden="true"></i>
                     <p class="empty-title">Todavía no hay surtidos</p>
                     <p class="empty-sub">Registra una entrada de mercancía para aumentar el stock y llevar el costo.</p>
-                    <a href="index.php?controller=surtidosController&action=crear" class="btn btn-primary mt-3">Nuevo surtido</a>
+                    <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary mt-3">Nuevo surtido</a>
                   </div>
                 </td>
               </tr>
@@ -89,7 +89,7 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
                   </td>
                   <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($surtido['surtido_fecha'])) ?></td>
                   <td class="col-actions">
-                    <a href="index.php?controller=surtidosController&action=ver&id=<?= (int) $surtido['surtido_id'] ?>"
+                    <a href="<?= url('surtidos/ver/' . $surtido['surtido_id']) ?>"
                        class="btn-icon" aria-label="Ver detalle del surtido #<?= (int) $surtido['surtido_id'] ?>">
                       <i class="ti ti-eye text-base" aria-hidden="true"></i>
                     </a>
@@ -111,4 +111,4 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

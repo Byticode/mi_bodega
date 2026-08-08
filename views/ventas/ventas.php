@@ -1,13 +1,13 @@
 <?php
 $page_title = 'Ventas';
 $page_desc  = 'Historial de ventas de mostrador.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
-$hoy         = date('Y-m-d');
-$total_hoy   = 0;
-$ventas_hoy  = 0;
-$pendientes  = 0;
+$hoy        = date('Y-m-d');
+$total_hoy  = 0;
+$ventas_hoy = 0;
+$pendientes = 0;
 
 foreach ($ventas as $v) {
     if (date('Y-m-d', strtotime($v['venta_fecha'])) === $hoy && $v['venta_estado'] !== 'cancelada') {
@@ -29,13 +29,13 @@ foreach ($ventas as $v) {
         <h1 class="page-title">Ventas</h1>
         <p class="page-sub">Movimientos de mostrador, del más reciente al más antiguo.</p>
       </div>
-      <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary">
+      <a href="<?= url('pos') ?>" class="btn btn-primary">
         <i class="ti ti-plus text-base" aria-hidden="true"></i>
         Nueva venta
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Resumen del día -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -92,7 +92,7 @@ foreach ($ventas as $v) {
                     <i class="ti ti-shopping-cart empty-icon" aria-hidden="true"></i>
                     <p class="empty-title">Todavía no hay ventas</p>
                     <p class="empty-sub">Registra la primera desde el punto de venta.</p>
-                    <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary mt-3">Abrir punto de venta</a>
+                    <a href="<?= url('pos') ?>" class="btn btn-primary mt-3">Abrir punto de venta</a>
                   </div>
                 </td>
               </tr>
@@ -125,12 +125,12 @@ foreach ($ventas as $v) {
                     <?php endif; ?>
                   </td>
                   <td class="col-actions">
-                    <a href="index.php?controller=ventasController&action=ver&id=<?= (int) $venta['venta_id'] ?>"
+                    <a href="<?= url('ventas/ver/' . $venta['venta_id']) ?>"
                        class="btn-icon" aria-label="Ver detalle de la venta #<?= (int) $venta['venta_id'] ?>">
                       <i class="ti ti-eye text-base" aria-hidden="true"></i>
                     </a>
                     <?php if ($venta['venta_estado'] === 'pendiente'): ?>
-                      <a href="index.php?controller=ventasController&action=editar&id=<?= (int) $venta['venta_id'] ?>"
+                      <a href="<?= url('ventas/editar/' . $venta['venta_id']) ?>"
                          class="btn-icon" aria-label="Cobrar la venta #<?= (int) $venta['venta_id'] ?>">
                         <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                       </a>
@@ -181,11 +181,11 @@ foreach ($ventas as $v) {
         if (coincide) visibles++;
       });
 
-      vacio.hidden = visibles > 0;
-      conteo.textContent = visibles === 1 ? '1 venta' : visibles + ' ventas';
+      if (vacio) vacio.hidden = visibles > 0;
+      if (conteo) conteo.textContent = visibles === 1 ? '1 venta' : visibles + ' ventas';
     });
   })();
 </script>
 <?php endif; ?>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

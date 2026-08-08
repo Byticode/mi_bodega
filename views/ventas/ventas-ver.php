@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Venta #' . $venta['venta_id'];
 $page_desc  = 'Detalle completo de la venta.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $cliente = $venta['cliente_nombre']
     ? trim($venta['cliente_nombre'] . ' ' . ($venta['cliente_apellido'] ?? ''))
@@ -16,7 +16,7 @@ $cliente = $venta['cliente_nombre']
     <div class="page-head">
       <div>
         <nav class="breadcrumb" aria-label="Ruta de navegación">
-          <a href="index.php?controller=ventasController&action=listar">Ventas</a>
+          <a href="<?= url('ventas') ?>">Ventas</a>
           <span aria-hidden="true">/</span>
           <span>#<?= (int) $venta['venta_id'] ?></span>
         </nav>
@@ -24,14 +24,14 @@ $cliente = $venta['cliente_nombre']
         <p class="page-sub"><?= date('d/m/Y \a \l\a\s H:i', strtotime($venta['venta_fecha'])) ?></p>
       </div>
       <div class="flex flex-wrap items-center gap-2">
-        <a href="index.php?controller=ventasController&action=listar" class="btn btn-secondary">Volver</a>
+        <a href="<?= url('ventas') ?>" class="btn btn-secondary">Volver</a>
         <?php if ($venta['venta_estado'] === 'pendiente'): ?>
-          <a href="index.php?controller=ventasController&action=editar&id=<?= (int) $venta['venta_id'] ?>" class="btn btn-primary">Cobrar venta</a>
+          <a href="<?= url('ventas/editar/' . $venta['venta_id']) ?>" class="btn btn-primary">Cobrar venta</a>
         <?php endif; ?>
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Datos de la venta -->
     <div class="card p-5">
@@ -122,4 +122,4 @@ $cliente = $venta['cliente_nombre']
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

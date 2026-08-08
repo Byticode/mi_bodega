@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Credenciales de acceso';
 $page_desc  = 'Administra la clave principal de ingreso al sistema.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -16,7 +16,7 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
 
@@ -75,4 +75,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

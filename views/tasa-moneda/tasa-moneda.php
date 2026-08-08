@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Tasa de cambio';
 $page_desc  = 'Tasas de cambio actualizadas automáticamente desde la API del BCV.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $vigente_ts = !empty($tasa['vigente_desde']) ? strtotime($tasa['vigente_desde']) : null;
 $vieja      = $vigente_ts && (time() - $vigente_ts) > TASA_ANTIGUA;
@@ -25,13 +25,13 @@ $origenes = [
         <h1 class="page-title">Tasa de cambio</h1>
         <p class="page-sub">Se consulta sola desde la API del BCV. La app convierte a dólares con la tasa oficial.</p>
       </div>
-      <a href="index.php?controller=tasaMonedaController&action=actualizar" class="btn btn-primary">
+      <a href="<?= url('tasa-moneda/actualizar') ?>" class="btn btn-primary">
         <i class="ti ti-refresh text-base" aria-hidden="true"></i>
         Actualizar ahora
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <?php if ($tasa['origen'] === 'bd'): ?>
       <div class="alert alert-warn" role="status">
@@ -123,7 +123,7 @@ $origenes = [
         Úsalo solo si la API está caída. La próxima consulta automática correcta la reemplazará.
       </p>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="index.php?controller=tasaMonedaController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="<?= url('tasa-moneda/crear') ?>" method="POST">
         <div class="field">
           <label for="moneda" class="label">Moneda base</label>
           <input type="text" id="moneda" name="moneda" class="input" value="Bs" required autocomplete="off">
@@ -203,20 +203,9 @@ $origenes = [
 
 <?php if (!empty($tasa['tasa_usd'])): ?>
 <script>
-  (function () {
-    var TASA = <?= json_encode((float) $tasa['tasa_usd']) ?>;
-    var bs = document.getElementById('conv_bs');
-    var usd = document.getElementById('conv_usd');
-
-    bs.addEventListener('input', function () {
-      usd.value = bs.value === '' ? '' : (parseFloat(bs.value) / TASA).toFixed(2);
-    });
-
-    usd.addEventListener('input', function () {
-      bs.value = usd.value === '' ? '' : (parseFloat(usd.value) * TASA).toFixed(2);
-    });
-  })();
+  window.TASA_USD = <?= json_encode((float) $tasa['tasa_usd']) ?>;
 </script>
+<script src="<?= assets('scripts/tasa-conversor.js') ?>"></script>
 <?php endif; ?>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

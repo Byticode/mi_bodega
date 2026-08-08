@@ -1011,6 +1011,25 @@
     color: var(--color-ink-3);
   }
 
+  /* Cerrar sesión: acción destructiva, pero sin gritar desde el rail */
+  .logout-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-md);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    color: var(--color-danger);
+    transition: background-color var(--dur-short) var(--ease-out);
+  }
+  .logout-link:hover {
+    background-color: var(--color-danger-bg);
+  }
+  .logout-link .ti {
+    font-size: 1rem;
+  }
+
   /* Tasa vigente en el pie del rail: visible sin robar atención */
   .rate-chip {
     display: inline-flex;

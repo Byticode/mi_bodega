@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Editar cliente';
 $page_desc  = 'Actualiza los datos de un cliente.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $cliente = $dato[0];
 ?>
@@ -14,7 +14,7 @@ $cliente = $dato[0];
     <div class="page-head">
       <div>
         <nav class="breadcrumb" aria-label="Ruta de navegación">
-          <a href="index.php?controller=clientesController&action=listar">Clientes</a>
+          <a href="<?= url('clientes') ?>">Clientes</a>
           <span aria-hidden="true">/</span>
           <span><?= htmlspecialchars($cliente['cliente_nombre'] . ' ' . $cliente['cliente_apellido']) ?></span>
         </nav>
@@ -22,9 +22,9 @@ $cliente = $dato[0];
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
-    <form action="index.php?controller=clientesController&action=editar&id=<?= (int) $cliente['cliente_id'] ?>" method="POST" class="card p-5 flex flex-col gap-4">
+    <form action="<?= url('clientes/editar/' . $cliente['cliente_id']) ?>" method="POST" class="card p-5 flex flex-col gap-4">
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="field">
@@ -61,7 +61,7 @@ $cliente = $dato[0];
       </div>
 
       <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
-        <a href="index.php?controller=clientesController&action=listar" class="btn btn-secondary">Cancelar</a>
+        <a href="<?= url('clientes') ?>" class="btn btn-secondary">Cancelar</a>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </form>
@@ -69,4 +69,4 @@ $cliente = $dato[0];
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

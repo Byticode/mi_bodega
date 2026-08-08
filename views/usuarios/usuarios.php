@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Usuarios';
 $page_desc  = 'Administra los usuarios del sistema.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -16,13 +16,13 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Registro -->
     <div class="card p-5 flex flex-col gap-4">
       <h2 class="section-title">Nuevo usuario</h2>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 gap-3" action="index.php?controller=usuariosController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 gap-3" action="<?= url('usuarios/crear') ?>" method="POST">
         <div class="field">
           <label for="nombre" class="label">Nombre completo <span class="req" aria-hidden="true">*</span></label>
           <input type="text" id="nombre" name="nombre" class="input" required autocomplete="name">
@@ -95,7 +95,7 @@ include ruta . '/includes/sidebar.php';
                   </td>
                   <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y', strtotime($usuario['created_at'])) ?></td>
                   <td class="col-actions">
-                    <a href="index.php?controller=usuariosController&action=editar&id=<?= (int) $usuario['usuario_id'] ?>"
+                    <a href="<?= url('usuarios/editar/' . $usuario['usuario_id']) ?>"
                        class="btn-icon" aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
@@ -111,4 +111,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>
