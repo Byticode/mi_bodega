@@ -1,124 +1,92 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Detalle Surtido</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php
+$page_title = 'Surtido #' . $surtido['surtido_id'];
+$page_desc  = 'Detalle completo del surtido.';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
+?>
 
-  <!-- SIDEBAR -->
-  <?php
-  include ruta . '/includes/sidebar.php';
-  ?>
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--mid">
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
-    <div class="flex items-center space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </a>
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Detalle del Surtido #<?= $surtido['surtido_id'] ?></h2>
-        <p class="text-sm text-gray-500">Información completa del surtido</p>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="index.php?controller=surtidosController&action=listar">Surtido</a>
+          <span aria-hidden="true">/</span>
+          <span>#<?= (int) $surtido['surtido_id'] ?></span>
+        </nav>
+        <h1 class="page-title">Surtido #<?= (int) $surtido['surtido_id'] ?></h1>
+        <p class="page-sub"><?= date('d/m/Y \a \l\a\s H:i', strtotime($surtido['surtido_fecha'])) ?></p>
       </div>
+      <a href="index.php?controller=surtidosController&action=listar" class="btn btn-secondary">Volver</a>
     </div>
+
+    <?php include ruta . '/includes/flash.php'; ?>
 
     <!-- Datos del surtido -->
-    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <p class="text-sm text-gray-500">Proveedor</p>
-          <p class="font-semibold text-gray-900"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></p>
+    <div class="card p-5">
+      <dl class="grid grid-cols-2 md:grid-cols-3 gap-5">
+        <div class="dl-item">
+          <dt class="dl-label">Proveedor</dt>
+          <dd class="dl-value"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></dd>
         </div>
-        <div>
-          <p class="text-sm text-gray-500">Fecha</p>
-          <p class="font-semibold text-gray-900"><?= date('d/m/Y H:i:s', strtotime($surtido['surtido_fecha'])) ?></p>
+        <div class="dl-item">
+          <dt class="dl-label">Líneas</dt>
+          <dd class="dl-value tnum"><?= count($detalles) ?></dd>
         </div>
-        <div>
-          <p class="text-sm text-gray-500">Costo Total</p>
-          <p class="font-bold text-xl text-olive">Bs. <?= number_format($surtido['surtido_costo_total'], 2) ?></p>
+        <div class="dl-item">
+          <dt class="dl-label">Costo total</dt>
+          <dd class="dl-value money text-olive text-base"><?= money($surtido['surtido_costo_total']) ?></dd>
         </div>
-      </div>
+      </dl>
     </div>
 
-    <!-- Detalles de productos -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div class="px-6 py-3 border-b border-gray-200">
-        <h4 class="font-semibold text-gray-900 text-sm">Productos del Surtido</h4>
+    <!-- Productos -->
+    <div class="card overflow-hidden">
+      <div class="card-head">
+        <h2 class="section-title">Productos del surtido</h2>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs font-semibold uppercase">
+
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Productos del surtido con cantidad, costo unitario y subtotal</caption>
+          <thead>
             <tr>
-              <th class="p-3">#</th>
-              <th class="p-3">Producto</th>
-              <th class="p-3 text-right">Cantidad</th>
-              <th class="p-3 text-right">Precio Costo C/U</th>
-              <th class="p-3 text-right">Subtotal</th>
+              <th scope="col" class="w-10">#</th>
+              <th scope="col">Producto</th>
+              <th scope="col" class="num">Cantidad</th>
+              <th scope="col" class="num">Costo unit.</th>
+              <th scope="col" class="num">Subtotal</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody>
             <?php foreach ($detalles as $index => $detalle): ?>
-              <tr class="hover:bg-gray-50">
-                <td class="p-3 text-gray-400"><?= $index + 1 ?></td>
-                <td class="p-3 font-medium text-gray-900">
-                  <?= htmlspecialchars($detalle['producto_nombre']) ?>
-                  <span class="text-gray-400 text-sm block">Código: <?= htmlspecialchars($detalle['producto_codigo'] ?? 'N/A') ?></span>
+              <tr>
+                <td class="text-ink-3 tnum"><?= $index + 1 ?></td>
+                <td>
+                  <span class="font-medium block"><?= htmlspecialchars($detalle['producto_nombre']) ?></span>
+                  <span class="text-xs text-ink-3 font-mono">
+                    <?= $detalle['producto_codigo'] ? htmlspecialchars($detalle['producto_codigo']) : 'Sin código' ?>
+                  </span>
                 </td>
-                <td class="p-3 text-right">
-                  <?= intval($detalle['detalle_cantidad']) ?> 
-                  unidades
-                </td>
-                <td class="p-3 text-right">Bs. <?= number_format($detalle['detalle_precio_costo'], 2) ?></td>
-                <td class="p-3 text-right font-semibold">Bs. <?= number_format($detalle['detalle_subtotal'], 2) ?></td>
+                <td class="num"><?= qty($detalle['detalle_cantidad']) ?></td>
+                <td class="num money text-ink-2"><?= money($detalle['detalle_precio_costo']) ?></td>
+                <td class="num money"><?= money($detalle['detalle_subtotal']) ?></td>
               </tr>
             <?php endforeach; ?>
           </tbody>
-          <tfoot class="bg-gray-50 border-t border-gray-200">
+          <tfoot>
             <tr>
-              <td colspan="4" class="p-3 text-right font-bold text-gray-900">TOTAL</td>
-              <td class="p-3 text-right font-bold text-olive text-base">Bs. <?= number_format($surtido['surtido_costo_total'], 2) ?></td>
+              <td colspan="4" class="num">Total</td>
+              <td class="num money text-olive"><?= money($surtido['surtido_costo_total']) ?></td>
             </tr>
           </tfoot>
         </table>
       </div>
     </div>
 
-    <!-- Botones de acción -->
-    <div class="flex justify-end space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
-        Volver al Listado
-      </a>
-    </div>
-  </main>
+  </div>
+</main>
 
-  <?php
-  include ruta . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+<?php include ruta . '/includes/footer.php'; ?>

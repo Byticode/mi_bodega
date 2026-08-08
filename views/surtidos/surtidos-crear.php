@@ -1,274 +1,231 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Crear Surtido</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php
+$page_title = 'Nuevo surtido';
+$page_desc  = 'Registra una entrada de mercancía al inventario.';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
 
-  <!-- SIDEBAR -->
-  <?php
-  include ruta . '/includes/sidebar.php';
-  ?>
+// Opciones de producto: se generan una vez y se reutilizan en cada fila nueva.
+ob_start();
+foreach ($productos as $producto) {
+    printf(
+        '<option value="%d" data-precio="%s">%s (stock: %d %s)</option>',
+        (int) $producto['producto_id'],
+        htmlspecialchars((string) $producto['producto_precio_venta'], ENT_QUOTES),
+        htmlspecialchars($producto['producto_nombre']),
+        (int) $producto['producto_stock'],
+        htmlspecialchars($producto['unidad_abreviatura'] ?? 'u')
+    );
+}
+$opciones_productos = ob_get_clean();
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
-    <div class="flex items-center space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </a>
+/**
+ * Una fila de producto. La primera se emite desde el servidor para que el
+ * formulario siga siendo usable sin JavaScript; las demás las clona el script.
+ */
+function fila_surtido(int $n, string $opciones): string
+{
+    ob_start(); ?>
+    <div class="fila grid grid-cols-1 sm:grid-cols-[2fr_1fr_1fr_auto] gap-3 items-start pb-4 border-b border-rule last:border-b-0 last:pb-0">
+      <div class="field">
+        <label class="label" for="surtido-producto-<?= $n ?>">Producto <span class="req" aria-hidden="true">*</span></label>
+        <select id="surtido-producto-<?= $n ?>" name="producto_id[]" class="select fila-producto" required>
+          <option value="">Seleccionar producto…</option>
+          <?= $opciones ?>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label" for="surtido-cantidad-<?= $n ?>">Cantidad <span class="req" aria-hidden="true">*</span></label>
+        <input type="number" step="1" min="1" id="surtido-cantidad-<?= $n ?>" name="cantidad[]" class="input input--num fila-cantidad" placeholder="0" required>
+      </div>
+      <div class="field">
+        <label class="label" for="surtido-precio-<?= $n ?>">Costo unitario <span class="req" aria-hidden="true">*</span></label>
+        <input type="number" step="0.01" min="0.01" id="surtido-precio-<?= $n ?>" name="precio_costo[]" class="input input--num fila-precio" placeholder="0,00" required>
+      </div>
+      <div class="field">
+        <span class="label" aria-hidden="true">&nbsp;</span>
+        <button type="button" class="btn-icon btn-icon--danger fila-quitar" aria-label="Quitar el producto <?= $n ?> del surtido">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+        </button>
+      </div>
+    </div>
+    <?php return ob_get_clean();
+}
+?>
+
+<main id="contenido" class="app-main">
+  <div class="app-wrap">
+
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Nuevo Surtido</h2>
-        <p class="text-sm text-gray-500">Registra la entrada de productos al inventario</p>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="index.php?controller=surtidosController&action=listar">Surtido</a>
+          <span aria-hidden="true">/</span>
+          <span>Nuevo surtido</span>
+        </nav>
+        <h1 class="page-title">Nuevo surtido</h1>
+        <p class="page-sub">Las cantidades que registres se suman al stock de cada producto.</p>
       </div>
     </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="flex items-center gap-3 p-4 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
+    <?php include ruta . '/includes/flash.php'; ?>
+
+    <?php if (empty($productos)): ?>
+      <div class="card">
+        <div class="empty">
+          <p class="empty-title">No hay productos para surtir</p>
+          <p class="empty-sub">Crea al menos un producto en el inventario antes de registrar un surtido.</p>
+          <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Crear producto</a>
         </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
       </div>
-      <?php unset($_SESSION['error']); ?>
+    <?php else: ?>
+
+      <form id="surtidoForm" action="index.php?controller=surtidosController&action=crear" method="POST" class="flex flex-col gap-4">
+
+        <div class="card p-5">
+          <div class="field max-w-sm">
+            <label for="proveedor_id" class="label">Proveedor <span class="req" aria-hidden="true">*</span></label>
+            <select id="proveedor_id" name="proveedor_id" class="select" required>
+              <option value="">Seleccionar proveedor…</option>
+              <?php foreach ($proveedores as $proveedor): ?>
+                <option value="<?= (int) $proveedor['proveedor_id'] ?>"><?= htmlspecialchars($proveedor['proveedor_nombre']) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </div>
+        </div>
+
+        <div class="card overflow-hidden">
+          <div class="card-head">
+            <div>
+              <h2 class="section-title">Productos del surtido</h2>
+              <p class="section-sub">Cantidad en unidades enteras y costo de compra por unidad.</p>
+            </div>
+            <button type="button" id="agregarFila" class="btn btn-secondary btn-sm">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              Agregar producto
+            </button>
+          </div>
+
+          <div id="filas" class="p-5 flex flex-col gap-4"><?= fila_surtido(1, $opciones_productos) ?></div>
+
+          <div class="card-foot">
+            <span id="avisoFilas" role="status" aria-live="polite"></span>
+            <span class="flex items-baseline gap-2">
+              <span class="text-ink-2">Costo total</span>
+              <output id="totalCosto" class="money text-olive text-base"><?= money(0) ?></output>
+            </span>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-3">
+          <a href="index.php?controller=surtidosController&action=listar" class="btn btn-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">Registrar surtido</button>
+        </div>
+      </form>
+
+      <!-- Plantilla para las filas que agrega el script -->
+      <template id="plantillaFila"><?= fila_surtido(0, $opciones_productos) ?></template>
+
     <?php endif; ?>
 
-    <form id="surtidoForm" action="index.php?controller=surtidosController&action=crear" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
-      
-      <!-- Datos del surtido -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-semibold text-gray-700 mb-1">Proveedor *</label>
-          <select name="proveedor_id" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
-            <option value="">Seleccionar proveedor...</option>
-            <?php foreach ($proveedores as $proveedor): ?>
-              <option value="<?= $proveedor['proveedor_id'] ?>"><?= htmlspecialchars($proveedor['proveedor_nombre']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
-      </div>
+  </div>
+</main>
 
-      <!-- Productos -->
-      <div>
-        <div class="flex items-center justify-between mb-3">
-          <h3 class="text-sm font-semibold text-gray-900">Productos del Surtido</h3>
-          <button type="button" onclick="agregarProducto()" class="text-olive hover:text-olive-hover text-sm font-semibold flex items-center gap-1">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            Agregar Producto
-          </button>
-        </div>
+<?php if (!empty($productos)): ?>
+<script>
+  (function () {
+    'use strict';
 
-        <div id="productosContainer" class="space-y-3">
-          <!-- Fila de producto template -->
-          <div class="producto-row grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Producto</label>
-              <select name="producto_id[]" class="producto-select w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
-                <option value="">Seleccionar producto...</option>
-                <?php foreach ($productos as $producto): ?>
-                  <option value="<?= $producto['producto_id'] ?>" data-stock="<?= $producto['producto_stock'] ?>" data-precio="<?= $producto['producto_precio_venta'] ?>">
-                    <?= htmlspecialchars($producto['producto_nombre']) ?> (Stock: <?= intval($producto['producto_stock']) ?> <?= $producto['unidad_abreviatura'] ?>)
-                  </option>
-                <?php endforeach; ?>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Cantidad *</label>
-              <input type="number" step="1" min="1" name="cantidad[]" placeholder="0" class="producto-cantidad w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-              <p class="text-sm text-gray-400 mt-1">Solo números enteros</p>
-            </div>
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1">Precio Costo C/U *</label>
-              <input type="number" step="0.01" min="0.01" name="precio_costo[]" placeholder="0.00" class="producto-precio w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-            </div>
-            <div class="flex items-end gap-2">
-              <button type="button" onclick="eliminarProducto(this)" class="text-rose-600 hover:text-rose-800 p-2 rounded-lg hover:bg-rose-50 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+    var contenedor = document.getElementById('filas');
+    var plantilla = document.getElementById('plantillaFila');
+    var agregarBtn = document.getElementById('agregarFila');
+    var totalOut = document.getElementById('totalCosto');
+    var aviso = document.getElementById('avisoFilas');
+    var form = document.getElementById('surtidoForm');
+    var contador = 1; // la fila 1 ya viene renderizada desde el servidor
 
-      <!-- Resumen -->
-      <div class="border-t border-gray-200 pt-4">
-        <div class="flex justify-end">
-          <div class="text-right">
-            <p class="text-sm text-gray-500">Costo Total del Surtido</p>
-            <p id="totalCosto" class="text-2xl font-bold text-olive">Bs. 0.00</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Botones -->
-      <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          Registrar Surtido
-        </button>
-      </div>
-    </form>
-  </main>
-
-  <script>
-    // Contador para IDs únicos
-    let rowCount = 0;
-
-    // Agregar producto
-    function agregarProducto() {
-      const container = document.getElementById('productosContainer');
-      const firstRow = container.querySelector('.producto-row');
-      const newRow = firstRow.cloneNode(true);
-      
-      // Limpiar valores
-      newRow.querySelector('.producto-select').value = '';
-      newRow.querySelector('.producto-cantidad').value = '';
-      newRow.querySelector('.producto-precio').value = '';
-      
-      // Agregar listeners
-      const select = newRow.querySelector('.producto-select');
-      const cantidad = newRow.querySelector('.producto-cantidad');
-      const precio = newRow.querySelector('.producto-precio');
-      
-      select.addEventListener('change', function() {
-        const option = this.options[this.selectedIndex];
-        if (option && option.dataset.precio) {
-          precio.placeholder = 'Precio: ' + option.dataset.precio;
-        }
-        calcularTotal();
-      });
-      
-      cantidad.addEventListener('input', calcularTotal);
-      precio.addEventListener('input', calcularTotal);
-      
-      // Mostrar el botón de eliminar si hay más de una fila
-      const rows = container.querySelectorAll('.producto-row');
-      if (rows.length >= 1) {
-        const deleteBtns = container.querySelectorAll('.producto-row:last-child .text-rose-600');
-        deleteBtns.forEach(btn => btn.style.display = 'block');
-      }
-      
-      container.appendChild(newRow);
-      rowCount++;
-      calcularTotal();
+    function bs(n) {
+      return 'Bs ' + n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    // Eliminar producto
-    function eliminarProducto(btn) {
-      const container = document.getElementById('productosContainer');
-      const rows = container.querySelectorAll('.producto-row');
-      
-      if (rows.length <= 1) {
-        alert('Debe haber al menos un producto');
-        return;
-      }
-      
-      const row = btn.closest('.producto-row');
-      row.remove();
-      calcularTotal();
-    }
-
-    // Calcular total
-    function calcularTotal() {
-      const rows = document.querySelectorAll('.producto-row');
-      let total = 0;
-      
-      rows.forEach(row => {
-        const cantidad = parseInt(row.querySelector('.producto-cantidad').value) || 0;
-        const precio = parseFloat(row.querySelector('.producto-precio').value) || 0;
+    function calcular() {
+      var total = 0;
+      Array.prototype.forEach.call(contenedor.querySelectorAll('.fila'), function (fila) {
+        var cantidad = parseInt(fila.querySelector('.fila-cantidad').value, 10) || 0;
+        var precio = parseFloat(fila.querySelector('.fila-precio').value) || 0;
         total += cantidad * precio;
       });
-      
-      document.getElementById('totalCosto').textContent = 'Bs. ' + total.toFixed(2);
+      totalOut.textContent = bs(total);
     }
 
-    // Event listeners para calcular total
-    document.addEventListener('DOMContentLoaded', function() {
-      // Agregar listeners a la primera fila
-      const firstRow = document.querySelector('.producto-row');
-      if (firstRow) {
-        const select = firstRow.querySelector('.producto-select');
-        const cantidad = firstRow.querySelector('.producto-cantidad');
-        const precio = firstRow.querySelector('.producto-precio');
-        
-        select.addEventListener('change', function() {
-          const option = this.options[this.selectedIndex];
-          if (option && option.dataset.precio) {
-            precio.placeholder = 'Precio: ' + option.dataset.precio;
-          }
-          calcularTotal();
-        });
-        
-        cantidad.addEventListener('input', calcularTotal);
-        precio.addEventListener('input', calcularTotal);
-      }
-      
-      // Ocultar botón de eliminar en la primera fila si solo hay una
-      const firstDeleteBtn = document.querySelector('.producto-row .text-rose-600');
-      if (firstDeleteBtn) {
-        firstDeleteBtn.style.display = 'none';
-      }
-    });
-
-    // Validar antes de enviar
-    document.getElementById('surtidoForm').addEventListener('submit', function(e) {
-      const rows = document.querySelectorAll('.producto-row');
-      let valid = true;
-      
-      rows.forEach(row => {
-        const producto = row.querySelector('.producto-select').value;
-        const cantidad = row.querySelector('.producto-cantidad').value;
-        const precio = row.querySelector('.producto-precio').value;
-        
-        if (!producto || !cantidad || !precio) {
-          valid = false;
-        }
+    // El botón de quitar solo tiene sentido con más de una fila.
+    function sincronizarQuitar() {
+      var filas = contenedor.querySelectorAll('.fila');
+      Array.prototype.forEach.call(filas, function (fila) {
+        fila.querySelector('.fila-quitar').disabled = filas.length <= 1;
       });
-      
-      if (!valid) {
-        e.preventDefault();
-        alert('Complete todos los campos de los productos');
-      }
-    });
-  </script>
+      aviso.textContent = filas.length === 1 ? '1 producto en el surtido' : filas.length + ' productos en el surtido';
+    }
 
-  <?php
-  include ruta . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+    // Conecta los listeners de una fila (venga del servidor o del clon).
+    function activarFila(fila) {
+      var select = fila.querySelector('.fila-producto');
+      var cantidad = fila.querySelector('.fila-cantidad');
+      var precio = fila.querySelector('.fila-precio');
+      var quitar = fila.querySelector('.fila-quitar');
+
+      select.addEventListener('change', function () {
+        var opcion = select.options[select.selectedIndex];
+        precio.placeholder = opcion && opcion.dataset.precio
+          ? 'Venta: ' + opcion.dataset.precio
+          : '0,00';
+        calcular();
+      });
+
+      cantidad.addEventListener('input', calcular);
+      precio.addEventListener('input', calcular);
+
+      quitar.addEventListener('click', function () {
+        if (contenedor.querySelectorAll('.fila').length <= 1) return;
+        fila.remove();
+        sincronizarQuitar();
+        calcular();
+      });
+
+      return select;
+    }
+
+    function agregarFila() {
+      var fila = plantilla.content.firstElementChild.cloneNode(true);
+      contador++;
+
+      // Los ids de la plantilla terminan en 0: hay que renumerarlos o el
+      // label apuntaría al control de otra fila.
+      ['producto', 'cantidad', 'precio'].forEach(function (campo) {
+        var control = fila.querySelector('#surtido-' + campo + '-0');
+        var label = fila.querySelector('label[for="surtido-' + campo + '-0"]');
+        var id = 'surtido-' + campo + '-' + contador;
+        control.id = id;
+        if (label) label.setAttribute('for', id);
+      });
+
+      fila.querySelector('.fila-quitar')
+        .setAttribute('aria-label', 'Quitar el producto ' + contador + ' del surtido');
+
+      contenedor.appendChild(fila);
+      activarFila(fila).focus();
+      sincronizarQuitar();
+      calcular();
+    }
+
+    agregarBtn.addEventListener('click', agregarFila);
+    form.addEventListener('submit', calcular);
+
+    Array.prototype.forEach.call(contenedor.querySelectorAll('.fila'), activarFila);
+    sincronizarQuitar();
+    calcular();
+  })();
+</script>
+<?php endif; ?>
+
+<?php include ruta . '/includes/footer.php'; ?>

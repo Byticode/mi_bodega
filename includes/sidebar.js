@@ -1,29 +1,111 @@
 <script>
-    // Submenú de configuración
-    const configBtn = document.getElementById('configBtn');
-    const configMenu = document.getElementById('configMenu');
-    const configArrow = document.getElementById('configArrow');
+  (function () {
+    'use strict';
 
-    configBtn.addEventListener('click', () => {
-      const open = configMenu.classList.toggle('hidden');
-      configArrow.classList.toggle('rotate-180');
-      configBtn.setAttribute('aria-expanded', String(!open));
-    });
+    var MOBILE = window.matchMedia('(max-width: 767px)');
 
-    // Sidebar off-canvas en móvil
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    const openBtn = document.getElementById('sidebarOpenBtn');
+    /* ── Submenú de configuración ─────────────────────────────────────── */
+    var configBtn = document.getElementById('configBtn');
+    var configMenu = document.getElementById('configMenu');
 
-    function setSidebar(open) {
-      sidebar.classList.toggle('-translate-x-full', !open);
-      overlay.classList.toggle('hidden', !open);
-      openBtn.classList.toggle('hidden', open);
+    if (configBtn && configMenu) {
+      configBtn.addEventListener('click', function () {
+        var willOpen = configBtn.getAttribute('aria-expanded') !== 'true';
+        configBtn.setAttribute('aria-expanded', String(willOpen));
+        configMenu.hidden = !willOpen;
+      });
     }
 
-    openBtn.addEventListener('click', () => setSidebar(true));
-    overlay.addEventListener('click', () => setSidebar(false));
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') setSidebar(false);
+    /* ── Rail off-canvas en móvil ─────────────────────────────────────── */
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    var openBtn = document.getElementById('sidebarOpenBtn');
+    var closeBtn = document.getElementById('sidebarCloseBtn');
+
+    if (!sidebar || !overlay || !openBtn) return;
+
+    var lastFocused = null;
+
+    function isOpen() {
+      return sidebar.dataset.open === 'true';
+    }
+
+    function focusables() {
+      return Array.prototype.filter.call(
+        sidebar.querySelectorAll('a[href], button:not([disabled])'),
+        function (el) { return el.offsetParent !== null; }
+      );
+    }
+
+    function setOpen(open) {
+      sidebar.dataset.open = String(open);
+      overlay.dataset.open = String(open);
+      openBtn.setAttribute('aria-expanded', String(open));
+      // Bloquea el scroll del fondo mientras el panel cubre la pantalla.
+      document.body.style.overflow = open ? 'hidden' : '';
+      syncInert();
+
+      if (open) {
+        lastFocused = document.activeElement;
+        var first = focusables()[0];
+        if (first) first.focus();
+      } else if (lastFocused && typeof lastFocused.focus === 'function') {
+        lastFocused.focus();
+        lastFocused = null;
+      }
+    }
+
+    // En móvil el rail cerrado queda fuera de pantalla: hay que sacarlo
+    // también del orden de tabulación, o el teclado navega a ciegas.
+    function syncInert() {
+      var hide = MOBILE.matches && !isOpen();
+      if (hide) {
+        sidebar.setAttribute('inert', '');
+      } else {
+        sidebar.removeAttribute('inert');
+      }
+    }
+
+    openBtn.addEventListener('click', function () { setOpen(true); });
+    overlay.addEventListener('click', function () { setOpen(false); });
+    if (closeBtn) closeBtn.addEventListener('click', function () { setOpen(false); });
+
+    // Navegar cierra el panel: en móvil la página nueva no debe heredarlo abierto.
+    sidebar.addEventListener('click', function (e) {
+      if (e.target.closest('a[href]') && MOBILE.matches) setOpen(false);
     });
+
+    document.addEventListener('keydown', function (e) {
+      if (!isOpen()) return;
+
+      if (e.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+
+      // Retén el foco dentro del panel mientras está abierto.
+      if (e.key === 'Tab') {
+        var items = focusables();
+        if (!items.length) return;
+        var first = items[0];
+        var last = items[items.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    // Al pasar a escritorio el rail vuelve a ser fijo y visible.
+    MOBILE.addEventListener('change', function (e) {
+      if (!e.matches && isOpen()) setOpen(false);
+      syncInert();
+    });
+
+    syncInert();
+  })();
 </script>

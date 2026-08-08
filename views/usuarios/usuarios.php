@@ -1,138 +1,114 @@
-<!DOCTYPE html>
-<html lang="es">
+<?php
+$page_title = 'Usuarios';
+$page_desc  = 'Administra los usuarios del sistema.';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
+?>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Usuarios</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: {
-              DEFAULT: '#3a6341',
-              hover: '#2f5135',
-              light: '#eaf0eb'
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--mid">
 
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
-
-  <!-- SIDEBAR -->
-  <?php
-  include ruta . '/includes/sidebar.php';
-  ?>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
-    <div class="flex items-center justify-between">
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Usuarios</h2>
-        <p class="text-sm text-gray-500">Administra los usuarios del sistema</p>
+        <h1 class="page-title">Usuarios</h1>
+        <p class="page-sub">Quién puede entrar al sistema y con qué permisos.</p>
       </div>
     </div>
 
-    <!-- REGISTRO -->
-    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <h3 class="font-semibold text-gray-900 text-sm">Nuevo Usuario</h3>
+    <?php include ruta . '/includes/flash.php'; ?>
 
-      <?php if (isset($_SESSION['error'])): ?>
-        <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-          <div class="flex-1">
-            <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-          </div>
-          <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
+    <!-- Registro -->
+    <div class="card p-5 flex flex-col gap-4">
+      <h2 class="section-title">Nuevo usuario</h2>
+
+      <form class="grid grid-cols-1 sm:grid-cols-2 gap-3" action="index.php?controller=usuariosController&action=crear" method="POST">
+        <div class="field">
+          <label for="nombre" class="label">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="nombre" name="nombre" class="input" required autocomplete="name">
         </div>
-        <?php unset($_SESSION['error']); ?>
-      <?php endif; ?>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" action="index.php?controller=usuariosController&action=crear" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre completo" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-        <input type="text" name="username" placeholder="Nombre de usuario" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-        <input type="password" name="clave" placeholder="Contraseña" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-        <select name="rol" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
-          <option value="vendedor">Vendedor</option>
-          <option value="admin">Administrador</option>
-        </select>
-        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors col-span-full sm:col-span-1">
-          Registrar Usuario
-        </button>
+        <div class="field">
+          <label for="username" class="label">Nombre de usuario <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="username" name="username" class="input" required autocomplete="username">
+        </div>
+
+        <div class="field">
+          <label for="clave" class="label">Contraseña <span class="req" aria-hidden="true">*</span></label>
+          <input type="password" id="clave" name="clave" class="input" required autocomplete="new-password" minlength="6"
+                 aria-describedby="clave-hint">
+          <p class="hint" id="clave-hint">Mínimo 6 caracteres.</p>
+        </div>
+
+        <div class="field">
+          <label for="rol" class="label">Rol <span class="req" aria-hidden="true">*</span></label>
+          <select id="rol" name="rol" class="select" required aria-describedby="rol-hint">
+            <option value="vendedor">Vendedor</option>
+            <option value="admin">Administrador</option>
+          </select>
+          <p class="hint" id="rol-hint">El administrador puede cambiar la configuración.</p>
+        </div>
+
+        <div class="sm:col-span-2 flex justify-end">
+          <button type="submit" class="btn btn-primary">Registrar usuario</button>
+        </div>
       </form>
     </div>
 
-    <?php if (isset($_SESSION['success'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+    <!-- Tabla -->
+    <div class="card overflow-hidden">
+      <div class="card-head">
+        <h2 class="section-title">Usuarios registrados</h2>
       </div>
-      <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
 
-    <!-- TABLA -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <table class="w-full text-left text-sm">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
-          <tr>
-            <th class="p-3">Nombre</th>
-            <th class="p-3">Usuario</th>
-            <th class="p-3">Rol</th>
-            <th class="p-3">Fecha Registro</th>
-            <th class="p-3 text-right">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <?php foreach ($usuarios as $usuario): ?>
-            <tr class="hover:bg-gray-50">
-              <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($usuario['usuario_nombre']) ?></td>
-              <td class="p-3 font-mono"><?= htmlspecialchars($usuario['usuario_username']) ?></td>
-              <td class="p-3">
-                <span class="px-2 py-1 rounded-full text-xs font-semibold <?= $usuario['usuario_rol'] == 'admin' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800' ?>">
-                  <?= $usuario['usuario_rol'] == 'admin' ? 'Administrador' : 'Vendedor' ?>
-                </span>
-              </td>
-              <td class="p-3 text-gray-500"><?= date('d/m/Y H:i', strtotime($usuario['created_at'])) ?></td>
-              <td class="p-3 text-right">
-                <a href="index.php?controller=usuariosController&action=editar&id=<?= $usuario['usuario_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                </a>
-              </td>
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Usuarios del sistema con su rol y fecha de registro</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Usuario</th>
+              <th scope="col">Rol</th>
+              <th scope="col">Registro</th>
+              <th scope="col" class="col-actions">Acción</th>
             </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <?php if (empty($usuarios)): ?>
+              <tr>
+                <td colspan="5">
+                  <div class="empty">
+                    <p class="empty-title">No hay usuarios registrados</p>
+                    <p class="empty-sub">Crea el primero con el formulario de arriba.</p>
+                  </div>
+                </td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($usuarios as $usuario): $es_admin = $usuario['usuario_rol'] === 'admin'; ?>
+                <tr>
+                  <td class="font-medium"><?= htmlspecialchars($usuario['usuario_nombre']) ?></td>
+                  <td class="font-mono text-xs text-ink-2"><?= htmlspecialchars($usuario['usuario_username']) ?></td>
+                  <td>
+                    <span class="badge <?= $es_admin ? 'badge-olive' : 'badge-neutral' ?>">
+                      <?= $es_admin ? 'Administrador' : 'Vendedor' ?>
+                    </span>
+                  </td>
+                  <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y', strtotime($usuario['created_at'])) ?></td>
+                  <td class="col-actions">
+                    <a href="index.php?controller=usuariosController&action=editar&id=<?= (int) $usuario['usuario_id'] ?>"
+                       class="btn-icon" aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </main>
 
-  <?php
-  include ruta . '/includes/sidebar.js';
-  ?>
-</body>
+  </div>
+</main>
 
-</html>
+<?php include ruta . '/includes/footer.php'; ?>

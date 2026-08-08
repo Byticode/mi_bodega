@@ -1,68 +1,72 @@
 <?php
 $page_title = 'Editar cliente';
+$page_desc  = 'Actualiza los datos de un cliente.';
 include ruta . '/includes/head.php';
 include ruta . '/includes/sidebar.php';
+
+$cliente = $dato[0];
 ?>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="app-main">
-    <div class="max-w-xl mx-auto space-y-6">
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--narrow">
 
-      <!-- Page header -->
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 class="page-title">Editar cliente</h2>
-          <p class="page-sub">
-            <a href="index.php?controller=clientesController&action=listar" class="text-olive hover:underline">Clientes</a>
-            <span class="text-ink-3"> / <?= htmlspecialchars($dato[0]['cliente_nombre'] . ' ' . $dato[0]['cliente_apellido']) ?></span>
-          </p>
+    <!-- Page header -->
+    <div class="page-head">
+      <div>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="index.php?controller=clientesController&action=listar">Clientes</a>
+          <span aria-hidden="true">/</span>
+          <span><?= htmlspecialchars($cliente['cliente_nombre'] . ' ' . $cliente['cliente_apellido']) ?></span>
+        </nav>
+        <h1 class="page-title">Editar cliente</h1>
+      </div>
+    </div>
+
+    <?php include ruta . '/includes/flash.php'; ?>
+
+    <form action="index.php?controller=clientesController&action=editar&id=<?= (int) $cliente['cliente_id'] ?>" method="POST" class="card p-5 flex flex-col gap-4">
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="field">
+          <label for="nombre" class="label">Nombre <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="nombre" name="nombre" class="input" required autocomplete="given-name"
+            value="<?= htmlspecialchars($cliente['cliente_nombre']) ?>">
+        </div>
+
+        <div class="field">
+          <label for="apellido" class="label">Apellido <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="apellido" name="apellido" class="input" required autocomplete="family-name"
+            value="<?= htmlspecialchars($cliente['cliente_apellido']) ?>">
         </div>
       </div>
 
-      <?php include ruta . '/includes/flash.php'; ?>
-
-      <!-- FORMULARIO -->
-      <div class="card p-5">
-        <form action="index.php?controller=clientesController&action=editar&id=<?= $dato[0]['cliente_id'] ?>" method="POST" class="space-y-4">
-
-          <div>
-            <label for="nombre" class="label">Nombre *</label>
-            <input type="text" id="nombre" name="nombre" class="input" required
-              value="<?= htmlspecialchars($dato[0]['cliente_nombre']) ?>">
-          </div>
-
-          <div>
-            <label for="apellido" class="label">Apellido *</label>
-            <input type="text" id="apellido" name="apellido" class="input" required
-              value="<?= htmlspecialchars($dato[0]['cliente_apellido']) ?>">
-          </div>
-
-          <div>
-            <label for="cedula" class="label">Cédula / Identificación *</label>
-            <input type="text" id="cedula" name="cedula" class="input" required
-              value="<?= htmlspecialchars($dato[0]['cliente_cedula']) ?>">
-          </div>
-
-          <div>
-            <label for="telefono" class="label">Teléfono (opcional)</label>
-            <input type="text" id="telefono" name="telefono" class="input"
-              value="<?= htmlspecialchars($dato[0]['cliente_telefono'] ?? '') ?>">
-          </div>
-
-          <div>
-            <label for="correo" class="label">Correo electrónico (opcional)</label>
-            <input type="email" id="correo" name="correo" class="input"
-              value="<?= htmlspecialchars($dato[0]['cliente_correo'] ?? '') ?>">
-          </div>
-
-          <div class="flex items-center gap-3 pt-2">
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="index.php?controller=clientesController&action=listar" class="btn btn-secondary">Cancelar</a>
-          </div>
-        </form>
+      <div class="field">
+        <label for="cedula" class="label">Cédula o identificación <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="cedula" name="cedula" class="input" required autocomplete="off" inputmode="numeric"
+          value="<?= htmlspecialchars($cliente['cliente_cedula']) ?>">
       </div>
 
-    </div>
-  </main>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="field">
+          <label for="telefono" class="label">Teléfono</label>
+          <input type="tel" id="telefono" name="telefono" class="input" autocomplete="tel"
+            value="<?= htmlspecialchars($cliente['cliente_telefono'] ?? '') ?>">
+        </div>
+
+        <div class="field">
+          <label for="correo" class="label">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" class="input" autocomplete="email"
+            value="<?= htmlspecialchars($cliente['cliente_correo'] ?? '') ?>">
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="index.php?controller=clientesController&action=listar" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+
+  </div>
+</main>
 
 <?php include ruta . '/includes/footer.php'; ?>

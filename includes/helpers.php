@@ -25,3 +25,20 @@ function flash($type) {
 function sanitize($value) {
     return htmlspecialchars($value, ENT_QUOTES, 'UTF-8');
 }
+
+/**
+ * Formatea un monto con la convención local (1.234,56).
+ * Úsalo en toda la UI para que las cifras no cambien de forma entre pantallas.
+ */
+function money($amount, $symbol = 'Bs') {
+    $formatted = number_format((float) $amount, 2, ',', '.');
+    return $symbol === '' ? $formatted : $symbol . ' ' . $formatted;
+}
+
+/** Cantidad sin decimales sobrantes: 2,5 kg pero 3 kg (no 3,00 kg). */
+function qty($amount) {
+    $n = (float) $amount;
+    return $n == (int) $n
+        ? number_format($n, 0, ',', '.')
+        : rtrim(rtrim(number_format($n, 2, ',', '.'), '0'), ',');
+}

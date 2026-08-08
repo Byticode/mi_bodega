@@ -1,163 +1,173 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Inventario</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
-  <!-- SIDEBAR -->
-<?php 
+<?php
+$page_title = 'Inventario';
+$page_desc  = 'Catálogo de productos, precios y stock disponible.';
+include ruta . '/includes/head.php';
 include ruta . '/includes/sidebar.php';
+
+$bajo_stock = array_filter($productos, fn($p) => $p['producto_stock'] > 0 && $p['producto_stock'] <= 10);
+$agotados   = array_filter($productos, fn($p) => $p['producto_stock'] <= 0);
+$valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_precio_venta'], $productos));
 ?>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-8 space-y-8 max-w-5xl mx-auto">
-    <div class="flex items-center justify-between">
+<main id="contenido" class="app-main">
+  <div class="app-wrap">
+
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Inventario</h2>
-        <p class="text-sm text-gray-500">Gestión de productos y stock</p>
+        <h1 class="page-title">Inventario</h1>
+        <p class="page-sub">Catálogo de productos, precios y stock disponible.</p>
       </div>
-      <a href="index.php?controller=productosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Nuevo Producto
+      <a href="index.php?controller=productosController&action=crear" class="btn btn-primary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        Nuevo producto
       </a>
     </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
+    <?php include ruta . '/includes/flash.php'; ?>
 
-    <?php if (isset($_SESSION['success'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+    <!-- Resumen -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="stat">
+        <span class="stat-label">Productos</span>
+        <span class="stat-value"><?= count($productos) ?></span>
       </div>
-      <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
+      <div class="stat">
+        <span class="stat-label">Stock bajo</span>
+        <span class="stat-value <?= count($bajo_stock) ? 'stat-value--warn' : '' ?>"><?= count($bajo_stock) ?></span>
+        <span class="stat-note">10 unidades o menos</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Agotados</span>
+        <span class="stat-value <?= count($agotados) ? 'stat-value--danger' : '' ?>"><?= count($agotados) ?></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Valor en stock</span>
+        <span class="stat-value stat-value--money stat-value--accent"><?= money($valor) ?></span>
+        <span class="stat-note">A precio de venta</span>
+      </div>
+    </div>
 
-    <!-- TABLA DE LISTADO -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs font-semibold uppercase">
+    <!-- Tabla -->
+    <div class="card overflow-hidden">
+      <div class="card-head">
+        <h2 class="section-title">Productos registrados</h2>
+        <?php if (!empty($productos)): ?>
+          <div class="search w-full sm:w-64">
+            <label for="filtroInventario" class="sr-only">Filtrar productos por nombre, código o categoría</label>
+            <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="search" id="filtroInventario" class="input" placeholder="Filtrar…" autocomplete="off">
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Listado de productos con código, presentación, categoría, precio y stock</caption>
+          <thead>
             <tr>
-              <th class="p-3">Código</th>
-              <th class="p-3">Nombre</th>
-              <th class="p-3">Peso/Unidad</th>
-              <th class="p-3">Categoría</th>
-              <th class="p-3 text-right">Precio Venta</th>
-              <th class="p-3 text-right">Stock</th>
-              <th class="p-3 text-right">Acción</th>
+              <th scope="col">Código</th>
+              <th scope="col">Producto</th>
+              <th scope="col">Presentación</th>
+              <th scope="col">Categoría</th>
+              <th scope="col" class="num">Precio</th>
+              <th scope="col" class="num">Stock</th>
+              <th scope="col" class="col-actions">Acción</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody id="cuerpoInventario">
             <?php if (empty($productos)): ?>
               <tr>
-                <td colspan="7" class="p-6 text-center text-gray-500">
-                  <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                  </svg>
-                  <p class="font-medium">No hay productos registrados</p>
-                  <p class="text-sm">Haz clic en "Nuevo Producto" para comenzar</p>
+                <td colspan="7">
+                  <div class="empty">
+                    <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                    <p class="empty-title">No hay productos registrados</p>
+                    <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
+                    <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Nuevo producto</a>
+                  </div>
                 </td>
               </tr>
             <?php else: ?>
-              <?php foreach ($productos as $producto): ?>
-                <tr class="hover:bg-gray-50">
-                  <td class="p-3 font-mono"><?= htmlspecialchars($producto['producto_codigo'] ?? '-') ?></td>
-                  <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($producto['producto_nombre']) ?></td>
-                  <td class="p-3">
-                    <?php if ($producto['producto_peso'] && $producto['unidad_abreviatura']): 
-                        $peso_num = floatval($producto['producto_peso']);
-                        $peso_formateado = ($peso_num == intval($peso_num)) ? intval($peso_num) : number_format($peso_num, 2);
-                    ?>
-                      <?= $peso_formateado ?> <?= htmlspecialchars($producto['unidad_abreviatura']) ?>
+              <?php foreach ($productos as $producto):
+                $stock = (int) $producto['producto_stock'];
+                $categoria = $producto['categorias_nombre'] ?? 'Sin categoría';
+              ?>
+                <tr data-buscar="<?= htmlspecialchars(mb_strtolower($producto['producto_nombre'] . ' ' . ($producto['producto_codigo'] ?? '') . ' ' . $categoria), ENT_QUOTES) ?>">
+                  <td class="font-mono text-xs text-ink-3"><?= htmlspecialchars($producto['producto_codigo'] ?? '—') ?></td>
+                  <td class="font-medium"><?= htmlspecialchars($producto['producto_nombre']) ?></td>
+                  <td class="text-ink-2">
+                    <?php if ($producto['producto_peso'] && $producto['unidad_abreviatura']): ?>
+                      <?= qty($producto['producto_peso']) ?> <?= htmlspecialchars($producto['unidad_abreviatura']) ?>
                     <?php else: ?>
-                      -
+                      —
                     <?php endif; ?>
                   </td>
-                  <td class="p-3"><?= htmlspecialchars($producto['categorias_nombre'] ?? 'Sin categoría') ?></td>
-                  <td class="p-3 text-right font-medium text-olive">Bs. <?= number_format($producto['producto_precio_venta'], 2) ?></td>
-                  <td class="p-3 text-right <?= $producto['producto_stock'] <= 0 ? 'text-rose-600 font-semibold' : ($producto['producto_stock'] <= 10 ? 'text-amber-600' : '') ?>">
-                    <?= intval($producto['producto_stock']) ?>
+                  <td class="text-ink-2"><?= htmlspecialchars($categoria) ?></td>
+                  <td class="num money text-olive"><?= money($producto['producto_precio_venta']) ?></td>
+                  <td class="num">
+                    <?php if ($stock <= 0): ?>
+                      <span class="badge badge-danger"><span class="badge-dot"></span>Agotado</span>
+                    <?php elseif ($stock <= 10): ?>
+                      <span class="badge badge-warn"><span class="badge-dot"></span><?= $stock ?></span>
+                    <?php else: ?>
+                      <?= $stock ?>
+                    <?php endif; ?>
                   </td>
-                  <td class="p-3 text-right">
-                    <a href="index.php?controller=productosController&action=editar&id=<?= $producto['producto_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Editar">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                      </svg>
+                  <td class="col-actions">
+                    <a href="index.php?controller=productosController&action=editar&id=<?= (int) $producto['producto_id'] ?>"
+                       class="btn-icon" aria-label="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                     </a>
                   </td>
                 </tr>
               <?php endforeach; ?>
+              <tr id="filaSinResultados" hidden>
+                <td colspan="7">
+                  <div class="empty">
+                    <p class="empty-title">Sin coincidencias</p>
+                    <p class="empty-sub">Ningún producto coincide con el filtro.</p>
+                  </div>
+                </td>
+              </tr>
             <?php endif; ?>
           </tbody>
         </table>
       </div>
-    </div>
-    
-    <!-- Resumen rápido -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-500">Total Productos</p>
-        <p class="text-2xl font-bold text-gray-900"><?= count($productos) ?></p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-500">Productos con Stock Bajo</p>
-        <p class="text-2xl font-bold text-amber-600">
-          <?= count(array_filter($productos, function($p) { return $p['producto_stock'] <= 10 && $p['producto_stock'] > 0; })) ?>
-        </p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-sm text-gray-500">Productos Agotados</p>
-        <p class="text-2xl font-bold text-rose-600">
-          <?= count(array_filter($productos, function($p) { return $p['producto_stock'] <= 0; })) ?>
-        </p>
-      </div>
-    </div>
-  </main>
 
-  <?php 
-  include ruta . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+      <?php if (!empty($productos)): ?>
+        <div class="card-foot">
+          <span id="conteoInventario" role="status"><?= count($productos) ?> productos</span>
+        </div>
+      <?php endif; ?>
+    </div>
+
+  </div>
+</main>
+
+<?php if (!empty($productos)): ?>
+<script>
+  (function () {
+    var filtro = document.getElementById('filtroInventario');
+    var cuerpo = document.getElementById('cuerpoInventario');
+    var vacio = document.getElementById('filaSinResultados');
+    var conteo = document.getElementById('conteoInventario');
+    if (!filtro) return;
+
+    filtro.addEventListener('input', function () {
+      var q = filtro.value.trim().toLowerCase();
+      var visibles = 0;
+
+      Array.prototype.forEach.call(cuerpo.querySelectorAll('tr[data-buscar]'), function (fila) {
+        var coincide = !q || fila.dataset.buscar.indexOf(q) !== -1;
+        fila.hidden = !coincide;
+        if (coincide) visibles++;
+      });
+
+      vacio.hidden = visibles > 0;
+      conteo.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
+    });
+  })();
+</script>
+<?php endif; ?>
+
+<?php include ruta . '/includes/footer.php'; ?>

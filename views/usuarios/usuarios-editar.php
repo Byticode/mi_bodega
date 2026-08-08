@@ -1,92 +1,64 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Editar Usuario</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['Geist Mono', 'ui-monospace', 'monospace']
-          },
-          colors: {
-            warmBg: '#fcfbf7',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php
+$page_title = 'Editar usuario';
+$page_desc  = 'Actualiza los datos de acceso de un usuario.';
+include ruta . '/includes/head.php';
+include ruta . '/includes/sidebar.php';
 
-  <!-- SIDEBAR -->
-  <?php 
-  include ruta . '/includes/sidebar.php';
-  ?>
+$usuario = $dato[0];
+?>
 
-  <main class="flex-1 p-6 space-y-6 max-w-2xl mx-auto">
-    <div class="flex items-center space-x-3">
-      <a href="index.php?controller=usuariosController&action=listar" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </a>
-      <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Editar Usuario</h2>
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--narrow">
+
+    <!-- Page header -->
+    <div class="page-head">
+      <div>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="index.php?controller=usuariosController&action=listar">Usuarios</a>
+          <span aria-hidden="true">/</span>
+          <span><?= htmlspecialchars($usuario['usuario_nombre']) ?></span>
+        </nav>
+        <h1 class="page-title">Editar usuario</h1>
+      </div>
     </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
+    <?php include ruta . '/includes/flash.php'; ?>
 
-    <form action="index.php?controller=usuariosController&action=editar&id=<?= $dato[0]['usuario_id'] ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Completo</label>
-        <input type="text" name="nombre" value="<?= htmlspecialchars($dato[0]['usuario_nombre']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+    <form action="index.php?controller=usuariosController&action=editar&id=<?= (int) $usuario['usuario_id'] ?>" method="POST" class="card p-5 flex flex-col gap-4">
+      <div class="field">
+        <label for="nombre" class="label">Nombre completo <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="nombre" name="nombre" class="input" required autocomplete="name"
+               value="<?= htmlspecialchars($usuario['usuario_nombre']) ?>">
       </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
-        <input type="text" name="username" value="<?= htmlspecialchars($dato[0]['usuario_username']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+
+      <div class="field">
+        <label for="username" class="label">Nombre de usuario <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="username" name="username" class="input" required autocomplete="username"
+               value="<?= htmlspecialchars($usuario['usuario_username']) ?>">
       </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
-        <input type="password" name="clave" placeholder="Dejar en blanco para no cambiar" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-        <p class="text-sm text-gray-400 mt-1">Solo ingrese una contraseña si desea cambiarla</p>
+
+      <div class="field">
+        <label for="clave" class="label">Nueva contraseña</label>
+        <input type="password" id="clave" name="clave" class="input" autocomplete="new-password" minlength="6"
+               placeholder="Sin cambios" aria-describedby="clave-hint">
+        <p class="hint" id="clave-hint">Déjalo vacío para conservar la contraseña actual.</p>
       </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-1">Rol</label>
-        <select name="rol" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
-          <option value="vendedor" <?= $dato[0]['usuario_rol'] == 'vendedor' ? 'selected' : '' ?>>Vendedor</option>
-          <option value="admin" <?= $dato[0]['usuario_rol'] == 'admin' ? 'selected' : '' ?>>Administrador</option>
+
+      <div class="field">
+        <label for="rol" class="label">Rol <span class="req" aria-hidden="true">*</span></label>
+        <select id="rol" name="rol" class="select" required>
+          <option value="vendedor" <?= $usuario['usuario_rol'] === 'vendedor' ? 'selected' : '' ?>>Vendedor</option>
+          <option value="admin" <?= $usuario['usuario_rol'] === 'admin' ? 'selected' : '' ?>>Administrador</option>
         </select>
       </div>
 
-      <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=usuariosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive text-white text-sm font-bold rounded-lg">Guardar</button>
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="index.php?controller=usuariosController&action=listar" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </form>
-  </main>
 
-  <?php 
-  include ruta . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+  </div>
+</main>
+
+<?php include ruta . '/includes/footer.php'; ?>
