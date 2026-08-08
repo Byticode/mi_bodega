@@ -42,11 +42,11 @@
   <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Ventas</h2>
-        <p class="text-xs text-gray-500">Movimientos de mostrador de los últimos días</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Ventas</h2>
+        <p class="text-sm text-gray-500">Movimientos de mostrador de los últimos días</p>
       </div>
       <div class="flex items-center space-x-2">
-        <a href="index.php?controller=ventasController&action=pos" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <a href="index.php?controller=ventasController&action=pos" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -94,11 +94,11 @@
     ?>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div class="bg-warmCard p-4 rounded-xl border border-gray-200">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">TOTAL EN VENTAS DE HOY</span>
+        <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider">TOTAL EN VENTAS DE HOY</span>
         <p class="text-2xl font-bold text-gray-900 mt-1">Bs <?= number_format($total_hoy, 2) ?></p>
       </div>
       <div class="bg-warmCard p-4 rounded-xl border border-gray-200">
-        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">VENTAS DE HOY</span>
+        <span class="text-sm font-semibold text-gray-400 uppercase tracking-wider">VENTAS DE HOY</span>
         <p class="text-2xl font-bold text-gray-900 mt-1"><?= $ventas_hoy ?></p>
       </div>
     </div>
@@ -124,30 +124,30 @@
               <tr>
                 <td colspan="8" class="py-8 text-center text-gray-500">
                   <p class="font-medium">No hay ventas registradas</p>
-                  <p class="text-xs">Haz clic en "Nueva Venta" para comenzar</p>
+                  <p class="text-sm">Haz clic en "Nueva Venta" para comenzar</p>
                 </td>
               </tr>
             <?php else: ?>
               <?php foreach ($ventas as $venta): ?>
                 <tr class="hover:bg-gray-50">
-                  <td class="py-3 px-4 font-mono text-xs text-olive font-bold">#<?= $venta['venta_id'] ?></td>
+                  <td class="py-3 px-4 font-mono text-sm text-olive font-bold">#<?= $venta['venta_id'] ?></td>
                   <td class="py-3 px-4 text-gray-500"><?= date('d/m/Y H:i', strtotime($venta['venta_fecha'])) ?></td>
                   <td class="py-3 px-4 font-medium text-gray-900">
                     <?= $venta['cliente_nombre'] ? htmlspecialchars($venta['cliente_nombre'] . ' ' . ($venta['cliente_apellido'] ?? '')) : 'Consumidor final' ?>
                   </td>
                   <td class="py-3 px-4">
-                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">
+                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded">
                       <?= $venta['total_productos'] ?? 0 ?> productos
                     </span>
                   </td>
                   <td class="py-3 px-4 font-bold text-gray-900">Bs <?= number_format($venta['venta_total'], 2) ?></td>
                   <td class="py-3 px-4">
                     <?php if ($venta['venta_metodo_pago']): ?>
-                      <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded capitalize">
+                      <span class="px-2 py-1 bg-gray-100 text-gray-600 text-sm rounded capitalize">
                         <?= str_replace('_', ' ', $venta['venta_metodo_pago']) ?>
                       </span>
                     <?php else: ?>
-                      <span class="text-gray-400 text-xs">-</span>
+                      <span class="text-gray-400 text-sm">-</span>
                     <?php endif; ?>
                   </td>
                   <td class="py-3 px-4">
@@ -182,7 +182,7 @@
       </div>
 
       <!-- Footer -->
-      <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+      <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-sm text-gray-500">
         <span><?= count($ventas) ?> ventas registradas</span>
         <span>Última actualización: <?= date('d/m/Y H:i') ?></span>
       </div>

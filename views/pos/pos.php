@@ -44,7 +44,7 @@
     <!-- Selección de Productos -->
     <section class="lg:col-span-2 space-y-4 overflow-y-auto max-h-[calc(100vh-80px)]">
       <div class="flex items-center justify-between sticky top-0 bg-warmBg z-10 py-2">
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Punto de Venta (POS)</h2>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Punto de Venta (POS)</h2>
         <div class="flex space-x-2">
           <input type="text" id="buscarProducto" placeholder="Buscar producto..." class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:border-olive">
           <button onclick="buscarProducto()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50">Buscar</button>
@@ -58,7 +58,7 @@
                onclick="agregarAlCarrito(<?= $producto['producto_id'] ?>, '<?= addslashes($producto['producto_nombre']) ?>', <?= $producto['producto_precio_venta'] ?>, '<?= $producto['unidad_abreviatura'] ?>', <?= $producto['producto_stock'] ?>)"
                data-nombre="<?= strtolower($producto['producto_nombre']) ?>">
             <h4 class="font-bold text-sm"><?= htmlspecialchars($producto['producto_nombre']) ?></h4>
-            <p class="text-xs text-gray-500">Stock: <?= intval($producto['producto_stock']) ?> unidades</p>
+            <p class="text-sm text-gray-500">Stock: <?= intval($producto['producto_stock']) ?> unidades</p>
             <p class="text-olive font-bold mt-2">Bs <?= number_format($producto['producto_precio_venta'], 2) ?></p>
           </div>
         <?php endforeach; ?>
@@ -69,11 +69,11 @@
     <section class="bg-white p-6 rounded-xl border border-gray-200 flex flex-col h-[calc(100vh-80px)] sticky top-4">
       <div class="flex flex-col h-full">
         <div>
-          <h3 class="font-bold text-lg mb-4 text-gray-800 border-b pb-2">Ticket Actual</h3>
+          <h3 class="text-sm font-semibold mb-4 text-gray-800 border-b pb-2">Ticket Actual</h3>
           
           <!-- SELECT DE CLIENTE -->
           <div class="mb-4">
-            <label for="cliente" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Cliente</label>
+            <label for="cliente" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Cliente</label>
             <select id="cliente_id" class="w-full px-3 py-2 bg-warmBg border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-olive">
               <option value="">Consumidor final</option>
               <?php foreach ($clientes as $cliente): ?>
@@ -84,7 +84,7 @@
 
           <!-- SELECT DE ESTADO -->
           <div class="mb-4">
-            <label for="estado" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Estado</label>
+            <label for="estado" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Estado</label>
             <select id="estado_venta" class="w-full px-3 py-2 bg-warmBg border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-olive">
               <option value="completada" selected>Completada</option>
               <option value="pendiente">Pendiente</option>
@@ -93,7 +93,7 @@
 
           <!-- SELECT DE MÉTODO DE PAGO -->
           <div class="mb-4" id="metodoPagoContainer">
-            <label for="metodo_pago" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Método de Pago</label>
+            <label for="metodo_pago" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Método de Pago</label>
             <select id="metodo_pago" class="w-full px-3 py-2 bg-warmBg border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-olive">
               <option value="efectivo">Efectivo</option>
               <option value="transferencia">Transferencia</option>
@@ -105,7 +105,7 @@
 
           <!-- NÚMERO DE PAGO -->
           <div class="mb-4 hidden" id="numeroPagoContainer">
-            <label for="numero_pago" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Número de Referencia</label>
+            <label for="numero_pago" class="block text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Número de Referencia</label>
             <input type="text" id="numero_pago" placeholder="Ingrese número de referencia..." class="w-full px-3 py-2 bg-warmBg border border-gray-300 rounded-lg text-sm text-gray-800 focus:outline-none focus:border-olive">
           </div>
         </div>
@@ -140,7 +140,7 @@
   <div id="modalTicket" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white rounded-xl shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto p-6">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-xl font-bold text-gray-900">🧾 Ticket de Venta</h3>
+        <h3 class="text-sm font-semibold text-gray-900">🧾 Ticket de Venta</h3>
         <button onclick="cerrarTicket()" class="text-gray-400 hover:text-gray-600">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -153,7 +153,7 @@
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex justify-center space-x-3">
-        <button onclick="cerrarTicket()" class="px-4 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg">Cerrar</button>
+        <button onclick="cerrarTicket()" class="px-4 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg">Cerrar</button>
       </div>
     </div>
   </div>
@@ -226,16 +226,16 @@
           html += `
             <div class="flex justify-between items-center border-b border-gray-100 pb-3">
               <div class="flex-1">
-                <p class="font-semibold text-gray-900 text-xs">${item.nombre}</p>
-                <span class="text-xs text-gray-500">P. Unit: Bs ${item.precio.toFixed(2)}</span>
+                <p class="font-semibold text-gray-900 text-sm">${item.nombre}</p>
+                <span class="text-sm text-gray-500">P. Unit: Bs ${item.precio.toFixed(2)}</span>
               </div>
               <div class="flex items-center space-x-2">
                 <div class="flex items-center border border-gray-200 rounded">
-                  <button onclick="cambiarCantidad(${index}, -1)" class="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-600">-</button>
-                  <span class="px-2 text-xs font-bold min-w-[30px] text-center">${item.cantidad}</span>
-                  <button onclick="cambiarCantidad(${index}, 1)" class="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-600">+</button>
+                  <button onclick="cambiarCantidad(${index}, -1)" class="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-sm font-bold text-gray-600">-</button>
+                  <span class="px-2 text-sm font-bold min-w-[30px] text-center">${item.cantidad}</span>
+                  <button onclick="cambiarCantidad(${index}, 1)" class="px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-sm font-bold text-gray-600">+</button>
                 </div>
-                <span class="font-bold min-w-[70px] text-right text-xs">Bs ${subtotal.toFixed(2)}</span>
+                <span class="font-bold min-w-[70px] text-right text-sm">Bs ${subtotal.toFixed(2)}</span>
                 <button onclick="eliminarDelCarrito(${index})" class="text-rose-600 hover:text-rose-800">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -330,16 +330,16 @@
       const container = document.getElementById('contenidoTicket');
       let html = `
         <div class="text-center border-b pb-3">
-          <p class="font-bold text-lg">🧾 Ticket de Venta</p>
-          <p class="text-xs text-gray-500">#${datos.venta_id}</p>
-          <p class="text-xs text-gray-500">${new Date().toLocaleString()}</p>
+          <p class="font-semibold text-sm">🧾 Ticket de Venta</p>
+          <p class="text-sm text-gray-500">#${datos.venta_id}</p>
+          <p class="text-sm text-gray-500">${new Date().toLocaleString()}</p>
         </div>
         <div class="space-y-1 py-3">
       `;
 
       datos.productos.forEach(item => {
         html += `
-          <div class="flex justify-between text-xs">
+          <div class="flex justify-between text-sm">
             <span>${item.nombre} x ${item.cantidad}</span>
             <span>Bs ${(item.cantidad * item.precio).toFixed(2)}</span>
           </div>
@@ -353,22 +353,22 @@
             <span>TOTAL</span>
             <span class="text-olive">Bs ${datos.total.toFixed(2)}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-500 mt-1">
+          <div class="flex justify-between text-sm text-gray-500 mt-1">
             <span>Cliente:</span>
             <span>${datos.cliente || 'Consumidor final'}</span>
           </div>
-          <div class="flex justify-between text-xs text-gray-500">
+          <div class="flex justify-between text-sm text-gray-500">
             <span>Estado:</span>
             <span class="${datos.estado === 'completada' ? 'text-green-600' : 'text-amber-600'}">${datos.estado}</span>
           </div>
           ${datos.metodo_pago ? `
-            <div class="flex justify-between text-xs text-gray-500">
+            <div class="flex justify-between text-sm text-gray-500">
               <span>Método:</span>
               <span>${datos.metodo_pago}</span>
             </div>
           ` : ''}
           ${datos.numero_pago ? `
-            <div class="flex justify-between text-xs text-gray-500">
+            <div class="flex justify-between text-sm text-gray-500">
               <span>Referencia:</span>
               <span>${datos.numero_pago}</span>
             </div>

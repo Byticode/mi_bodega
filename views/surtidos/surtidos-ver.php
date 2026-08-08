@@ -43,8 +43,8 @@
         </svg>
       </a>
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Detalle del Surtido #<?= $surtido['surtido_id'] ?></h2>
-        <p class="text-xs text-gray-500">Información completa del surtido</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Detalle del Surtido #<?= $surtido['surtido_id'] ?></h2>
+        <p class="text-sm text-gray-500">Información completa del surtido</p>
       </div>
     </div>
 
@@ -52,15 +52,15 @@
     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
-          <p class="text-xs text-gray-500">Proveedor</p>
+          <p class="text-sm text-gray-500">Proveedor</p>
           <p class="font-semibold text-gray-900"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></p>
         </div>
         <div>
-          <p class="text-xs text-gray-500">Fecha</p>
+          <p class="text-sm text-gray-500">Fecha</p>
           <p class="font-semibold text-gray-900"><?= date('d/m/Y H:i:s', strtotime($surtido['surtido_fecha'])) ?></p>
         </div>
         <div>
-          <p class="text-xs text-gray-500">Costo Total</p>
+          <p class="text-sm text-gray-500">Costo Total</p>
           <p class="font-bold text-xl text-olive">Bs. <?= number_format($surtido['surtido_costo_total'], 2) ?></p>
         </div>
       </div>
@@ -72,8 +72,8 @@
         <h4 class="font-semibold text-gray-900 text-sm">Productos del Surtido</h4>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs font-semibold uppercase">
             <tr>
               <th class="p-3">#</th>
               <th class="p-3">Producto</th>
@@ -88,7 +88,7 @@
                 <td class="p-3 text-gray-400"><?= $index + 1 ?></td>
                 <td class="p-3 font-medium text-gray-900">
                   <?= htmlspecialchars($detalle['producto_nombre']) ?>
-                  <span class="text-gray-400 text-xs block">Código: <?= htmlspecialchars($detalle['producto_codigo'] ?? 'N/A') ?></span>
+                  <span class="text-gray-400 text-sm block">Código: <?= htmlspecialchars($detalle['producto_codigo'] ?? 'N/A') ?></span>
                 </td>
                 <td class="p-3 text-right">
                   <?= intval($detalle['detalle_cantidad']) ?> 
@@ -111,7 +111,7 @@
 
     <!-- Botones de acción -->
     <div class="flex justify-end space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+      <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
         Volver al Listado
       </a>
     </div>

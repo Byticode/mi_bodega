@@ -44,8 +44,8 @@
   <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Unidades de Medida</h2>
-        <p class="text-xs text-gray-500">Administra las unidades de medida para los productos</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Unidades de Medida</h2>
+        <p class="text-sm text-gray-500">Administra las unidades de medida para los productos</p>
       </div>
     </div>
 
@@ -67,9 +67,9 @@
       <?php endif; ?>
 
       <form class="flex gap-3" action="index.php?controller=unidadesController&action=crear" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre de la unidad" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <input type="text" name="abreviatura" placeholder="Abreviatura" class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+        <input type="text" name="nombre" placeholder="Nombre de la unidad" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+        <input type="text" name="abreviatura" placeholder="Abreviatura" class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
           Agregar
         </button>
       </form>
@@ -90,8 +90,8 @@
 
     <!-- TABLA -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <table class="w-full text-left text-xs">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
           <tr>
             <th class="p-3">Nombre</th>
             <th class="p-3">Abreviatura</th>

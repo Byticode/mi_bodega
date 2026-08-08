@@ -20,21 +20,21 @@ modern-minimal (app de gestión / dashboard), con calidez de marca.
 Marca preservada (paper cálido + olive), en OKLCH. Los valores canónicos viven
 en `assets/css/input.css` (`@theme`); aquí la referencia:
 
-- `--color-paper`        oklch(98.6% 0.004 95)   — fondo de app (antes warmBg)
-- `--color-card`         oklch(99.6% 0.002 95)   — superficie de tarjetas
-- `--color-card-2`       oklch(96.3% 0.007 95)   — superficie hundida (antes warmCard)
-- `--color-ink`          oklch(26% 0.012 130)    — texto principal
-- `--color-ink-2`        oklch(46% 0.01 130)     — texto secundario
-- `--color-ink-3`        oklch(58% 0.01 120)     — texto terciario / placeholders
-- `--color-rule`         oklch(90.5% 0.008 100)  — bordes hairline
-- `--color-olive`        oklch(45% 0.08 148)     — acento (único)
-- `--color-olive-hover`  oklch(38% 0.07 148)
-- `--color-olive-light`  oklch(94.5% 0.016 148)  — fondo de ítem activo / badges
-- `--color-focus`        = `--color-olive`
-- `--color-danger`       oklch(50% 0.16 25)      — errores / acciones destructivas
-- `--color-danger-bg`    oklch(95% 0.02 25)
-- `--color-success`      oklch(48% 0.1 150)      — confirmaciones
-- `--color-success-bg`   oklch(95% 0.02 150)
+- `--color-paper` oklch(98.6% 0.004 95) — fondo de app (antes warmBg)
+- `--color-card` oklch(99.6% 0.002 95) — superficie de tarjetas
+- `--color-card-2` oklch(96.3% 0.007 95) — superficie hundida (antes warmCard)
+- `--color-ink` oklch(26% 0.012 130) — texto principal
+- `--color-ink-2` oklch(46% 0.01 130) — texto secundario
+- `--color-ink-3` oklch(58% 0.01 120) — texto terciario / placeholders
+- `--color-rule` oklch(90.5% 0.008 100) — bordes hairline
+- `--color-olive` oklch(45% 0.08 148) — acento (único)
+- `--color-olive-hover` oklch(38% 0.07 148)
+- `--color-olive-light` oklch(94.5% 0.016 148) — fondo de ítem activo / badges
+- `--color-focus` = `--color-olive`
+- `--color-danger` oklch(50% 0.16 25) — errores / acciones destructivas
+- `--color-danger-bg` oklch(95% 0.02 25)
+- `--color-success` oklch(48% 0.1 150) — confirmaciones
+- `--color-success-bg` oklch(95% 0.02 150)
 
 Regla de acento: olive ≤ 5 % del viewport — botones primarios, ítem activo del
 sidebar, focus rings, montos destacados. Nunca fondos de sección.
@@ -50,6 +50,7 @@ sidebar, focus rings, montos destacados. Nunca fondos de sección.
   base 1rem · `--text-md` 1.25rem · `--text-lg` 1.56rem · `--text-xl` 1.95rem.
 - Título de página: `var(--text-xl)` Fraunces 600. Mínimo de cuerpo: 14 px.
 - Números en tablas y montos: `font-variant-numeric: tabular-nums`.
+- Todas las páginas deben tener las mismas y tamaños de fuentes.
 
 ## Spacing
 

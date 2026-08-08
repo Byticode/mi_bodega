@@ -37,10 +37,10 @@ include ruta . '/includes/sidebar.php';
   <main class="flex-1 p-8 space-y-8 max-w-5xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Inventario</h2>
-        <p class="text-xs text-gray-500">Gestión de productos y stock</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Inventario</h2>
+        <p class="text-sm text-gray-500">Gestión de productos y stock</p>
       </div>
-      <a href="index.php?controller=productosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+      <a href="index.php?controller=productosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -77,8 +77,8 @@ include ruta . '/includes/sidebar.php';
     <!-- TABLA DE LISTADO -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 text-xs font-semibold uppercase">
             <tr>
               <th class="p-3">Código</th>
               <th class="p-3">Nombre</th>
@@ -97,7 +97,7 @@ include ruta . '/includes/sidebar.php';
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
                   </svg>
                   <p class="font-medium">No hay productos registrados</p>
-                  <p class="text-xs">Haz clic en "Nuevo Producto" para comenzar</p>
+                  <p class="text-sm">Haz clic en "Nuevo Producto" para comenzar</p>
                 </td>
               </tr>
             <?php else: ?>
@@ -138,17 +138,17 @@ include ruta . '/includes/sidebar.php';
     <!-- Resumen rápido -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Total Productos</p>
+        <p class="text-sm text-gray-500">Total Productos</p>
         <p class="text-2xl font-bold text-gray-900"><?= count($productos) ?></p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Productos con Stock Bajo</p>
+        <p class="text-sm text-gray-500">Productos con Stock Bajo</p>
         <p class="text-2xl font-bold text-amber-600">
           <?= count(array_filter($productos, function($p) { return $p['producto_stock'] <= 10 && $p['producto_stock'] > 0; })) ?>
         </p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Productos Agotados</p>
+        <p class="text-sm text-gray-500">Productos Agotados</p>
         <p class="text-2xl font-bold text-rose-600">
           <?= count(array_filter($productos, function($p) { return $p['producto_stock'] <= 0; })) ?>
         </p>

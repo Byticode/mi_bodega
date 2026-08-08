@@ -40,7 +40,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
       </a>
-      <h2 class="font-display text-2xl font-semibold text-gray-900">Editar Usuario</h2>
+      <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Editar Usuario</h2>
     </div>
 
     <?php if (isset($_SESSION['error'])): ?>
@@ -58,20 +58,20 @@
 
     <form action="index.php?controller=usuariosController&action=editar&id=<?= $dato[0]['usuario_id'] ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre Completo</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre Completo</label>
         <input type="text" name="nombre" value="<?= htmlspecialchars($dato[0]['usuario_nombre']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre de Usuario</label>
         <input type="text" name="username" value="<?= htmlspecialchars($dato[0]['usuario_username']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Nueva Contraseña</label>
         <input type="password" name="clave" placeholder="Dejar en blanco para no cambiar" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-        <p class="text-xs text-gray-400 mt-1">Solo ingrese una contraseña si desea cambiarla</p>
+        <p class="text-sm text-gray-400 mt-1">Solo ingrese una contraseña si desea cambiarla</p>
       </div>
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Rol</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Rol</label>
         <select name="rol" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
           <option value="vendedor" <?= $dato[0]['usuario_rol'] == 'vendedor' ? 'selected' : '' ?>>Vendedor</option>
           <option value="admin" <?= $dato[0]['usuario_rol'] == 'admin' ? 'selected' : '' ?>>Administrador</option>
@@ -79,8 +79,8 @@
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=usuariosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive text-white text-xs font-bold rounded-lg">Guardar</button>
+        <a href="index.php?controller=usuariosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600">Cancelar</a>
+        <button type="submit" class="px-5 py-2 bg-olive text-white text-sm font-bold rounded-lg">Guardar</button>
       </div>
     </form>
   </main>

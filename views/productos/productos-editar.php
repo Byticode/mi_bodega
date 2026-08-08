@@ -41,8 +41,8 @@ include ruta . '/includes/sidebar.php';
         </svg>
       </a>
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Editar Producto</h2>
-        <p class="text-xs text-gray-500">Actualiza la información del producto</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Editar Producto</h2>
+        <p class="text-sm text-gray-500">Actualiza la información del producto</p>
       </div>
     </div>
 
@@ -62,20 +62,20 @@ include ruta . '/includes/sidebar.php';
     <form action="index.php?controller=productosController&action=editar&id=<?= $dato[0]['producto_id'] ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Código de Barras (opcional)</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Código de Barras (opcional)</label>
           <input type="text" name="codigo" value="<?= htmlspecialchars($dato[0]['producto_codigo'] ?? '') ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
           <input type="text" name="nombre" value="<?= htmlspecialchars(preg_replace('/\s+\d+\.?\d*[A-Za-z]+$/', '', $dato[0]['producto_nombre'])) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-          <p class="text-xs text-blue-600 mt-1">⚠️ El nombre se combinará automáticamente con el peso y la unidad</p>
+          <p class="text-sm text-blue-600 mt-1">⚠️ El nombre se combinará automáticamente con el peso y la unidad</p>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Peso</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Peso</label>
           <input type="number" step="0.01" name="peso" value="<?= $dato[0]['producto_peso'] ?? '' ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Categoría *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Categoría *</label>
           <select name="categoria" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
             <option value="">Seleccionar categoría...</option>
             <?php foreach ($categorias as $categoria): ?>
@@ -86,7 +86,7 @@ include ruta . '/includes/sidebar.php';
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Unidad *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Unidad *</label>
           <select name="unidad" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
             <option value="">Seleccionar unidad...</option>
             <?php foreach ($unidades as $unidad): ?>
@@ -97,24 +97,24 @@ include ruta . '/includes/sidebar.php';
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Precio Venta *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Precio Venta *</label>
           <input type="number" step="0.01" name="precio" value="<?= $dato[0]['producto_precio_venta'] ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Stock</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Stock</label>
           <input type="number" step="0.01" name="stock" value="<?= $dato[0]['producto_stock'] ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
         </div>
       </div>
 
       <!-- Preview del nombre -->
       <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-        <p class="text-xs text-gray-500 mb-1">Vista previa del nombre completo:</p>
+        <p class="text-sm text-gray-500 mb-1">Vista previa del nombre completo:</p>
         <p id="previewNombre" class="text-sm font-semibold text-gray-900"><?= htmlspecialchars($dato[0]['producto_nombre']) ?></p>
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex items-center justify-end space-x-3">
-        <a href="index.php?controller=productosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg">Guardar Cambios</button>
+        <a href="index.php?controller=productosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50">Cancelar</a>
+        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg">Guardar Cambios</button>
       </div>
     </form>
   </main>

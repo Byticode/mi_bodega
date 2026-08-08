@@ -38,10 +38,10 @@
   <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Surtidos</h2>
-        <p class="text-xs text-gray-500">Historial de compras y surtidos de productos</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Surtidos</h2>
+        <p class="text-sm text-gray-500">Historial de compras y surtidos de productos</p>
       </div>
-      <a href="index.php?controller=surtidosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+      <a href="index.php?controller=surtidosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -78,8 +78,8 @@
     <!-- TABLA DE SURTIDOS -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
             <tr>
               <th class="p-3"># Surtido</th>
               <th class="p-3">Proveedor</th>
@@ -97,7 +97,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
                   </svg>
                   <p class="font-medium">No hay surtidos registrados</p>
-                  <p class="text-xs">Haz clic en "Nuevo Surtido" para comenzar</p>
+                  <p class="text-sm">Haz clic en "Nuevo Surtido" para comenzar</p>
                 </td>
               </tr>
             <?php else: ?>
@@ -127,17 +127,17 @@
     <!-- Resumen rápido -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Total Surtidos</p>
+        <p class="text-sm text-gray-500">Total Surtidos</p>
         <p class="text-2xl font-bold text-gray-900"><?= count($surtidos) ?></p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Inversión Total</p>
+        <p class="text-sm text-gray-500">Inversión Total</p>
         <p class="text-2xl font-bold text-olive">
           Bs. <?= number_format(array_sum(array_column($surtidos, 'surtido_costo_total')), 2) ?>
         </p>
       </div>
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Último Surtido</p>
+        <p class="text-sm text-gray-500">Último Surtido</p>
         <p class="text-lg font-bold text-gray-900">
           <?= !empty($surtidos) ? date('d/m/Y', strtotime($surtidos[0]['surtido_fecha'])) : 'N/A' ?>
         </p>

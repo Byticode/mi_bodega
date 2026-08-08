@@ -43,8 +43,8 @@
         </svg>
       </a>
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Completar Venta #<?= $venta['venta_id'] ?></h2>
-        <p class="text-xs text-gray-500">Registra el pago para completar la venta pendiente</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Completar Venta #<?= $venta['venta_id'] ?></h2>
+        <p class="text-sm text-gray-500">Registra el pago para completar la venta pendiente</p>
       </div>
     </div>
 
@@ -87,7 +87,7 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Método de Pago *</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Método de Pago *</label>
         <select name="metodo_pago" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
           <option value="efectivo">Efectivo</option>
           <option value="transferencia">Transferencia</option>
@@ -98,12 +98,12 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Número de Referencia (opcional)</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Número de Referencia (opcional)</label>
         <input type="text" name="numero_pago" placeholder="Ingrese número de referencia..." class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Estado</label>
+        <label class="block text-sm font-semibold text-gray-700 mb-1">Estado</label>
         <select name="estado" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white">
           <option value="completada">Completada</option>
           <option value="pendiente" selected>Pendiente</option>
@@ -112,8 +112,8 @@
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=ventasController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg transition-colors">
+        <a href="index.php?controller=ventasController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
+        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg transition-colors">
           Actualizar Venta
         </button>
       </div>

@@ -43,8 +43,8 @@
         </svg>
       </a>
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Detalle de Venta #<?= $venta['venta_id'] ?></h2>
-        <p class="text-xs text-gray-500">Información completa de la venta</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Detalle de Venta #<?= $venta['venta_id'] ?></h2>
+        <p class="text-sm text-gray-500">Información completa de la venta</p>
       </div>
     </div>
 
@@ -52,15 +52,15 @@
     <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div>
-          <p class="text-xs text-gray-500">Fecha</p>
+          <p class="text-sm text-gray-500">Fecha</p>
           <p class="font-semibold text-gray-900"><?= date('d/m/Y H:i:s', strtotime($venta['venta_fecha'])) ?></p>
         </div>
         <div>
-          <p class="text-xs text-gray-500">Cliente</p>
+          <p class="text-sm text-gray-500">Cliente</p>
           <p class="font-semibold text-gray-900"><?= $venta['cliente_nombre'] ? htmlspecialchars($venta['cliente_nombre'] . ' ' . ($venta['cliente_apellido'] ?? '')) : 'Consumidor final' ?></p>
         </div>
         <div>
-          <p class="text-xs text-gray-500">Estado</p>
+          <p class="text-sm text-gray-500">Estado</p>
           <p>
             <?php if ($venta['venta_estado'] == 'completada'): ?>
               <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Completada</span>
@@ -72,19 +72,19 @@
           </p>
         </div>
         <div>
-          <p class="text-xs text-gray-500">Método de Pago</p>
+          <p class="text-sm text-gray-500">Método de Pago</p>
           <p class="font-semibold text-gray-900">
             <?= $venta['venta_metodo_pago'] ? str_replace('_', ' ', ucfirst($venta['venta_metodo_pago'])) : '-' ?>
           </p>
         </div>
         <?php if ($venta['venta_numero_pago']): ?>
           <div>
-            <p class="text-xs text-gray-500">Número de Referencia</p>
+            <p class="text-sm text-gray-500">Número de Referencia</p>
             <p class="font-mono text-sm font-semibold text-gray-900"><?= htmlspecialchars($venta['venta_numero_pago']) ?></p>
           </div>
         <?php endif; ?>
         <div>
-          <p class="text-xs text-gray-500">Total</p>
+          <p class="text-sm text-gray-500">Total</p>
           <p class="font-bold text-2xl text-olive">Bs <?= number_format($venta['venta_total'], 2) ?></p>
         </div>
       </div>
@@ -96,8 +96,8 @@
         <h4 class="font-semibold text-gray-900 text-sm">Productos</h4>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
             <tr>
               <th class="p-3">#</th>
               <th class="p-3">Producto</th>
@@ -112,7 +112,7 @@
                 <td class="p-3 text-gray-400"><?= $index + 1 ?></td>
                 <td class="p-3 font-medium text-gray-900">
                   <?= htmlspecialchars($detalle['producto_nombre']) ?>
-                  <span class="text-gray-400 text-xs block">Código: <?= htmlspecialchars($detalle['producto_codigo'] ?? 'N/A') ?></span>
+                  <span class="text-gray-400 text-sm block">Código: <?= htmlspecialchars($detalle['producto_codigo'] ?? 'N/A') ?></span>
                 </td>
                 <td class="p-3 text-right">
                   <?= intval($detalle['detalle_cantidad']) ?> 
@@ -135,11 +135,11 @@
 
     <!-- Botones de acción -->
     <div class="flex justify-end space-x-3">
-      <a href="index.php?controller=ventasController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+      <a href="index.php?controller=ventasController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
         Volver al Listado
       </a>
       <?php if ($venta['venta_estado'] == 'pendiente'): ?>
-        <a href="index.php?controller=ventasController&action=editar&id=<?= $venta['venta_id'] ?>" class="px-4 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg transition-colors">
+        <a href="index.php?controller=ventasController&action=editar&id=<?= $venta['venta_id'] ?>" class="px-4 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg transition-colors">
           Completar Venta
         </a>
       <?php endif; ?>

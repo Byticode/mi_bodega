@@ -42,8 +42,8 @@
         </svg>
       </a>
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Crear Producto</h2>
-        <p class="text-xs text-gray-500">Registra un nuevo producto en el inventario</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Crear Producto</h2>
+        <p class="text-sm text-gray-500">Registra un nuevo producto en el inventario</p>
       </div>
     </div>
 
@@ -63,22 +63,22 @@
     <form action="index.php?controller=productosController&action=crear" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Código de Barras</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Código de Barras</label>
           <input type="text" name="codigo" placeholder="Opcional" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-          <p class="text-xs text-gray-400 mt-1">Si no ingresa código, se generará automáticamente</p>
+          <p class="text-sm text-gray-400 mt-1">Si no ingresa código, se generará automáticamente</p>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Nombre del Producto *</label>
           <input type="text" name="nombre" placeholder="Ej: Refresco Fanta Toronja" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
-          <p class="text-xs text-blue-600 mt-1">⚠️ El nombre se combinará automáticamente con el peso y la unidad (ej: Refresco Fanta Toronja 2L)</p>
+          <p class="text-sm text-blue-600 mt-1">⚠️ El nombre se combinará automáticamente con el peso y la unidad (ej: Refresco Fanta Toronja 2L)</p>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Peso</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Peso</label>
           <input type="number" step="0.01" name="peso" placeholder="Ej: 2" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-          <p class="text-xs text-gray-400 mt-1">Opcional - El peso se agregará al nombre</p>
+          <p class="text-sm text-gray-400 mt-1">Opcional - El peso se agregará al nombre</p>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Unidad de Medida *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Unidad de Medida *</label>
           <select name="unidad" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
             <option value="">Seleccionar unidad...</option>
             <?php foreach ($unidades as $unidad): ?>
@@ -87,7 +87,7 @@
           </select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Categoría *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Categoría *</label>
           <select name="categoria" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
             <option value="">Seleccionar categoría...</option>
             <?php foreach ($categorias as $categoria): ?>
@@ -97,24 +97,24 @@
         </div>
         
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Precio de Venta *</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Precio de Venta *</label>
           <input type="number" step="0.01" name="precio" placeholder="0.00" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1">Stock Inicial</label>
+          <label class="block text-sm font-semibold text-gray-700 mb-1">Stock Inicial</label>
           <input type="number" step="0.01" name="stock" value="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
         </div>
       </div>
 
       <!-- Preview del nombre -->
       <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-        <p class="text-xs text-gray-500 mb-1">Vista previa del nombre completo:</p>
+        <p class="text-sm text-gray-500 mb-1">Vista previa del nombre completo:</p>
         <p id="previewNombre" class="text-sm font-semibold text-gray-900">Refresco Fanta Toronja 2L</p>
       </div>
 
       <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=productosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2">
+        <a href="index.php?controller=productosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
+        <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-sm font-bold rounded-lg transition-colors flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>

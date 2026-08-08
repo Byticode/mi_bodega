@@ -44,8 +44,8 @@
   <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Tasa de Cambio</h2>
-        <p class="text-xs text-gray-500">Consulta y registra las tasas de cambio del día</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Tasa de Cambio</h2>
+        <p class="text-sm text-gray-500">Consulta y registra las tasas de cambio del día</p>
       </div>
     </div>
 
@@ -53,24 +53,24 @@
     <?php if ($ultima): ?>
       <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p class="text-xs text-gray-500">Moneda</p>
+          <p class="text-sm text-gray-500">Moneda</p>
           <p class="text-2xl font-bold text-gray-900"><?= htmlspecialchars($ultima['moneda']) ?></p>
         </div>
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p class="text-xs text-gray-500">Tasa USD</p>
+          <p class="text-sm text-gray-500">Tasa USD</p>
           <p class="text-2xl font-bold text-olive">Bs. <?= number_format($ultima['tasa_usd'], 2) ?></p>
         </div>
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p class="text-xs text-gray-500">Tasa Euro</p>
+          <p class="text-sm text-gray-500">Tasa Euro</p>
           <p class="text-2xl font-bold text-blue-600"><?= $ultima['tasa_euro'] ? 'Bs. ' . number_format($ultima['tasa_euro'], 2) : 'No disponible' ?></p>
         </div>
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-          <p class="text-xs text-gray-500">Tasa Paralelo</p>
+          <p class="text-sm text-gray-500">Tasa Paralelo</p>
           <p class="text-2xl font-bold text-amber-600"><?= $ultima['tasa_paralelo'] ? 'Bs. ' . number_format($ultima['tasa_paralelo'], 2) : 'No disponible' ?></p>
         </div>
       </div>
       
-      <div class="text-right text-xs text-gray-400">
+      <div class="text-right text-sm text-gray-400">
         Actualizado: <?= date('d/m/Y H:i:s', strtotime($ultima['updated_at'])) ?>
       </div>
     <?php else: ?>
@@ -81,7 +81,7 @@
 
     <!-- REGISTRO DE NUEVA TASA -->
     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <h3 class="font-bold text-gray-900 text-sm">Registrar Nueva Tasa de Cambio</h3>
+      <h3 class="font-semibold text-gray-900 text-sm">Registrar Nueva Tasa de Cambio</h3>
 
       <?php if (isset($_SESSION['error'])): ?>
         <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
@@ -97,15 +97,15 @@
       <?php endif; ?>
 
       <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3" action="index.php?controller=tasaMonedaController&action=crear" method="POST">
-        <input type="text" name="moneda" value="Bs" placeholder="Moneda" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
-        <input type="number" step="0.01" name="tasa_usd" placeholder="Tasa USD *" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
-        <input type="number" step="0.01" name="tasa_euro" placeholder="Tasa Euro" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <input type="number" step="0.01" name="tasa_paralelo" placeholder="Tasa Paralelo" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors">
+        <input type="text" name="moneda" value="Bs" placeholder="Moneda" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+        <input type="number" step="0.01" name="tasa_usd" placeholder="Tasa USD *" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+        <input type="number" step="0.01" name="tasa_euro" placeholder="Tasa Euro" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+        <input type="number" step="0.01" name="tasa_paralelo" placeholder="Tasa Paralelo" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors">
           Registrar Tasa
         </button>
       </form>
-      <p class="text-xs text-gray-400">* Campos obligatorios. Euro y Paralelo son opcionales</p>
+      <p class="text-sm text-gray-400">* Campos obligatorios. Euro y Paralelo son opcionales</p>
     </div>
 
     <?php if (isset($_SESSION['success'])): ?>
@@ -126,8 +126,8 @@
       <div class="px-4 py-3 border-b border-gray-200">
         <h4 class="font-semibold text-gray-900 text-sm">Historial de Tasas de Cambio</h4>
       </div>
-      <table class="w-full text-left text-xs">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
           <tr>
             <th class="p-3">#</th>
             <th class="p-3">Moneda</th>

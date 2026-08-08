@@ -44,14 +44,14 @@
   <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="font-display text-2xl font-semibold text-gray-900">Usuarios</h2>
-        <p class="text-xs text-gray-500">Administra los usuarios del sistema</p>
+        <h2 class="font-display text-3xl font-semibold tracking-[-0.015em] text-gray-900">Usuarios</h2>
+        <p class="text-sm text-gray-500">Administra los usuarios del sistema</p>
       </div>
     </div>
 
     <!-- REGISTRO -->
     <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <h3 class="font-bold text-gray-900 text-sm">Nuevo Usuario</h3>
+      <h3 class="font-semibold text-gray-900 text-sm">Nuevo Usuario</h3>
 
       <?php if (isset($_SESSION['error'])): ?>
         <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
@@ -67,14 +67,14 @@
       <?php endif; ?>
 
       <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" action="index.php?controller=usuariosController&action=crear" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre completo" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
-        <input type="text" name="username" placeholder="Nombre de usuario" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
-        <input type="password" name="clave" placeholder="Contraseña" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
-        <select name="rol" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive bg-white" required>
+        <input type="text" name="nombre" placeholder="Nombre completo" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+        <input type="text" name="username" placeholder="Nombre de usuario" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+        <input type="password" name="clave" placeholder="Contraseña" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive" required>
+        <select name="rol" class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive bg-white" required>
           <option value="vendedor">Vendedor</option>
           <option value="admin">Administrador</option>
         </select>
-        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors col-span-full sm:col-span-1">
+        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors col-span-full sm:col-span-1">
           Registrar Usuario
         </button>
       </form>
@@ -95,8 +95,8 @@
 
     <!-- TABLA -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <table class="w-full text-left text-xs">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase text-xs">
           <tr>
             <th class="p-3">Nombre</th>
             <th class="p-3">Usuario</th>
