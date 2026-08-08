@@ -23,13 +23,13 @@
 
   <!-- SIDEBAR -->
   <?php
-  include ruta . '/includes/sidebar.php';
+  include RUTA_APP . '/includes/sidebar.php';
   ?>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
     <div class="flex items-center space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
+      <a href="<?= url('surtidos') ?>" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
@@ -53,7 +53,7 @@
       <?php unset($_SESSION['error']); ?>
     <?php endif; ?>
 
-    <form id="surtidoForm" action="index.php?controller=surtidosController&action=crear" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
+    <form id="surtidoForm" action="<?= url('surtidos/crear') ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
       
       <!-- Datos del surtido -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -126,7 +126,7 @@
 
       <!-- Botones -->
       <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
+        <a href="<?= url('surtidos') ?>" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancelar</a>
         <button type="submit" class="px-5 py-2 bg-olive hover:bg-olive-hover text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
@@ -137,130 +137,8 @@
     </form>
   </main>
 
-  <script>
-    // Contador para IDs únicos
-    let rowCount = 0;
+  <script src="<?= assets('scripts/surtidos-crear.js') ?>"></script>
 
-    // Agregar producto
-    function agregarProducto() {
-      const container = document.getElementById('productosContainer');
-      const firstRow = container.querySelector('.producto-row');
-      const newRow = firstRow.cloneNode(true);
-      
-      // Limpiar valores
-      newRow.querySelector('.producto-select').value = '';
-      newRow.querySelector('.producto-cantidad').value = '';
-      newRow.querySelector('.producto-precio').value = '';
-      
-      // Agregar listeners
-      const select = newRow.querySelector('.producto-select');
-      const cantidad = newRow.querySelector('.producto-cantidad');
-      const precio = newRow.querySelector('.producto-precio');
-      
-      select.addEventListener('change', function() {
-        const option = this.options[this.selectedIndex];
-        if (option && option.dataset.precio) {
-          precio.placeholder = 'Precio: ' + option.dataset.precio;
-        }
-        calcularTotal();
-      });
-      
-      cantidad.addEventListener('input', calcularTotal);
-      precio.addEventListener('input', calcularTotal);
-      
-      // Mostrar el botón de eliminar si hay más de una fila
-      const rows = container.querySelectorAll('.producto-row');
-      if (rows.length >= 1) {
-        const deleteBtns = container.querySelectorAll('.producto-row:last-child .text-rose-600');
-        deleteBtns.forEach(btn => btn.style.display = 'block');
-      }
-      
-      container.appendChild(newRow);
-      rowCount++;
-      calcularTotal();
-    }
-
-    // Eliminar producto
-    function eliminarProducto(btn) {
-      const container = document.getElementById('productosContainer');
-      const rows = container.querySelectorAll('.producto-row');
-      
-      if (rows.length <= 1) {
-        alert('Debe haber al menos un producto');
-        return;
-      }
-      
-      const row = btn.closest('.producto-row');
-      row.remove();
-      calcularTotal();
-    }
-
-    // Calcular total
-    function calcularTotal() {
-      const rows = document.querySelectorAll('.producto-row');
-      let total = 0;
-      
-      rows.forEach(row => {
-        const cantidad = parseInt(row.querySelector('.producto-cantidad').value) || 0;
-        const precio = parseFloat(row.querySelector('.producto-precio').value) || 0;
-        total += cantidad * precio;
-      });
-      
-      document.getElementById('totalCosto').textContent = 'Bs. ' + total.toFixed(2);
-    }
-
-    // Event listeners para calcular total
-    document.addEventListener('DOMContentLoaded', function() {
-      // Agregar listeners a la primera fila
-      const firstRow = document.querySelector('.producto-row');
-      if (firstRow) {
-        const select = firstRow.querySelector('.producto-select');
-        const cantidad = firstRow.querySelector('.producto-cantidad');
-        const precio = firstRow.querySelector('.producto-precio');
-        
-        select.addEventListener('change', function() {
-          const option = this.options[this.selectedIndex];
-          if (option && option.dataset.precio) {
-            precio.placeholder = 'Precio: ' + option.dataset.precio;
-          }
-          calcularTotal();
-        });
-        
-        cantidad.addEventListener('input', calcularTotal);
-        precio.addEventListener('input', calcularTotal);
-      }
-      
-      // Ocultar botón de eliminar en la primera fila si solo hay una
-      const firstDeleteBtn = document.querySelector('.producto-row .text-rose-600');
-      if (firstDeleteBtn) {
-        firstDeleteBtn.style.display = 'none';
-      }
-    });
-
-    // Validar antes de enviar
-    document.getElementById('surtidoForm').addEventListener('submit', function(e) {
-      const rows = document.querySelectorAll('.producto-row');
-      let valid = true;
-      
-      rows.forEach(row => {
-        const producto = row.querySelector('.producto-select').value;
-        const cantidad = row.querySelector('.producto-cantidad').value;
-        const precio = row.querySelector('.producto-precio').value;
-        
-        if (!producto || !cantidad || !precio) {
-          valid = false;
-        }
-      });
-      
-      if (!valid) {
-        e.preventDefault();
-        alert('Complete todos los campos de los productos');
-      }
-    });
-  </script>
-
-  <?php
-  include ruta . '/includes/sidebar.js';
-  ?>
+  <?php include RUTA_APP . '/includes/sidebar.js'; ?>
 </body>
 </html>

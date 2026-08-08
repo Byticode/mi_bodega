@@ -1,7 +1,7 @@
 <?php
 $page_title = 'Editar cliente';
 include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -13,7 +13,7 @@ include ruta . '/includes/sidebar.php';
         <div>
           <h2 class="page-title">Editar cliente</h2>
           <p class="page-sub">
-            <a href="index.php?controller=clientesController&action=listar" class="text-olive hover:underline">Clientes</a>
+            <a href="<?= url('clientes') ?>" class="text-olive hover:underline">Clientes</a>
             <span class="text-ink-3"> / <?= htmlspecialchars($dato[0]['cliente_nombre'] . ' ' . $dato[0]['cliente_apellido']) ?></span>
           </p>
         </div>
@@ -23,7 +23,7 @@ include ruta . '/includes/sidebar.php';
 
       <!-- FORMULARIO -->
       <div class="card p-5">
-        <form action="index.php?controller=clientesController&action=editar&id=<?= $dato[0]['cliente_id'] ?>" method="POST" class="space-y-4">
+        <form action="<?= url('clientes/editar/' . $dato[0]['cliente_id']) ?>" method="POST" class="space-y-4">
 
           <div>
             <label for="nombre" class="label">Nombre *</label>
@@ -57,7 +57,7 @@ include ruta . '/includes/sidebar.php';
 
           <div class="flex items-center gap-3 pt-2">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="index.php?controller=clientesController&action=listar" class="btn btn-secondary">Cancelar</a>
+            <a href="<?= url('clientes') ?>" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>

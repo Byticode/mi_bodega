@@ -1,7 +1,7 @@
 <?php
 $page_title = 'Editar categoría';
 include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -13,7 +13,7 @@ include ruta . '/includes/sidebar.php';
         <div>
           <h2 class="page-title">Editar categoría</h2>
           <p class="page-sub">
-            <a href="index.php?controller=categoriasController&action=listar" class="text-olive hover:underline">Categorías</a>
+            <a href="<?= url('categorias') ?>" class="text-olive hover:underline">Categorías</a>
             <span class="text-ink-3"> / <?= htmlspecialchars($categoria['categorias_nombre']) ?></span>
           </p>
         </div>
@@ -23,7 +23,7 @@ include ruta . '/includes/sidebar.php';
 
       <!-- FORMULARIO -->
       <div class="card p-5">
-        <form action="index.php?controller=categoriasController&action=editar" method="POST" class="space-y-4">
+        <form action="<?= url('categorias/editar/' . $categoria['categorias_id']) ?>" method="POST" class="space-y-4">
           <input type="hidden" name="id" value="<?= $categoria['categorias_id'] ?>">
 
           <div>
@@ -34,7 +34,7 @@ include ruta . '/includes/sidebar.php';
 
           <div class="flex items-center gap-3 pt-2">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="index.php?controller=categoriasController&action=listar" class="btn btn-secondary">Cancelar</a>
+            <a href="<?= url('categorias') ?>" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>

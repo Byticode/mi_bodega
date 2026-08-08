@@ -29,7 +29,7 @@
 
   <!-- SIDEBAR -->
   <?php
-  include ruta . '/includes/sidebar.php';
+  include RUTA_APP . '/includes/sidebar.php';
   ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -88,7 +88,7 @@
         <?php unset($_SESSION['error']); ?>
       <?php endif; ?>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3" action="index.php?controller=tasaMonedaController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3" action="<?= url('tasa-moneda/crear') ?>" method="POST">
         <input type="text" name="moneda" value="Bs" placeholder="Moneda" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
         <input type="number" step="0.01" name="tasa_usd" placeholder="Tasa USD *" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
         <input type="number" step="0.01" name="tasa_euro" placeholder="Tasa Euro" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
@@ -150,7 +150,7 @@
   </main>
 
   <?php
-  include ruta . '/includes/sidebar.js';
+  include RUTA_APP . '/includes/sidebar.js';
   ?>
 </body>
 

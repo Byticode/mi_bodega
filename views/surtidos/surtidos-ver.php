@@ -23,13 +23,13 @@
 
   <!-- SIDEBAR -->
   <?php
-  include ruta . '/includes/sidebar.php';
+  include RUTA_APP . '/includes/sidebar.php';
   ?>
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
     <div class="flex items-center space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
+      <a href="<?= url('surtidos') ?>" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
@@ -103,14 +103,14 @@
 
     <!-- Botones de acción -->
     <div class="flex justify-end space-x-3">
-      <a href="index.php?controller=surtidosController&action=listar" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+      <a href="<?= url('surtidos') ?>" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
         Volver al Listado
       </a>
     </div>
   </main>
 
   <?php
-  include ruta . '/includes/sidebar.js';
+  include RUTA_APP . '/includes/sidebar.js';
   ?>
 </body>
 </html>

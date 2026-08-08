@@ -1,33 +1,11 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Ventas</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: {
-              DEFAULT: '#3a6341',
-              hover: '#2f5135',
-              light: '#eaf0eb'
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php 
+$page_title = 'Historial de Ventas';
+include RUTA_APP . '/includes/head.php'; 
+?>
 
   <!-- SIDEBAR -->
   <?php 
-  include ruta . '/includes/sidebar.php';
+  include RUTA_APP . '/includes/sidebar.php';
   ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -38,7 +16,7 @@
         <p class="text-xs text-gray-500">Movimientos de mostrador de los últimos días</p>
       </div>
       <div class="flex items-center space-x-2">
-        <a href="index.php?controller=ventasController&action=pos" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+        <a href="<?= url('pos') ?>" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
           </svg>
@@ -152,14 +130,14 @@
                     <?php endif; ?>
                   </td>
                   <td class="py-3 px-4 text-right">
-                    <a href="index.php?controller=ventasController&action=ver&id=<?= $venta['venta_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Ver detalles">
+                    <a href="<?= url('ventas/ver/' . $venta['venta_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Ver detalles">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                       </svg>
                     </a>
                     <?php if ($venta['venta_estado'] == 'pendiente'): ?>
-                      <a href="index.php?controller=ventasController&action=editar&id=<?= $venta['venta_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Editar">
+                      <a href="<?= url('ventas/editar/' . $venta['venta_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Editar">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
@@ -182,7 +160,7 @@
   </main>
 
   <?php 
-  include ruta . '/includes/sidebar.js';
+  include RUTA_APP . '/includes/sidebar.js';
   ?>
 </body>
 </html>

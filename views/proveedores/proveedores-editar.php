@@ -1,7 +1,7 @@
 <?php
 $page_title = 'Editar proveedor';
 include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -13,7 +13,7 @@ include ruta . '/includes/sidebar.php';
         <div>
           <h2 class="page-title">Editar proveedor</h2>
           <p class="page-sub">
-            <a href="index.php?controller=proveedoresController&action=listar" class="text-olive hover:underline">Proveedores</a>
+            <a href="<?= url('proveedores') ?>" class="text-olive hover:underline">Proveedores</a>
             <span class="text-ink-3"> / <?= htmlspecialchars($dato[0]['proveedor_nombre']) ?></span>
           </p>
         </div>
@@ -23,7 +23,7 @@ include ruta . '/includes/sidebar.php';
 
       <!-- FORMULARIO -->
       <div class="card p-5">
-        <form action="index.php?controller=proveedoresController&action=editar&id=<?= $dato[0]['proveedor_id'] ?>" method="POST" class="space-y-4">
+        <form action="<?= url('proveedores/editar/' . $dato[0]['proveedor_id']) ?>" method="POST" class="space-y-4">
 
           <div>
             <label for="nombre" class="label">Nombre comercial</label>
@@ -39,7 +39,7 @@ include ruta . '/includes/sidebar.php';
 
           <div class="flex items-center gap-3 pt-2">
             <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="index.php?controller=proveedoresController&action=listar" class="btn btn-secondary">Cancelar</a>
+            <a href="<?= url('proveedores') ?>" class="btn btn-secondary">Cancelar</a>
           </div>
         </form>
       </div>

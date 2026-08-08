@@ -1,27 +1,12 @@
 <?php
 
-require_once './config/database.php';
-
-class Producto
+class Producto extends BaseModel
 {
-
-    private $db;
-
-    public function __construct()
-    {
-        $this->db = Conexion::conectar();
-    }
-
     public function crear($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock = 0)
     {
         $sql = "INSERT INTO productos (producto_codigo, producto_nombre, producto_peso, categoria_id, unidad_id, producto_precio_venta, producto_stock) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock]);
-
-        return $resultado;
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock]);
     }
 
     public function listar()
@@ -30,20 +15,25 @@ class Producto
                 FROM productos p
                 LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
                 LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
-                ORDER BY p.producto_nombre ASC;";
+                ORDER BY p.producto_nombre ASC";
+        return $this->fetchAll($sql);
+    }
 
-        $stmt = $this->db->prepare($sql);
+    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    {
+        $sql = "SELECT p.*, c.categorias_nombre, u.unidad_nombre, u.unidad_abreviatura 
+                FROM productos p
+                LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
+                LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
+                ORDER BY p.producto_nombre ASC";
 
-        $resultado = $stmt->execute();
+        $countSql = "SELECT COUNT(*) FROM productos";
 
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+        return $this->paginate($sql, $countSql, [], $page, $perPage);
     }
 
     public function editar($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock, $producto_id)
     {
-
         $sql = "UPDATE productos SET 
                 producto_codigo = ?, 
                 producto_nombre = ?, 
@@ -53,12 +43,7 @@ class Producto
                 producto_precio_venta = ?, 
                 producto_stock = ? 
                 WHERE producto_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock, $producto_id]);
-
-        return $resultado;
+        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock, $producto_id]);
     }
 
     public function consultarPorId($producto_id)
@@ -68,61 +53,22 @@ class Producto
                 LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
                 LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
                 WHERE p.producto_id = ?";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute([$producto_id]);
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+        return $this->fetchAll($sql, [$producto_id]);
     }
 
     public function limpiarVerificarId($producto_id)
     {
-        $statement = $this->db->prepare("SELECT * FROM productos WHERE producto_id = ? LIMIT 1");
-        $resultado = $statement->execute([$producto_id]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)) {
-            $resultado = false;
-        } else {
-            $resultado = true;
-        }
-
-        return $resultado;
+        return $this->exists("SELECT 1 FROM productos WHERE producto_id = ? LIMIT 1", [$producto_id]);
     }
 
     public function verificarDuplicado($producto_nombre)
     {
-        $sql = "SELECT * FROM productos WHERE producto_nombre = ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$producto_nombre]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)) {
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+        return !$this->exists("SELECT 1 FROM productos WHERE producto_nombre = ? LIMIT 1", [$producto_nombre]);
     }
 
     public function verificarDuplicadoId($producto_nombre, $producto_id)
     {
-        $sql = "SELECT * FROM productos WHERE producto_nombre = ? AND producto_id != ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$producto_nombre, $producto_id]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)) {
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+        return !$this->exists("SELECT 1 FROM productos WHERE producto_nombre = ? AND producto_id != ? LIMIT 1", [$producto_nombre, $producto_id]);
     }
 
     public function verificarDuplicadoCodigo($producto_codigo)
@@ -130,19 +76,7 @@ class Producto
         if (empty($producto_codigo)) {
             return true;
         }
-
-        $sql = "SELECT * FROM productos WHERE producto_codigo = ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$producto_codigo]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)) {
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+        return !$this->exists("SELECT 1 FROM productos WHERE producto_codigo = ? LIMIT 1", [$producto_codigo]);
     }
 
     public function verificarDuplicadoCodigoId($producto_codigo, $producto_id)
@@ -150,59 +84,29 @@ class Producto
         if (empty($producto_codigo)) {
             return true;
         }
-
-        $sql = "SELECT * FROM productos WHERE producto_codigo = ? AND producto_id != ? LIMIT 1";
-        $statement = $this->db->prepare($sql);
-        $resultado = $statement->execute([$producto_codigo, $producto_id]);
-        $dato = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (empty($dato)) {
-            $resultado = true;
-        } else {
-            $resultado = false;
-        }
-
-        return $resultado;
+        return !$this->exists("SELECT 1 FROM productos WHERE producto_codigo = ? AND producto_id != ? LIMIT 1", [$producto_codigo, $producto_id]);
     }
 
     public function obtenerCategorias()
     {
-        $sql = "SELECT categorias_id, categorias_nombre FROM categorias ORDER BY categorias_nombre ASC";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute();
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+        return $this->fetchAll("SELECT categorias_id, categorias_nombre FROM categorias ORDER BY categorias_nombre ASC");
     }
 
     public function obtenerUnidades()
     {
-        $sql = "SELECT unidad_id, unidad_nombre, unidad_abreviatura FROM unidades ORDER BY unidad_nombre ASC";
-
-        $stmt = $this->db->prepare($sql);
-
-        $resultado = $stmt->execute();
-
-        $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        return $datos;
+        return $this->fetchAll("SELECT unidad_id, unidad_nombre, unidad_abreviatura FROM unidades ORDER BY unidad_nombre ASC");
     }
 
     public function actualizarStock($producto_id, $cantidad)
     {
         $sql = "UPDATE productos SET producto_stock = producto_stock + ? WHERE producto_id = ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$cantidad, $producto_id]);
+        return $this->execute($sql, [$cantidad, $producto_id]);
     }
 
     public function descontarStock($producto_id, $cantidad)
     {
         $sql = "UPDATE productos SET producto_stock = producto_stock - ? WHERE producto_id = ? AND producto_stock >= ?";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([$cantidad, $producto_id, $cantidad]);
+        return $this->execute($sql, [$cantidad, $producto_id, $cantidad]);
     }
 
     public function obtenerProductosConStock()
@@ -212,24 +116,13 @@ class Producto
                 LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
                 LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
                 WHERE p.producto_stock > 0
-                ORDER BY p.producto_nombre ASC;";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                ORDER BY p.producto_nombre ASC";
+        return $this->fetchAll($sql);
     }
 
     public function obtenerTodosProductos()
     {
-        $sql = "SELECT p.*, c.categorias_nombre, u.unidad_nombre, u.unidad_abreviatura 
-                FROM productos p
-                LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
-                LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
-                WHERE p.producto_stock > 0 
-                ORDER BY p.producto_nombre ASC;";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $this->obtenerProductosConStock();
     }
 }
+

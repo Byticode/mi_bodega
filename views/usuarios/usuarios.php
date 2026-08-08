@@ -29,7 +29,7 @@
 
   <!-- SIDEBAR -->
   <?php
-  include ruta . '/includes/sidebar.php';
+  include RUTA_APP . '/includes/sidebar.php';
   ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -58,7 +58,7 @@
         <?php unset($_SESSION['error']); ?>
       <?php endif; ?>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" action="index.php?controller=usuariosController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3" action="<?= url('usuarios/crear') ?>" method="POST">
         <input type="text" name="nombre" placeholder="Nombre completo" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
         <input type="text" name="username" placeholder="Nombre de usuario" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
         <input type="password" name="clave" placeholder="Contraseña" class="px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive" required>
@@ -109,7 +109,7 @@
               </td>
               <td class="p-3 text-gray-500"><?= date('d/m/Y H:i', strtotime($usuario['created_at'])) ?></td>
               <td class="p-3 text-right">
-                <a href="index.php?controller=usuariosController&action=editar&id=<?= $usuario['usuario_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors">
+                <a href="<?= url('usuarios/editar/' . $usuario['usuario_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                   </svg>
@@ -123,7 +123,7 @@
   </main>
 
   <?php
-  include ruta . '/includes/sidebar.js';
+  include RUTA_APP . '/includes/sidebar.js';
   ?>
 </body>
 

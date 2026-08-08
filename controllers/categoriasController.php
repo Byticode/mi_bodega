@@ -6,6 +6,7 @@ class CategoriasController extends BaseController
 
     public function __construct()
     {
+        $this->requireAuth();
         $this->categoriaModel = new Categoria();
     }
 
@@ -26,7 +27,7 @@ class CategoriasController extends BaseController
         $this->validateUnique(
             $this->categoriaModel->isDuplicateNombre($categorias_nombre),
             'Esta categoría ya existe',
-            'index.php?controller=categoriasController&action=listar'
+            'categorias'
         );
 
         $success = $this->categoriaModel->crear($categorias_nombre);
@@ -37,7 +38,7 @@ class CategoriasController extends BaseController
             $this->setFlash('error', 'No se pudo crear la categoría');
         }
 
-        $this->redirect('index.php?controller=categoriasController&action=listar');
+        $this->redirect('categorias');
     }
 
     public function editar()
@@ -50,7 +51,7 @@ class CategoriasController extends BaseController
             $this->validateUnique(
                 $this->categoriaModel->isDuplicateNombreExceptId($categorias_nombre, $categorias_id),
                 'Esta categoría ya existe',
-                'index.php?controller=categoriasController&action=listar'
+                'categorias'
             );
 
             $success = $this->categoriaModel->editar($categorias_nombre, $categorias_id);
@@ -61,14 +62,14 @@ class CategoriasController extends BaseController
                 $this->setFlash('error', 'No se pudo editar la categoría');
             }
 
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         $dato = $this->categoriaModel->consultarPorId($categorias_id);
 
         if (!$dato) {
             $this->setFlash('error', 'Categoría no encontrada');
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         $this->render('categorias/categorias-editar.php', compact('dato'));
@@ -80,7 +81,7 @@ class CategoriasController extends BaseController
 
         if (strlen($nombre) < 3) {
             $this->setFlash('error', 'El nombre debe tener mínimo 3 caracteres');
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         return ucfirst($nombre);
@@ -92,7 +93,7 @@ class CategoriasController extends BaseController
         $success = $this->categoriaModel->borrar($categorias_id);
 
         $this->setFlash($success ? 'success' : 'error', $success ? 'Categoría eliminada con éxito' : 'No se pudo eliminar la categoría');
-        $this->redirect('index.php?controller=categoriasController&action=listar');
+        $this->redirect('categorias');
     }
 
     public function status()
@@ -102,26 +103,26 @@ class CategoriasController extends BaseController
 
         if ($status === '') {
             $this->setFlash('error', 'Estado no proporcionado');
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         $success = $this->categoriaModel->changeStatus($categorias_id, $status);
         $this->setFlash($success ? 'success' : 'error', $success ? 'Status actualizado' : 'No se pudo cambiar el status');
-        $this->redirect('index.php?controller=categoriasController&action=listar');
+        $this->redirect('categorias');
     }
 
     private function validateId($id): int
     {
         if (!is_numeric($id) || intval($id) <= 0) {
             $this->setFlash('error', 'ID no válido');
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         $id = intval($id);
 
         if (!$this->categoriaModel->existsId($id)) {
             $this->setFlash('error', 'ID no encontrado');
-            $this->redirect('index.php?controller=categoriasController&action=listar');
+            $this->redirect('categorias');
         }
 
         return $id;

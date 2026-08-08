@@ -1,160 +1,119 @@
 <?php 
 
-require_once './models/Unidad.php';
-
-class unidadesController
+class UnidadesController extends BaseController
 {
-
     private $unidadModel;
 
     public function __construct()
     {
+        $this->requireAuth();
         $this->unidadModel = new Unidad();
     }
 
-    ////////////////////////////////////////////////////
-    ////////             FUNCIONES                //////
-    ////////             DEL CRUD                 //////
-    ////////    (CREATE, READ, UPDATE, DELETE)    //////
-    ////////////////////////////////////////////////////
-
-
-    public function listar(){
-
+    public function listar()
+    {
         $unidades = $this->unidadModel->listar();
-
-        include ruta . '/views/unidades/unidades.php';
+        include RUTA_APP . '/views/unidades/unidades.php';
         exit();
     }
 
-
-    public function crear(){
-
-        if ($_SERVER['REQUEST_METHOD'] == 'POST'){
-
+    public function crear()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             list($unidad_nombre, $unidad_abreviatura) = $this->limpiarPOST();
 
             $verfduplicado = $this->unidadModel->verificarDuplicado($unidad_nombre);
 
-            if ($verfduplicado){
+            if ($verfduplicado) {
                 $verfduplicadoAbreviatura = $this->unidadModel->verificarDuplicadoAbreviatura($unidad_abreviatura);
                 
-                if ($verfduplicadoAbreviatura){
+                if ($verfduplicadoAbreviatura) {
                     $resultado = $this->unidadModel->crear($unidad_nombre, $unidad_abreviatura);
-                    if ($resultado){
-                        $_SESSION['success'] = 'Unidad creada con exito';
-                        header("Location:  ./index.php?controller=unidadesController&action=listar");
-                        exit();
+                    if ($resultado) {
+                        $this->setFlash('success', 'Unidad creada con éxito');
+                        $this->redirect('unidades');
                     }
                 } else {
-                    $_SESSION['error'] = 'Esta abreviatura ya existe';
-                    header("Location:  ./index.php?controller=unidadesController&action=listar");
-                    exit();
+                    $this->setFlash('error', 'Esta abreviatura ya existe');
+                    $this->redirect('unidades');
                 }
             } else {
-                $_SESSION['error'] = 'Esta unidad ya existe';
-                header("Location:  ./index.php?controller=unidadesController&action=listar");
-                exit();
+                $this->setFlash('error', 'Esta unidad ya existe');
+                $this->redirect('unidades');
             }
-            
         } else {
             $this->listar();
         }
     }
 
-
-    public function editar(){
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST'){
-
+    public function editar()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $unidad_id = $this->limpiarVerificarId();
 
             list($unidad_nombre, $unidad_abreviatura) = $this->limpiarPOST();
 
             $verifduplicado = $this->unidadModel->verificarDuplicadoId($unidad_nombre, $unidad_id);
 
-            if ($verifduplicado){
+            if ($verifduplicado) {
                 $verifduplicadoAbreviatura = $this->unidadModel->verificarDuplicadoAbreviaturaId($unidad_abreviatura, $unidad_id);
                 
-                if ($verifduplicadoAbreviatura){
+                if ($verifduplicadoAbreviatura) {
                     $resultado = $this->unidadModel->editar($unidad_nombre, $unidad_abreviatura, $unidad_id);
                     
-                    if ($resultado){
-                        $_SESSION['success'] = 'Unidad editada con exito';
-                        header("Location:  ./index.php?controller=unidadesController&action=listar");
-                        exit();
+                    if ($resultado) {
+                        $this->setFlash('success', 'Unidad editada con éxito');
+                        $this->redirect('unidades');
                     }
                 } else {
-                    $_SESSION['error'] = 'Esta abreviatura ya existe';
-                    header("Location:  ./index.php?controller=unidadesController&action=listar");
-                    exit();
+                    $this->setFlash('error', 'Esta abreviatura ya existe');
+                    $this->redirect('unidades');
                 }
             } else {
-                $_SESSION['error'] = 'Esta unidad ya existe';
-                header("Location:  ./index.php?controller=unidadesController&action=listar");
-                exit();
+                $this->setFlash('error', 'Esta unidad ya existe');
+                $this->redirect('unidades');
             }
-        
         } else {
             $unidad_id = $this->limpiarVerificarId();
             $dato = $this->unidadModel->consultarPorId($unidad_id);
 
-            include_once './views/unidades/unidades-editar.php';
+            include RUTA_APP . '/views/unidades/unidades-editar.php';
+            exit();
         }
     }
-
-
-    ////////////////////////////////////////////////////
-    ////////             FUNCIONES                //////
-    ////////             DE PURIFICACION          //////
-    ////////                                      //////
-    ////////////////////////////////////////////////////
-
 
     public function limpiarPOST()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            
             $nombre_input = isset($_POST['nombre']) ? ucwords(trim($_POST['nombre'])) : '';
             $abreviatura_input = isset($_POST['abreviatura']) ? strtoupper(trim($_POST['abreviatura'])) : '';
-    
-            // Validación del nombre
-            if (strlen($nombre_input) < 2){
-                $_SESSION['error'] = 'El nombre debe tener mínimo 2 caracteres';
-                header("Location:  ./index.php?controller=unidadesController&action=listar");
-                exit();
+
+            if (strlen($nombre_input) < 2) {
+                $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
+                $this->redirect('unidades');
             }
 
-            // Validación de la abreviatura
-            if (strlen($abreviatura_input) < 1){
-                $_SESSION['error'] = 'La abreviatura debe tener al menos 1 caracter';
-                header("Location:  ./index.php?controller=unidadesController&action=listar");
-                exit();
+            if (strlen($abreviatura_input) < 1) {
+                $this->setFlash('error', 'La abreviatura debe tener al menos 1 caracter');
+                $this->redirect('unidades');
             }
 
             return [$nombre_input, $abreviatura_input];
         }
     }
 
-
-    public function limpiarVerificarId(){
-        $unidad_id = isset($_GET['id']) ? trim($_GET['id']) : '?';
-
-        if (!is_numeric($unidad_id) || $unidad_id === '0') {
-            echo '<script>alert("id no valido")</script>';
-            $this->listar();
-            exit();
-        }
+    public function limpiarVerificarId(): int
+    {
+        $id = $_GET['id'] ?? null;
+        $unidad_id = $this->validateNumericId($id, 'unidades');
 
         $resultado = $this->unidadModel->limpiarVerificarId($unidad_id);
 
-        if ($resultado){
+        if ($resultado) {
             return $unidad_id;
         } else {
-            echo '<script>alert("id no encontrado")</script>';
-            $this->listar();
-            exit();
+            $this->setFlash('error', 'Unidad no encontrada');
+            $this->redirect('unidades');
         }
     }
 }
-?>

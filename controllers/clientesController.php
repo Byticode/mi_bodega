@@ -6,14 +6,18 @@ class ClientesController extends BaseController
 
     public function __construct()
     {
+        $this->requireAuth();
         $this->clienteModel = new Cliente();
     }
 
     public function listar()
     {
-        $clientes = $this->clienteModel->listar();
-        $this->render('clientes/clientes.php', compact('clientes'));
+        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+        $paginacion = $this->clienteModel->listarPaginado($page, 15);
+        $clientes = $paginacion['data'];
+        $this->render('clientes/clientes.php', compact('clientes', 'paginacion'));
     }
+
 
     public function crear()
     {
@@ -26,13 +30,13 @@ class ClientesController extends BaseController
         $this->validateUnique(
             $this->clienteModel->isDuplicateCedula($data['cedula']),
             'Esta cédula ya está registrada',
-            'index.php?controller=clientesController&action=listar'
+            'clientes'
         );
 
         $this->validateUnique(
             !$this->clienteModel->isDuplicateCorreo($data['correo']),
             'Este correo ya está registrado',
-            'index.php?controller=clientesController&action=listar'
+            'clientes'
         );
 
         $success = $this->clienteModel->crear(
@@ -49,7 +53,7 @@ class ClientesController extends BaseController
             $this->setFlash('error', 'No se pudo crear el cliente');
         }
 
-        $this->redirect('index.php?controller=clientesController&action=listar');
+        $this->redirect('clientes');
     }
 
     public function editar()
@@ -62,13 +66,13 @@ class ClientesController extends BaseController
             $this->validateUnique(
                 $this->clienteModel->isDuplicateCedulaExceptId($data['cedula'], $cliente_id),
                 'Esta cédula ya está registrada',
-                'index.php?controller=clientesController&action=listar'
+                'clientes'
             );
 
             $this->validateUnique(
                 !$this->clienteModel->isDuplicateCorreoExceptId($data['correo'], $cliente_id),
                 'Este correo ya está registrado',
-                'index.php?controller=clientesController&action=listar'
+                'clientes'
             );
 
             $success = $this->clienteModel->editar(
@@ -86,14 +90,14 @@ class ClientesController extends BaseController
                 $this->setFlash('error', 'No se pudo editar el cliente');
             }
 
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         $dato = $this->clienteModel->consultarPorId($cliente_id);
 
         if (!$dato) {
             $this->setFlash('error', 'Cliente no encontrado');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         $this->render('clientes/clientes-editar.php', compact('dato'));
@@ -109,27 +113,27 @@ class ClientesController extends BaseController
 
         if (strlen($nombre) < 2) {
             $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         if (strlen($apellido) < 2) {
             $this->setFlash('error', 'El apellido debe tener mínimo 2 caracteres');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         if (strlen($cedula) < 7) {
             $this->setFlash('error', 'La cédula debe tener mínimo 7 caracteres');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         if ($telefono !== '' && strlen($telefono) < 7) {
             $this->setFlash('error', 'El teléfono debe tener mínimo 7 caracteres');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         if ($correo !== '' && !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
             $this->setFlash('error', 'El correo no es válido');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         return [
@@ -147,7 +151,7 @@ class ClientesController extends BaseController
         $success = $this->clienteModel->borrar($cliente_id);
 
         $this->setFlash($success ? 'success' : 'error', $success ? 'Cliente eliminado con éxito' : 'No se pudo eliminar el cliente');
-        $this->redirect('index.php?controller=clientesController&action=listar');
+        $this->redirect('clientes');
     }
 
     public function status()
@@ -157,26 +161,26 @@ class ClientesController extends BaseController
 
         if ($status === '') {
             $this->setFlash('error', 'Estado no proporcionado');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         $success = $this->clienteModel->changeStatus($cliente_id, $status);
         $this->setFlash($success ? 'success' : 'error', $success ? 'Status actualizado' : 'No se pudo cambiar el status');
-        $this->redirect('index.php?controller=clientesController&action=listar');
+        $this->redirect('clientes');
     }
 
     private function validateId($id): int
     {
         if (!is_numeric($id) || intval($id) <= 0) {
             $this->setFlash('error', 'ID no válido');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         $id = intval($id);
 
         if (!$this->clienteModel->existsId($id)) {
             $this->setFlash('error', 'ID no encontrado');
-            $this->redirect('index.php?controller=clientesController&action=listar');
+            $this->redirect('clientes');
         }
 
         return $id;

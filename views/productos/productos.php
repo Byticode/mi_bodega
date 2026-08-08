@@ -1,28 +1,10 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Inventario</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php 
+$page_title = 'Inventario de Productos';
+include RUTA_APP . '/includes/head.php'; 
+?>
   <!-- SIDEBAR -->
 <?php 
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -32,7 +14,7 @@ include ruta . '/includes/sidebar.php';
         <h2 class="text-2xl font-bold text-gray-900">Inventario</h2>
         <p class="text-xs text-gray-500">Gestión de productos y stock</p>
       </div>
-      <a href="index.php?controller=productosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+      <a href="<?= url('productos/crear') ?>" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
@@ -113,7 +95,7 @@ include ruta . '/includes/sidebar.php';
                     <?= intval($producto['producto_stock']) ?>
                   </td>
                   <td class="p-3 text-right">
-                    <a href="index.php?controller=productosController&action=editar&id=<?= $producto['producto_id'] ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Editar">
+                    <a href="<?= url('productos/editar/' . $producto['producto_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Editar">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                       </svg>
@@ -149,7 +131,7 @@ include ruta . '/includes/sidebar.php';
   </main>
 
   <?php 
-  include ruta . '/includes/sidebar.js';
+  include RUTA_APP . '/includes/sidebar.js';
   ?>
 </body>
 </html>
