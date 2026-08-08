@@ -4,6 +4,21 @@ Aplicación web robusta desarrollada en **PHP 8 (Arquitectura MVC)** orientada a
 
 ---
 
+
+## 🗄️ Modelo Lógico de Base de Datos
+
+![Modelo Lógico de la Base de Datos](docs/files/modelo_logico.png)
+
+
+---
+
+## 📄 Documentación Completa
+
+Descarga el manual completo del sistema:
+👉 [**mi_bodega.pdf** — Diccionario de datos](docs/files/mi_bodega.pdf)
+
+---
+
 ## 🌟 Características Principales
 
 * **Arquitectura MVC Limpia**: Separación estricta de responsabilidades entre Controladores, Modelos, Vistas y Enrutador amigable.
