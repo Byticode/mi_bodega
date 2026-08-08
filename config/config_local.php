@@ -8,7 +8,7 @@
 // Reemplaza 'user_mibodega' y 'CONTRASEÑA_SEGURA' con tus propias credenciales
 define("DB_HOST", "localhost");
 define("DB_NAME", "mi_bodega");
-define("DB_USER", "user_mibodega"); // usuario local
-define("DB_PASS", '333$777'); // contraseña local
+define("DB_USER", "root"); // usuario local
+define("DB_PASS", ''); // contraseña local
 
 ?>
