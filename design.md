@@ -74,8 +74,8 @@ usan las utilidades de Tailwind (p-3 / p-4 / p-6), que ya siguen 4 pt.
 - Sin diálogos de confirmación para acciones reversibles (los borrados actuales
   son GET directos; se mantiene la lógica, solo se mejora la presentación).
 - Hover en tablas: cambio de fondo de fila, nada más.
-- Iconos: un solo set — Heroicons outline (SVG inline, stroke 1.5). Prohibido
-  mezclar sets; los `data-lucide` se eliminaron.
+- Iconos: un solo set — **Tabler Icons** como webfont autoalojada. Prohibido
+  mezclar sets.
 
 ## CTA voice
 
@@ -96,9 +96,10 @@ Toda vista debe cumplir esto; hay un arnés de verificación en la sección fina
   a la etiqueta: desaparece al escribir.
 - **Campos obligatorios** marcados con `<span class="req" aria-hidden="true">*</span>`
   y `required`; el asterisco se explica en la etiqueta, no solo con color.
-- **Iconos**: `aria-hidden="true"` en todo `<svg>` decorativo. Los enlaces y
-  botones solo-icono llevan `aria-label` que nombra el objeto concreto
-  ("Editar la categoría Víveres"), no genérico ("Editar").
+- **Iconos**: `aria-hidden="true"` en **todos** — son decorativos y un glifo de
+  área privada se leería como basura. Los enlaces y botones solo-icono llevan
+  `aria-label` que nombra el objeto concreto ("Editar la categoría Víveres"),
+  no genérico ("Editar").
 - **Tablas**: `<th scope="col">` y un `<caption class="sr-only">` que describe
   el contenido.
 - **Estado nunca solo por color**: los badges combinan tinte + `.badge-dot` +
@@ -140,11 +141,49 @@ Toda vista debe cumplir esto; hay un arnés de verificación en la sección fina
 Las vistas usan estas clases para lo repetido y utilidades Tailwind para layout.
 Tras tocar `input.css`, recompila: `npm run build:css`.
 
+## Iconos
+
+**Tabler Icons** (`@tabler/icons-webfont`), autoalojada en
+`assets/vendor/tabler/`. Tras `npm install` o al actualizar el paquete:
+`npm run sync:icons` (copia CSS y fuentes desde `node_modules`). Nunca se
+enlaza a un CDN ni se sirve desde `node_modules`.
+
+- Uso: `<i class="ti ti-nombre" aria-hidden="true"></i>`. Siempre `aria-hidden`.
+- **El tamaño se controla con `font-size`, no con `width`/`height`.** Cada
+  componente fija el suyo (`.btn .ti`, `.btn-icon .ti`, `.nav-link .ti`…);
+  para casos sueltos van las utilidades `text-*` de Tailwind. Un `w-4 h-4`
+  sobre un `<i>` no hace nada.
+- Nombres en <https://tabler.io/icons>. Si el nombre no existe, el icono sale
+  **invisible** y sin error: verificar contra
+  `assets/vendor/tabler/tabler-icons.min.css` antes de dar por bueno uno nuevo.
+- La flecha del `.select` es un data-URI con la misma geometría que
+  `ti-chevron-down`, porque un background no puede ser una fuente.
+
 ## Formato de cifras
 
 Todo monto pasa por `money()` (helpers.php) → `Bs 1.234,56`. Las cantidades
 pasan por `qty()` → sin decimales sobrantes. Nunca `number_format()` suelto en
 una vista: es lo que hacía que cada pantalla mostrara las cifras distinto.
+
+## Tasa de cambio
+
+La tasa se obtiene sola desde **DolarAPI Venezuela** (`ve.dolarapi.com`, pública,
+sin clave). La lógica vive en `core/TasaService.php`; la configuración en
+`config/app.php` (`TASA_*`).
+
+- **Tasa base de la app: el dólar oficial del BCV.** El paralelo y el euro se
+  guardan y se muestran, pero no convierten nada.
+- Tres capas: caché en disco (`storage/tasas.json`, TTL 30 min) → API →
+  tabla `tasa_moneda` como respaldo. Nunca lanza excepciones.
+- Si la API falla se aplica una **caché negativa de 5 min**, para que una API
+  caída no haga esperar el timeout en cada carga de página.
+- Solo se inserta una fila en `tasa_moneda` **cuando el valor cambia**: el
+  historial registra cambios reales, no visitas.
+- En las vistas se usan dos helpers: `tasa_vigente()` (memorizado, una sola
+  consulta por petición) y `usd($bs)`.
+- **Sin tasa no se inventa nada.** `usd()` devuelve cadena vacía y la vista
+  omite el equivalente; nunca muestra «$ 0,00» como si fuera un dato.
+- La tasa se muestra en: pie del rail, POS, Inventario, Ventas y Surtido.
 
 ## Estructura de includes (todas las vistas)
 
@@ -186,3 +225,9 @@ una vista: es lo que hacía que cada pantalla mostrara las cifras distinto.
 - `views/credenciales/credenciales.php` tampoco está enrutada en `index.php` y
   su formulario no envía nada (`onsubmit="event.preventDefault()"`).
 - Los borrados siguen siendo GET directos, sin confirmación ni CSRF.
+- `ventas.tasa_id` es `NOT NULL`: si la API falla y `tasa_moneda` está vacía,
+  el POS bloquea la venta con un aviso. Vale la pena decidir si ese campo
+  debería aceptar null.
+- El refresco de la tasa ocurre durante una petición GET. Con varias visitas
+  simultáneas justo al vencer la caché podrían insertarse filas duplicadas.
+  Irrelevante para una bodega de un solo mostrador; a considerar si crece.

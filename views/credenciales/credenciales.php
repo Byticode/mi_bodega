@@ -24,7 +24,7 @@ include ruta . '/includes/sidebar.php';
       <div class="md:col-span-2 card p-5 flex flex-col gap-5">
         <div class="flex items-center gap-3 border-b border-rule pb-4">
           <span class="p-2.5 bg-olive-light text-olive rounded-lg shrink-0" aria-hidden="true">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            <i class="ti ti-lock text-lg" aria-hidden="true"></i>
           </span>
           <div>
             <h2 class="section-title">Contraseña maestra</h2>
@@ -62,7 +62,7 @@ include ruta . '/includes/sidebar.php';
       <!-- Nota lateral -->
       <aside class="card bg-card-2 p-5 flex flex-col gap-3" aria-labelledby="notaAcceso">
         <h2 class="section-title flex items-center gap-2" id="notaAcceso">
-          <svg class="w-4 h-4 text-olive shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+          <i class="ti ti-info-circle text-olive shrink-0 text-base" aria-hidden="true"></i>
           <span>Acceso directo</span>
         </h2>
         <p class="text-xs text-ink-2 leading-relaxed">

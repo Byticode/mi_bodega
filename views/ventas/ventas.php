@@ -30,7 +30,7 @@ foreach ($ventas as $v) {
         <p class="page-sub">Movimientos de mostrador, del más reciente al más antiguo.</p>
       </div>
       <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <i class="ti ti-plus text-base" aria-hidden="true"></i>
         Nueva venta
       </a>
     </div>
@@ -42,6 +42,9 @@ foreach ($ventas as $v) {
       <div class="stat">
         <span class="stat-label">Vendido hoy</span>
         <span class="stat-value stat-value--money stat-value--accent"><?= money($total_hoy) ?></span>
+        <?php if ($equiv = usd($total_hoy)): ?>
+          <span class="stat-note"><?= $equiv ?> a tasa BCV</span>
+        <?php endif; ?>
       </div>
       <div class="stat">
         <span class="stat-label">Ventas de hoy</span>
@@ -60,7 +63,7 @@ foreach ($ventas as $v) {
         <?php if (!empty($ventas)): ?>
           <div class="search w-full sm:w-64">
             <label for="filtroVentas" class="sr-only">Filtrar ventas por número, cliente o método de pago</label>
-            <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <i class="ti ti-search search-icon" aria-hidden="true"></i>
             <input type="search" id="filtroVentas" class="input" placeholder="Filtrar…" autocomplete="off">
           </div>
         <?php endif; ?>
@@ -86,7 +89,7 @@ foreach ($ventas as $v) {
               <tr>
                 <td colspan="8">
                   <div class="empty">
-                    <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+                    <i class="ti ti-shopping-cart empty-icon" aria-hidden="true"></i>
                     <p class="empty-title">Todavía no hay ventas</p>
                     <p class="empty-sub">Registra la primera desde el punto de venta.</p>
                     <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary mt-3">Abrir punto de venta</a>
@@ -105,7 +108,12 @@ foreach ($ventas as $v) {
                   <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($venta['venta_fecha'])) ?></td>
                   <td class="font-medium"><?= htmlspecialchars($cliente) ?></td>
                   <td class="num text-ink-2"><?= (int) ($venta['total_productos'] ?? 0) ?></td>
-                  <td class="num money"><?= money($venta['venta_total']) ?></td>
+                  <td class="num">
+                    <span class="money block"><?= money($venta['venta_total']) ?></span>
+                    <?php if ($equiv = usd($venta['venta_total'])): ?>
+                      <span class="text-xs text-ink-3 tnum"><?= $equiv ?></span>
+                    <?php endif; ?>
+                  </td>
                   <td class="text-ink-2 capitalize"><?= $metodo ? htmlspecialchars($metodo) : '—' ?></td>
                   <td>
                     <?php if ($venta['venta_estado'] === 'completada'): ?>
@@ -119,12 +127,12 @@ foreach ($ventas as $v) {
                   <td class="col-actions">
                     <a href="index.php?controller=ventasController&action=ver&id=<?= (int) $venta['venta_id'] ?>"
                        class="btn-icon" aria-label="Ver detalle de la venta #<?= (int) $venta['venta_id'] ?>">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      <i class="ti ti-eye text-base" aria-hidden="true"></i>
                     </a>
                     <?php if ($venta['venta_estado'] === 'pendiente'): ?>
                       <a href="index.php?controller=ventasController&action=editar&id=<?= (int) $venta['venta_id'] ?>"
                          class="btn-icon" aria-label="Cobrar la venta #<?= (int) $venta['venta_id'] ?>">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                        <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                       </a>
                     <?php endif; ?>
                   </td>

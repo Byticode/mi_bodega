@@ -61,6 +61,9 @@ $cliente = $venta['cliente_nombre']
         <div class="dl-item">
           <dt class="dl-label">Total</dt>
           <dd class="dl-value money text-olive text-base"><?= money($venta['venta_total']) ?></dd>
+          <?php if ($equiv = usd($venta['venta_total'])): ?>
+            <dd class="text-xs text-ink-3 tnum mt-0.5"><?= $equiv ?> a tasa BCV</dd>
+          <?php endif; ?>
         </div>
         <?php if ($venta['venta_numero_pago']): ?>
           <div class="dl-item">

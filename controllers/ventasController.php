@@ -30,8 +30,8 @@ class ventasController
     public function pos(){
         $clientes = $this->clienteModel->listar();
         $productos = $this->productoModel->obtenerTodosProductos();
-        $tasa = $this->tasaModel->obtenerUltima();
-        
+        $tasa = tasa_vigente();
+
         include ruta . '/views/pos/pos.php';
         exit();
     }
@@ -40,7 +40,19 @@ class ventasController
         if ($_SERVER['REQUEST_METHOD'] == 'POST'){
             $cliente_id = isset($_POST['cliente_id']) && !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : null;
             $usuario_id = 1; // Temporal, luego se usará sesión
-            $tasa_id = $this->tasaModel->obtenerUltima()['tasa_id'];
+
+            // ventas.tasa_id es NOT NULL: sin una tasa registrada la venta no
+            // puede guardarse. tasa_vigente() normalmente ya insertó la de la
+            // API, así que esto solo salta si la API falló y la tabla está vacía.
+            $ultima_tasa = $this->tasaModel->obtenerUltima();
+
+            if (empty($ultima_tasa['tasa_id'])) {
+                $_SESSION['error'] = 'No hay ninguna tasa de cambio registrada y la venta necesita una. Registra una en Ajustes › Tasa de cambio.';
+                header("Location: ./index.php?controller=ventasController&action=pos");
+                exit();
+            }
+
+            $tasa_id = $ultima_tasa['tasa_id'];
             
             // Obtener productos del carrito
             $productos = isset($_POST['productos']) ? json_decode($_POST['productos'], true) : [];

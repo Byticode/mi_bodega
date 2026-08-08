@@ -1,8 +1,19 @@
 <?php
 $page_title = 'Tasa de cambio';
-$page_desc  = 'Consulta y registra las tasas de cambio del día.';
+$page_desc  = 'Tasas de cambio actualizadas automáticamente desde la API del BCV.';
 include ruta . '/includes/head.php';
 include ruta . '/includes/sidebar.php';
+
+$vigente_ts = !empty($tasa['vigente_desde']) ? strtotime($tasa['vigente_desde']) : null;
+$vieja      = $vigente_ts && (time() - $vigente_ts) > TASA_ANTIGUA;
+
+$origenes = [
+    'api'     => ['badge-success', 'Recién consultada'],
+    'cache'   => ['badge-success', 'Al día'],
+    'bd'      => ['badge-warn',    'Guardada localmente'],
+    'ninguna' => ['badge-danger',  'Sin datos'],
+];
+[$origen_clase, $origen_texto] = $origenes[$tasa['origen']] ?? $origenes['ninguna'];
 ?>
 
 <main id="contenido" class="app-main">
@@ -12,54 +23,105 @@ include ruta . '/includes/sidebar.php';
     <div class="page-head">
       <div>
         <h1 class="page-title">Tasa de cambio</h1>
-        <p class="page-sub">La tasa más reciente es la que usa el punto de venta para el equivalente en divisas.</p>
+        <p class="page-sub">Se consulta sola desde la API del BCV. La app convierte a dólares con la tasa oficial.</p>
       </div>
+      <a href="index.php?controller=tasaMonedaController&action=actualizar" class="btn btn-primary">
+        <i class="ti ti-refresh text-base" aria-hidden="true"></i>
+        Actualizar ahora
+      </a>
     </div>
 
     <?php include ruta . '/includes/flash.php'; ?>
 
-    <!-- Tasa vigente -->
-    <?php if ($ultima): ?>
-      <section aria-labelledby="tasaVigente" class="flex flex-col gap-2">
-        <h2 class="section-title" id="tasaVigente">Tasa vigente</h2>
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="stat">
-            <span class="stat-label">Moneda base</span>
-            <span class="stat-value"><?= htmlspecialchars($ultima['moneda']) ?></span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Dólar</span>
-            <span class="stat-value stat-value--money stat-value--accent"><?= money($ultima['tasa_usd']) ?></span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Euro</span>
-            <span class="stat-value stat-value--money"><?= $ultima['tasa_euro'] ? money($ultima['tasa_euro']) : '—' ?></span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Paralelo</span>
-            <span class="stat-value stat-value--money"><?= $ultima['tasa_paralelo'] ? money($ultima['tasa_paralelo']) : '—' ?></span>
-          </div>
-        </div>
-        <p class="text-xs text-ink-3">
-          Actualizada el <?= date('d/m/Y \a \l\a\s H:i', strtotime($ultima['updated_at'])) ?>
-        </p>
-      </section>
-    <?php else: ?>
+    <?php if ($tasa['origen'] === 'bd'): ?>
       <div class="alert alert-warn" role="status">
-        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303-3.376c-.866 1.5.217 3.374 1.948 3.374M12 15.75h.007v.008H12v-.008zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <i class="ti ti-alert-circle shrink-0 text-lg" aria-hidden="true"></i>
         <div class="flex-1">
-          <span class="font-semibold">Sin tasas registradas.</span>
-          Registra la primera para que el punto de venta pueda mostrar el equivalente en dólares.
+          <span class="font-semibold">Sin conexión con la API.</span>
+          Se muestra la última tasa guardada. Vuelve a intentar o registra una manualmente.
+        </div>
+      </div>
+    <?php elseif ($tasa['origen'] === 'ninguna'): ?>
+      <div class="alert alert-error" role="alert">
+        <i class="ti ti-alert-triangle shrink-0 text-lg" aria-hidden="true"></i>
+        <div class="flex-1">
+          <span class="font-semibold">No hay ninguna tasa disponible.</span>
+          Falló la API y no hay valores guardados: el punto de venta no podrá mostrar el equivalente en dólares. Registra una tasa manualmente abajo.
+        </div>
+      </div>
+    <?php elseif ($vieja): ?>
+      <div class="alert alert-warn" role="status">
+        <i class="ti ti-clock shrink-0 text-lg" aria-hidden="true"></i>
+        <div class="flex-1">
+          <span class="font-semibold">La tasa tiene más de un día.</span>
+          El BCV pudo no haber publicado todavía, o la fuente está desactualizada.
         </div>
       </div>
     <?php endif; ?>
 
-    <!-- Registro -->
-    <div class="card p-5 flex flex-col gap-4">
-      <div>
-        <h2 class="section-title">Registrar nueva tasa</h2>
-        <p class="section-sub">Cada registro queda en el historial; no se sobrescribe el anterior.</p>
+    <!-- Tasa vigente -->
+    <section aria-labelledby="tasaVigente" class="flex flex-col gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <h2 class="section-title" id="tasaVigente">Tasa vigente</h2>
+        <span class="badge <?= $origen_clase ?>"><span class="badge-dot"></span><?= $origen_texto ?></span>
       </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="stat border-olive-rule">
+          <span class="stat-label">Dólar BCV</span>
+          <span class="stat-value stat-value--money stat-value--accent">
+            <?= $tasa['tasa_usd'] ? money($tasa['tasa_usd']) : '—' ?>
+          </span>
+          <span class="stat-note">La app convierte con esta</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Paralelo</span>
+          <span class="stat-value stat-value--money"><?= $tasa['tasa_paralelo'] ? money($tasa['tasa_paralelo']) : '—' ?></span>
+          <span class="stat-note">Solo referencia</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Euro BCV</span>
+          <span class="stat-value stat-value--money"><?= $tasa['tasa_euro'] ? money($tasa['tasa_euro']) : '—' ?></span>
+          <span class="stat-note">Solo referencia</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-ink-3">
+        <?php if ($vigente_ts): ?>
+          Publicada el <?= date('d/m/Y \a \l\a\s H:i', $vigente_ts) ?>.
+        <?php endif; ?>
+        Se vuelve a consultar cada <?= (int) round(TASA_TTL / 60) ?> minutos.
+        Fuente: <span class="font-mono">ve.dolarapi.com</span>.
+      </p>
+    </section>
+
+    <!-- Conversor rápido -->
+    <?php if (!empty($tasa['tasa_usd'])): ?>
+      <div class="card p-5 flex flex-col gap-4">
+        <div>
+          <h2 class="section-title">Conversor</h2>
+          <p class="section-sub">Con la tasa BCV vigente.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+          <div class="field">
+            <label for="conv_bs" class="label">Bolívares</label>
+            <input type="number" step="0.01" min="0" id="conv_bs" class="input input--num" value="<?= htmlspecialchars((string) round($tasa['tasa_usd'], 2)) ?>" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="conv_usd" class="label">Dólares</label>
+            <input type="number" step="0.01" min="0" id="conv_usd" class="input input--num" value="1.00" autocomplete="off">
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <!-- Registro manual -->
+    <details class="card p-5" <?= $tasa['origen'] === 'ninguna' ? 'open' : '' ?>>
+      <summary class="section-title cursor-pointer">Registrar una tasa manualmente</summary>
+      <p class="section-sub mb-4 mt-1">
+        Úsalo solo si la API está caída. La próxima consulta automática correcta la reemplazará.
+      </p>
 
       <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="index.php?controller=tasaMonedaController&action=crear" method="POST">
         <div class="field">
@@ -79,17 +141,17 @@ include ruta . '/includes/sidebar.php';
           <input type="number" step="0.01" min="0" id="tasa_paralelo" name="tasa_paralelo" class="input input--num" placeholder="Opcional" autocomplete="off">
         </div>
 
-        <div class="sm:col-span-2 lg:col-span-4 flex flex-wrap items-center justify-between gap-3">
-          <p class="hint m-0">Solo el dólar es obligatorio.</p>
-          <button type="submit" class="btn btn-primary">Registrar tasa</button>
+        <div class="sm:col-span-2 lg:col-span-4 flex justify-end">
+          <button type="submit" class="btn btn-secondary">Registrar tasa manual</button>
         </div>
       </form>
-    </div>
+    </details>
 
     <!-- Historial -->
     <div class="card overflow-hidden">
       <div class="card-head">
-        <h2 class="section-title">Historial de tasas</h2>
+        <h2 class="section-title">Historial</h2>
+        <span class="text-xs text-ink-3">Se guarda una fila solo cuando la tasa cambia</span>
       </div>
 
       <div class="table-wrap">
@@ -111,23 +173,23 @@ include ruta . '/includes/sidebar.php';
                 <td colspan="6">
                   <div class="empty">
                     <p class="empty-title">Sin registros</p>
-                    <p class="empty-sub">Las tasas que registres aparecerán aquí en orden cronológico.</p>
+                    <p class="empty-sub">Cada cambio de tasa quedará aquí en orden cronológico.</p>
                   </div>
                 </td>
               </tr>
             <?php else: ?>
-              <?php foreach ($tasas as $tasa): ?>
+              <?php foreach ($tasas as $fila): ?>
                 <tr>
-                  <td class="font-mono text-xs text-ink-3">#<?= (int) $tasa['tasa_id'] ?></td>
-                  <td class="font-medium"><?= htmlspecialchars($tasa['moneda']) ?></td>
-                  <td class="num money text-olive"><?= money($tasa['tasa_usd']) ?></td>
-                  <td class="num money <?= $tasa['tasa_euro'] ? 'text-ink-2' : 'text-ink-3' ?>">
-                    <?= $tasa['tasa_euro'] ? money($tasa['tasa_euro']) : '—' ?>
+                  <td class="font-mono text-xs text-ink-3">#<?= (int) $fila['tasa_id'] ?></td>
+                  <td class="font-medium"><?= htmlspecialchars($fila['moneda']) ?></td>
+                  <td class="num money text-olive"><?= money($fila['tasa_usd']) ?></td>
+                  <td class="num money <?= $fila['tasa_euro'] ? 'text-ink-2' : 'text-ink-3' ?>">
+                    <?= $fila['tasa_euro'] ? money($fila['tasa_euro']) : '—' ?>
                   </td>
-                  <td class="num money <?= $tasa['tasa_paralelo'] ? 'text-ink-2' : 'text-ink-3' ?>">
-                    <?= $tasa['tasa_paralelo'] ? money($tasa['tasa_paralelo']) : '—' ?>
+                  <td class="num money <?= $fila['tasa_paralelo'] ? 'text-ink-2' : 'text-ink-3' ?>">
+                    <?= $fila['tasa_paralelo'] ? money($fila['tasa_paralelo']) : '—' ?>
                   </td>
-                  <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($tasa['created_at'])) ?></td>
+                  <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($fila['created_at'])) ?></td>
                 </tr>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -138,5 +200,23 @@ include ruta . '/includes/sidebar.php';
 
   </div>
 </main>
+
+<?php if (!empty($tasa['tasa_usd'])): ?>
+<script>
+  (function () {
+    var TASA = <?= json_encode((float) $tasa['tasa_usd']) ?>;
+    var bs = document.getElementById('conv_bs');
+    var usd = document.getElementById('conv_usd');
+
+    bs.addEventListener('input', function () {
+      usd.value = bs.value === '' ? '' : (parseFloat(bs.value) / TASA).toFixed(2);
+    });
+
+    usd.addEventListener('input', function () {
+      bs.value = usd.value === '' ? '' : (parseFloat(usd.value) * TASA).toFixed(2);
+    });
+  })();
+</script>
+<?php endif; ?>
 
 <?php include ruta . '/includes/footer.php'; ?>

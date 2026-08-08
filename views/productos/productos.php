@@ -19,7 +19,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         <p class="page-sub">Catálogo de productos, precios y stock disponible.</p>
       </div>
       <a href="index.php?controller=productosController&action=crear" class="btn btn-primary">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        <i class="ti ti-plus text-base" aria-hidden="true"></i>
         Nuevo producto
       </a>
     </div>
@@ -44,7 +44,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
       <div class="stat">
         <span class="stat-label">Valor en stock</span>
         <span class="stat-value stat-value--money stat-value--accent"><?= money($valor) ?></span>
-        <span class="stat-note">A precio de venta</span>
+        <span class="stat-note"><?= usd($valor) ? 'A precio de venta · ' . usd($valor) : 'A precio de venta' ?></span>
       </div>
     </div>
 
@@ -55,7 +55,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         <?php if (!empty($productos)): ?>
           <div class="search w-full sm:w-64">
             <label for="filtroInventario" class="sr-only">Filtrar productos por nombre, código o categoría</label>
-            <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <i class="ti ti-search search-icon" aria-hidden="true"></i>
             <input type="search" id="filtroInventario" class="input" placeholder="Filtrar…" autocomplete="off">
           </div>
         <?php endif; ?>
@@ -80,7 +80,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
               <tr>
                 <td colspan="7">
                   <div class="empty">
-                    <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+                    <i class="ti ti-package empty-icon" aria-hidden="true"></i>
                     <p class="empty-title">No hay productos registrados</p>
                     <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
                     <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Nuevo producto</a>
@@ -103,7 +103,12 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <?php endif; ?>
                   </td>
                   <td class="text-ink-2"><?= htmlspecialchars($categoria) ?></td>
-                  <td class="num money text-olive"><?= money($producto['producto_precio_venta']) ?></td>
+                  <td class="num">
+                    <span class="money text-olive block"><?= money($producto['producto_precio_venta']) ?></span>
+                    <?php if ($equiv = usd($producto['producto_precio_venta'])): ?>
+                      <span class="text-xs text-ink-3 tnum"><?= $equiv ?></span>
+                    <?php endif; ?>
+                  </td>
                   <td class="num">
                     <?php if ($stock <= 0): ?>
                       <span class="badge badge-danger"><span class="badge-dot"></span>Agotado</span>
@@ -116,7 +121,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                   <td class="col-actions">
                     <a href="index.php?controller=productosController&action=editar&id=<?= (int) $producto['producto_id'] ?>"
                        class="btn-icon" aria-label="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                      <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
                   </td>
                 </tr>

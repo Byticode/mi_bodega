@@ -17,6 +17,10 @@ $page_desc  = $page_desc  ?? 'Control de mercancía, ventas y surtido para tu bo
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
+  <!-- Iconos: Tabler Icons (webfont autoalojada). Se precarga para que no
+       aparezca un hueco donde va cada icono en la primera pintada. -->
+  <link rel="preload" href="assets/vendor/tabler/fonts/tabler-icons.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/vendor/tabler/tabler-icons.min.css">
   <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 

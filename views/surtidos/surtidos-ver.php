@@ -38,6 +38,9 @@ include ruta . '/includes/sidebar.php';
         <div class="dl-item">
           <dt class="dl-label">Costo total</dt>
           <dd class="dl-value money text-olive text-base"><?= money($surtido['surtido_costo_total']) ?></dd>
+          <?php if ($equiv = usd($surtido['surtido_costo_total'])): ?>
+            <dd class="text-xs text-ink-3 tnum mt-0.5"><?= $equiv ?> a tasa BCV</dd>
+          <?php endif; ?>
         </div>
       </dl>
     </div>

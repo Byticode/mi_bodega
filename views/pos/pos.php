@@ -26,7 +26,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
         <div class="toolbar">
           <div class="search flex-1 min-w-48">
             <label for="buscarProducto" class="sr-only">Buscar producto por nombre o código</label>
-            <svg class="search-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <i class="ti ti-search search-icon" aria-hidden="true"></i>
             <input type="search" id="buscarProducto" class="input" placeholder="Buscar producto…" autocomplete="off" autofocus>
           </div>
           <p class="text-xs text-ink-3 tnum" id="contadorProductos" role="status">
@@ -37,7 +37,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
         <?php if (empty($productos)): ?>
           <div class="card">
             <div class="empty">
-              <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
+              <i class="ti ti-package empty-icon" aria-hidden="true"></i>
               <p class="empty-title">Todavía no hay productos</p>
               <p class="empty-sub">Registra mercancía en el inventario para poder venderla desde aquí.</p>
               <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Crear producto</a>
@@ -88,6 +88,19 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
             <h2 class="section-title" id="tituloTicket">Ticket actual</h2>
             <button type="button" id="vaciarBtn" class="btn btn-ghost btn-sm" hidden>Vaciar</button>
           </div>
+
+          <?php if ($tasa_usd <= 0): ?>
+            <div class="p-4 pb-0">
+              <div class="alert alert-warn" role="status">
+                <i class="ti ti-alert-circle shrink-0 text-lg" aria-hidden="true"></i>
+                <div class="flex-1">
+                  <span class="font-semibold">Sin tasa de cambio.</span>
+                  No se podrá guardar la venta.
+                  <a href="index.php?controller=tasaMonedaController&action=listar" class="underline font-semibold">Configúrala aquí.</a>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
 
           <div class="p-4 flex flex-col gap-3 border-b border-rule">
             <div class="field">
@@ -144,7 +157,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
             </div>
             <?php if ($tasa_usd > 0): ?>
               <p class="text-xs text-ink-3 text-right tnum" id="totalUsd">
-                ≈ $ 0,00 <span class="text-ink-3">· tasa <?= money($tasa_usd) ?></span>
+                ≈ $ 0,00 <span class="text-ink-3">· tasa BCV <?= money($tasa_usd) ?></span>
               </p>
             <?php endif; ?>
             <div class="flex items-center justify-between text-xs text-ink-3">
@@ -321,7 +334,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           var menos = document.createElement('button');
           menos.type = 'button';
           menos.setAttribute('aria-label', 'Quitar una unidad de ' + item.nombre);
-          menos.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M5 12h14"/></svg>';
+          menos.innerHTML = '<i class="ti ti-minus text-sm" aria-hidden="true"></i>';
           menos.addEventListener('click', function () { cambiar(item.id, -1); });
 
           var salida = document.createElement('output');
@@ -332,7 +345,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           mas.type = 'button';
           mas.setAttribute('aria-label', 'Agregar una unidad de ' + item.nombre);
           mas.disabled = item.cantidad >= item.stock;
-          mas.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>';
+          mas.innerHTML = '<i class="ti ti-plus text-sm" aria-hidden="true"></i>';
           mas.addEventListener('click', function () { cambiar(item.id, 1); });
 
           qty.appendChild(menos);
@@ -347,7 +360,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           quitar.type = 'button';
           quitar.className = 'btn-icon btn-icon--danger';
           quitar.setAttribute('aria-label', 'Eliminar ' + item.nombre + ' del ticket');
-          quitar.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
+          quitar.innerHTML = '<i class="ti ti-x text-base" aria-hidden="true"></i>';
           quitar.addEventListener('click', function () { eliminar(item.id); });
 
           acciones.appendChild(qty);

@@ -8,6 +8,7 @@ require_once RUTA_APP . '/config/app.php';
 require_once RUTA_APP . '/includes/helpers.php';
 require_once RUTA_APP . '/core/BaseController.php';
 require_once RUTA_APP . '/core/BaseModel.php';
+require_once RUTA_APP . '/core/TasaService.php';
 
 spl_autoload_register(function ($class) {
     $candidates = [
@@ -70,7 +71,7 @@ switch ($controller) {
         exit();
 }
 
-$actions_permitidos = ['listar', 'crear', 'borrar', 'editar', 'ver', 'pos', 'status'];
+$actions_permitidos = ['listar', 'crear', 'borrar', 'editar', 'ver', 'pos', 'status', 'actualizar'];
 
 if (!in_array($action, $actions_permitidos)) {
     $_SESSION['error'] = "action no valido";

@@ -21,10 +21,30 @@ class tasaMonedaController
 
     public function listar(){
 
+        // tasa_vigente() consulta la API (o su caché) y guarda el valor nuevo
+        // si cambió, así que $ultima ya refleja lo que devolvió la API.
+        $tasa = tasa_vigente();
+
         $tasas = $this->tasaModel->listar();
         $ultima = $this->tasaModel->obtenerUltima();
 
         include ruta . '/views/tasa-moneda/tasa-moneda.php';
+        exit();
+    }
+
+
+    /** Fuerza una consulta a la API, saltándose la caché. */
+    public function actualizar(){
+
+        $tasa = (new TasaService())->refrescar();
+
+        if (!empty($tasa['tasa_usd']) && $tasa['origen'] === 'api') {
+            $_SESSION['success'] = 'Tasa actualizada desde la API: ' . money($tasa['tasa_usd']) . ' por dólar.';
+        } else {
+            $_SESSION['error'] = $tasa['error'] ?: 'No se pudo obtener la tasa desde la API.';
+        }
+
+        header("Location:  ./index.php?controller=tasaMonedaController&action=listar");
         exit();
     }
 
