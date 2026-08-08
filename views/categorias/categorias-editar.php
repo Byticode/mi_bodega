@@ -6,7 +6,7 @@ include ruta . '/includes/sidebar.php';
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="app-main">
-    <div class="max-w-xl space-y-6">
+    <div class="max-w-xl mx-auto space-y-6">
 
       <!-- Page header -->
       <div class="flex flex-wrap items-end justify-between gap-4">
