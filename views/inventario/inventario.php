@@ -1,7 +1,7 @@
 <?php
 $page_title = 'Inventario';
 include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->

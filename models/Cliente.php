@@ -20,6 +20,14 @@ class Cliente extends BaseModel
         return $this->fetchAll("SELECT * FROM clientes ORDER BY cliente_id ASC");
     }
 
+    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    {
+        $sql = "SELECT * FROM clientes ORDER BY cliente_id ASC";
+        $countSql = "SELECT COUNT(*) FROM clientes";
+        return $this->paginate($sql, $countSql, [], $page, $perPage);
+    }
+
+
     public function editar(
         string $cliente_nombre,
         string $cliente_apellido,

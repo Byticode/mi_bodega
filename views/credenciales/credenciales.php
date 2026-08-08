@@ -2,7 +2,7 @@
 $page_title = 'Credenciales de acceso';
 $page_desc  = 'Administra la clave principal de ingreso al sistema.';
 include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">

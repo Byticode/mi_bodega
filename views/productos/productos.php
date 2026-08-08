@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Inventario';
 $page_desc  = 'Catálogo de productos, precios y stock disponible.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $bajo_stock = array_filter($productos, fn($p) => $p['producto_stock'] > 0 && $p['producto_stock'] <= 10);
 $agotados   = array_filter($productos, fn($p) => $p['producto_stock'] <= 0);
@@ -18,13 +18,13 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         <h1 class="page-title">Inventario</h1>
         <p class="page-sub">Catálogo de productos, precios y stock disponible.</p>
       </div>
-      <a href="index.php?controller=productosController&action=crear" class="btn btn-primary">
+      <a href="<?= url('productos/crear') ?>" class="btn btn-primary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Nuevo producto
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Resumen -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -83,7 +83,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
                     <p class="empty-title">No hay productos registrados</p>
                     <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
-                    <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Nuevo producto</a>
+                    <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Nuevo producto</a>
                   </div>
                 </td>
               </tr>
@@ -114,7 +114,7 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <?php endif; ?>
                   </td>
                   <td class="col-actions">
-                    <a href="index.php?controller=productosController&action=editar&id=<?= (int) $producto['producto_id'] ?>"
+                    <a href="<?= url('productos/editar/' . $producto['producto_id']) ?>"
                        class="btn-icon" aria-label="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                     </a>
@@ -163,11 +163,11 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
         if (coincide) visibles++;
       });
 
-      vacio.hidden = visibles > 0;
-      conteo.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
+      if (vacio) vacio.hidden = visibles > 0;
+      if (conteo) conteo.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
     });
   })();
 </script>
 <?php endif; ?>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

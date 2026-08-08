@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Nuevo producto';
 $page_desc  = 'Registra un producto nuevo en el inventario.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -12,7 +12,7 @@ include ruta . '/includes/sidebar.php';
     <div class="page-head">
       <div>
         <nav class="breadcrumb" aria-label="Ruta de navegación">
-          <a href="index.php?controller=productosController&action=listar">Inventario</a>
+          <a href="<?= url('productos') ?>">Inventario</a>
           <span aria-hidden="true">/</span>
           <span>Nuevo producto</span>
         </nav>
@@ -21,9 +21,9 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
-    <form action="index.php?controller=productosController&action=crear" method="POST" class="card p-5 sm:p-6 flex flex-col gap-5">
+    <form action="<?= url('productos/crear') ?>" method="POST" class="card p-5 sm:p-6 flex flex-col gap-5">
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="field md:col-span-2">
@@ -86,7 +86,7 @@ include ruta . '/includes/sidebar.php';
       </div>
 
       <div class="flex flex-wrap items-center justify-end gap-3 pt-1 border-t border-rule">
-        <a href="index.php?controller=productosController&action=listar" class="btn btn-secondary mt-4">Cancelar</a>
+        <a href="<?= url('productos') ?>" class="btn btn-secondary mt-4">Cancelar</a>
         <button type="submit" class="btn btn-primary mt-4">Guardar producto</button>
       </div>
     </form>
@@ -94,46 +94,6 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<script>
-  (function () {
-    var nombre = document.getElementById('nombre');
-    var peso = document.getElementById('peso');
-    var unidad = document.getElementById('unidad');
-    var preview = document.getElementById('previewNombre');
+<script src="<?= assets('scripts/producto-preview.js') ?>"></script>
 
-    function abreviatura() {
-      var texto = unidad.options[unidad.selectedIndex] ? unidad.options[unidad.selectedIndex].text : '';
-      var match = texto.match(/\(([^)]+)\)/);
-      return match ? match[1] : '';
-    }
-
-    function actualizar() {
-      var base = nombre.value.trim();
-      if (!base) {
-        preview.textContent = '—';
-        return;
-      }
-
-      base = base.charAt(0).toUpperCase() + base.slice(1);
-
-      var valorPeso = peso.value.trim();
-      var abrev = abreviatura();
-
-      if (valorPeso && abrev) {
-        var n = parseFloat(valorPeso);
-        preview.textContent = base + ' ' + (Number.isInteger(n) ? n : n.toFixed(2)) + abrev;
-      } else if (valorPeso) {
-        preview.textContent = base + ' ' + valorPeso;
-      } else {
-        preview.textContent = base;
-      }
-    }
-
-    nombre.addEventListener('input', actualizar);
-    peso.addEventListener('input', actualizar);
-    unidad.addEventListener('change', actualizar);
-    actualizar();
-  })();
-</script>
-
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

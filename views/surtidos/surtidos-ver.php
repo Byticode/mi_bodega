@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Surtido #' . $surtido['surtido_id'];
 $page_desc  = 'Detalle completo del surtido.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -12,17 +12,17 @@ include ruta . '/includes/sidebar.php';
     <div class="page-head">
       <div>
         <nav class="breadcrumb" aria-label="Ruta de navegación">
-          <a href="index.php?controller=surtidosController&action=listar">Surtido</a>
+          <a href="<?= url('surtidos') ?>">Surtido</a>
           <span aria-hidden="true">/</span>
           <span>#<?= (int) $surtido['surtido_id'] ?></span>
         </nav>
         <h1 class="page-title">Surtido #<?= (int) $surtido['surtido_id'] ?></h1>
         <p class="page-sub"><?= date('d/m/Y \a \l\a\s H:i', strtotime($surtido['surtido_fecha'])) ?></p>
       </div>
-      <a href="index.php?controller=surtidosController&action=listar" class="btn btn-secondary">Volver</a>
+      <a href="<?= url('surtidos') ?>" class="btn btn-secondary">Volver</a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Datos del surtido -->
     <div class="card p-5">
@@ -89,4 +89,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

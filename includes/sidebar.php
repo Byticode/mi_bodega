@@ -1,18 +1,18 @@
 <?php
-// Rail de navegación compartido. Marca el ítem activo según controller + action.
+// Rail de navegación compartido. Marca el ítem activo según $_GET['controller'] o la ruta limpia.
 
-$current       = $_GET['controller'] ?? '';
-$currentAction = $_GET['action'] ?? '';
+$currentController = $_GET['controller'] ?? '';
+$urlPath           = isset($_GET['url']) ? trim($_GET['url'], '/') : '';
+$resource          = !empty($urlPath) ? explode('/', $urlPath)[0] : '';
+$currentAction     = $_GET['action'] ?? (!empty(explode('/', $urlPath)[1]) ? explode('/', $urlPath)[1] : '');
 
-/**
- * Devuelve true si el ítem apunta a la vista que se está mostrando.
- * $action = null significa "cualquier acción de este controlador".
- */
-$isActive = function (string $controller, ?string $action = null) use ($current, $currentAction): bool {
-    if ($current !== $controller) {
-        return false;
+$isActive = function (array $controllers, array $resources, ?string $targetAction = null) use ($currentController, $resource, $currentAction): bool {
+    $matchController = in_array($currentController, $controllers, true) || in_array($resource, $resources, true);
+    if (!$matchController) return false;
+    if ($targetAction !== null) {
+        return $currentAction === $targetAction;
     }
-    return $action === null || $currentAction === $action;
+    return true;
 };
 
 /** Enlace principal del rail. */
@@ -24,8 +24,8 @@ $navLink = function (string $href, string $label, string $icon, bool $active): s
 };
 
 /** Enlace del submenú de configuración. */
-$subLink = function (string $controller, string $label, string $icon, bool $active): string {
-    return '<a href="index.php?controller=' . $controller . '&action=listar" class="nav-sublink"'
+$subLink = function (string $href, string $label, string $icon, bool $active): string {
+    return '<a href="' . $href . '" class="nav-sublink"'
         . ($active ? ' aria-current="page"' : '') . '>'
         . '<svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true">'
         . $icon
@@ -47,9 +47,9 @@ $icons = [
     'usuarios'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>',
 ];
 
-// El submenú de configuración se abre solo si estás dentro de una de sus secciones.
 $configControllers = ['categoriasController', 'unidadesController', 'proveedoresController', 'clientesController', 'tasaMonedaController', 'usuariosController'];
-$configOpen        = in_array($current, $configControllers, true);
+$configResources   = ['categorias', 'unidades', 'proveedores', 'clientes', 'tasa-moneda', 'tasamoneda', 'usuarios'];
+$configOpen        = $isActive($configControllers, $configResources);
 
 $dias  = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 $meses = [1 => 'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -83,10 +83,10 @@ $fecha = ucfirst($dias[(int) date('w')]) . ' ' . date('j') . ' de ' . $meses[(in
 
   <nav class="sidebar-nav" aria-label="Secciones">
     <p class="sidebar-section" id="nav-operacion">Operación</p>
-    <?= $navLink('index.php?controller=ventasController&action=pos', 'Punto de venta', $icons['pos'], $isActive('ventasController', 'pos')) ?>
-    <?= $navLink('index.php?controller=productosController&action=listar', 'Inventario', $icons['inventario'], $isActive('productosController')) ?>
-    <?= $navLink('index.php?controller=ventasController&action=listar', 'Ventas', $icons['ventas'], $isActive('ventasController') && $currentAction !== 'pos') ?>
-    <?= $navLink('index.php?controller=surtidosController&action=listar', 'Surtido', $icons['surtido'], $isActive('surtidosController')) ?>
+    <?= $navLink(url('pos'), 'Punto de venta', $icons['pos'], $isActive(['ventasController'], ['pos', 'ventas'], 'pos')) ?>
+    <?= $navLink(url('productos'), 'Inventario', $icons['inventario'], $isActive(['productosController'], ['productos'])) ?>
+    <?= $navLink(url('ventas'), 'Ventas', $icons['ventas'], $isActive(['ventasController'], ['ventas']) && $currentAction !== 'pos') ?>
+    <?= $navLink(url('surtidos'), 'Surtido', $icons['surtido'], $isActive(['surtidosController'], ['surtidos'])) ?>
 
     <p class="sidebar-section">Ajustes</p>
     <button id="configBtn" type="button" class="nav-disclosure" aria-expanded="<?= $configOpen ? 'true' : 'false' ?>" aria-controls="configMenu">
@@ -98,14 +98,41 @@ $fecha = ucfirst($dias[(int) date('w')]) . ' ' . date('j') . ' de ' . $meses[(in
     </button>
 
     <div id="configMenu" class="nav-submenu" <?= $configOpen ? '' : 'hidden' ?>>
-      <?= $subLink('categoriasController',  'Categorías',     $icons['categorias'],  $isActive('categoriasController')) ?>
-      <?= $subLink('unidadesController',    'Unidades',       $icons['unidades'],    $isActive('unidadesController')) ?>
-      <?= $subLink('proveedoresController', 'Proveedores',    $icons['proveedores'], $isActive('proveedoresController')) ?>
-      <?= $subLink('clientesController',    'Clientes',       $icons['clientes'],    $isActive('clientesController')) ?>
-      <?= $subLink('tasaMonedaController',  'Tasa de cambio', $icons['tasa'],        $isActive('tasaMonedaController')) ?>
-      <?= $subLink('usuariosController',    'Usuarios',       $icons['usuarios'],    $isActive('usuariosController')) ?>
+      <?= $subLink(url('categorias'), 'Categorías', $icons['categorias'], $isActive(['categoriasController'], ['categorias'])) ?>
+      <?= $subLink(url('unidades'), 'Unidades', $icons['unidades'], $isActive(['unidadesController'], ['unidades'])) ?>
+      <?= $subLink(url('proveedores'), 'Proveedores', $icons['proveedores'], $isActive(['proveedoresController'], ['proveedores'])) ?>
+      <?= $subLink(url('clientes'), 'Clientes', $icons['clientes'], $isActive(['clientesController'], ['clientes'])) ?>
+      <?= $subLink(url('tasa-moneda'), 'Tasa de cambio', $icons['tasa'], $isActive(['tasaMonedaController'], ['tasa-moneda', 'tasamoneda'])) ?>
+      <?php if (($_SESSION['usuario']['usuario_rol'] ?? '') === 'admin'): ?>
+        <?= $subLink(url('usuarios'), 'Usuarios', $icons['usuarios'], $isActive(['usuariosController'], ['usuarios'])) ?>
+      <?php endif; ?>
     </div>
   </nav>
+
+  <!-- User & Logout section in Sidebar -->
+  <div class="border-t border-gray-200/80 pt-3 pb-2 px-2 space-y-2">
+    <?php if (!empty($_SESSION['usuario'])): ?>
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center space-x-2.5 overflow-hidden">
+          <div class="w-8 h-8 rounded-lg bg-olive text-white font-bold flex items-center justify-center text-xs shrink-0 shadow-xs">
+            <?= strtoupper(substr($_SESSION['usuario']['usuario_nombre'] ?? 'U', 0, 2)) ?>
+          </div>
+          <div class="overflow-hidden">
+            <p class="text-xs font-semibold text-gray-900 truncate"><?= htmlspecialchars($_SESSION['usuario']['usuario_nombre'] ?? 'Usuario') ?></p>
+            <span class="text-[10px] text-gray-500 capitalize block truncate"><?= htmlspecialchars($_SESSION['usuario']['usuario_rol'] ?? 'Vendedor') ?></span>
+          </div>
+        </div>
+      </div>
+    <?php endif; ?>
+
+    <a href="<?= url('logout') ?>" 
+       class="flex items-center space-x-2 px-2.5 py-1.5 text-xs font-medium text-rose-600 rounded-lg hover:bg-rose-50 transition-colors w-full">
+      <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H8.25" />
+      </svg>
+      <span>Cerrar Sesión</span>
+    </a>
+  </div>
 
   <div class="sidebar-foot">
     <?= htmlspecialchars($fecha) ?>

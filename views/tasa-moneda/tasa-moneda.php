@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Tasa de cambio';
 $page_desc  = 'Consulta y registra las tasas de cambio del día.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
 <main id="contenido" class="app-main">
@@ -16,10 +16,10 @@ include ruta . '/includes/sidebar.php';
       </div>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Tasa vigente -->
-    <?php if ($ultima): ?>
+    <?php if (!empty($ultima)): ?>
       <section aria-labelledby="tasaVigente" class="flex flex-col gap-2">
         <h2 class="section-title" id="tasaVigente">Tasa vigente</h2>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -61,7 +61,7 @@ include ruta . '/includes/sidebar.php';
         <p class="section-sub">Cada registro queda en el historial; no se sobrescribe el anterior.</p>
       </div>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="index.php?controller=tasaMonedaController&action=crear" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="<?= url('tasa-moneda/crear') ?>" method="POST">
         <div class="field">
           <label for="moneda" class="label">Moneda base</label>
           <input type="text" id="moneda" name="moneda" class="input" value="Bs" required autocomplete="off">
@@ -139,4 +139,4 @@ include ruta . '/includes/sidebar.php';
   </div>
 </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

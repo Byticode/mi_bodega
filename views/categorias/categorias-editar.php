@@ -1,7 +1,7 @@
 <?php
 $page_title = 'Editar categoría';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 ?>
 
   <!-- CONTENIDO PRINCIPAL -->
@@ -12,7 +12,7 @@ include ruta . '/includes/sidebar.php';
       <div class="page-head">
         <div>
           <nav class="breadcrumb" aria-label="Ruta de navegación">
-            <a href="index.php?controller=categoriasController&action=listar">Categorías</a>
+            <a href="<?= url('categorias') ?>">Categorías</a>
             <span aria-hidden="true">/</span>
             <span><?= htmlspecialchars($categoria['categorias_nombre']) ?></span>
           </nav>
@@ -20,10 +20,10 @@ include ruta . '/includes/sidebar.php';
         </div>
       </div>
 
-      <?php include ruta . '/includes/flash.php'; ?>
+      <?php include RUTA_APP . '/includes/flash.php'; ?>
 
       <!-- FORMULARIO -->
-      <form action="index.php?controller=categoriasController&action=editar" method="POST" class="card p-5 flex flex-col gap-4">
+      <form action="<?= url('categorias/editar/' . $categoria['categorias_id']) ?>" method="POST" class="card p-5 flex flex-col gap-4">
         <input type="hidden" name="id" value="<?= (int) $categoria['categorias_id'] ?>">
 
         <div class="field">
@@ -33,7 +33,7 @@ include ruta . '/includes/sidebar.php';
         </div>
 
         <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
-          <a href="index.php?controller=categoriasController&action=listar" class="btn btn-secondary">Cancelar</a>
+          <a href="<?= url('categorias') ?>" class="btn btn-secondary">Cancelar</a>
           <button type="submit" class="btn btn-primary">Guardar cambios</button>
         </div>
       </form>
@@ -41,4 +41,4 @@ include ruta . '/includes/sidebar.php';
     </div>
   </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

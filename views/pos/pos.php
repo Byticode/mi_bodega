@@ -1,8 +1,8 @@
 <?php
 $page_title = 'Punto de venta';
 $page_desc  = 'Registra ventas de mostrador y cobra el ticket.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
 $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 ?>
@@ -10,7 +10,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 <main id="contenido" class="app-main">
   <div class="app-wrap app-wrap--wide">
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
@@ -40,7 +40,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
               <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/></svg>
               <p class="empty-title">Todavía no hay productos</p>
               <p class="empty-sub">Registra mercancía en el inventario para poder venderla desde aquí.</p>
-              <a href="index.php?controller=productosController&action=crear" class="btn btn-primary mt-3">Crear producto</a>
+              <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Crear producto</a>
             </div>
           </div>
         <?php else: ?>
@@ -82,7 +82,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 
       <!-- ══ Ticket ══ -->
       <section class="card pos-ticket" aria-labelledby="tituloTicket">
-        <form id="ventaForm" method="POST" action="index.php?controller=ventasController&action=crear" class="flex flex-col min-h-0">
+        <form id="ventaForm" method="POST" action="<?= url('ventas/crear') ?>" class="flex flex-col min-h-0">
 
           <div class="card-head">
             <h2 class="section-title" id="tituloTicket">Ticket actual</h2>
@@ -134,7 +134,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
             </div>
           </div>
 
-          <!-- Aviso accesible: anuncia altas, bajas y errores de stock -->
+          <!-- Aviso accesible -->
           <p id="posAviso" class="sr-only" role="status" aria-live="polite"></p>
 
           <div class="p-4 border-t border-rule flex flex-col gap-3">
@@ -165,254 +165,8 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 </main>
 
 <script>
-  (function () {
-    'use strict';
-
-    var TASA_USD = <?= json_encode($tasa_usd) ?>;
-
-    var carrito = [];
-    var grid = document.getElementById('productosGrid');
-    var contenedor = document.getElementById('carritoContainer');
-    var aviso = document.getElementById('posAviso');
-    var inputProductos = document.getElementById('productosInput');
-    var cobrarBtn = document.getElementById('cobrarBtn');
-    var vaciarBtn = document.getElementById('vaciarBtn');
-    var buscador = document.getElementById('buscarProducto');
-    var sinResultados = document.getElementById('sinResultados');
-    var contador = document.getElementById('contadorProductos');
-
-    function bs(n) {
-      return 'Bs ' + n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function anunciar(texto) {
-      aviso.textContent = texto;
-    }
-
-    /* ── Búsqueda ─────────────────────────────────────────────────────── */
-    function filtrar() {
-      if (!grid) return;
-      var q = buscador.value.trim().toLowerCase();
-      var visibles = 0;
-
-      Array.prototype.forEach.call(grid.querySelectorAll('.pos-tile'), function (tile) {
-        var coincide = !q || tile.dataset.buscar.indexOf(q) !== -1;
-        tile.hidden = !coincide;
-        if (coincide) visibles++;
-      });
-
-      sinResultados.hidden = visibles > 0;
-      contador.textContent = visibles === 1 ? '1 producto' : visibles + ' productos';
-    }
-
-    if (buscador) {
-      buscador.addEventListener('input', filtrar);
-
-      // Enter con un solo resultado visible lo agrega: el flujo de caja
-      // se hace con las dos manos en el teclado, no con el ratón.
-      buscador.addEventListener('keydown', function (e) {
-        if (e.key !== 'Enter') return;
-        e.preventDefault();
-        var visibles = grid ? Array.prototype.filter.call(
-          grid.querySelectorAll('.pos-tile'), function (t) { return !t.hidden; }
-        ) : [];
-        if (visibles.length === 1) {
-          agregar(visibles[0]);
-          buscador.select();
-        }
-      });
-    }
-
-    /* ── Carrito ──────────────────────────────────────────────────────── */
-    function agregar(tile) {
-      var id = Number(tile.dataset.id);
-      var stock = Number(tile.dataset.stock);
-      var nombre = tile.dataset.nombre;
-
-      if (stock <= 0) {
-        anunciar(nombre + ' está agotado.');
-        return;
-      }
-
-      var linea = carrito.find(function (item) { return item.id === id; });
-
-      if (linea) {
-        if (linea.cantidad >= stock) {
-          anunciar('No hay más stock de ' + nombre + '. Máximo ' + stock + '.');
-          return;
-        }
-        linea.cantidad++;
-      } else {
-        carrito.push({
-          id: id,
-          nombre: nombre,
-          precio: Number(tile.dataset.precio),
-          unidad: tile.dataset.unidad,
-          stock: stock,
-          cantidad: 1
-        });
-      }
-
-      anunciar(nombre + ' agregado al ticket.');
-      pintar();
-    }
-
-    function cambiar(id, delta) {
-      var i = carrito.findIndex(function (item) { return item.id === id; });
-      if (i === -1) return;
-
-      var nueva = carrito[i].cantidad + delta;
-
-      if (nueva <= 0) {
-        anunciar(carrito[i].nombre + ' eliminado del ticket.');
-        carrito.splice(i, 1);
-      } else if (nueva > carrito[i].stock) {
-        anunciar('No hay más stock de ' + carrito[i].nombre + '. Máximo ' + carrito[i].stock + '.');
-        return;
-      } else {
-        carrito[i].cantidad = nueva;
-      }
-
-      pintar();
-    }
-
-    function eliminar(id) {
-      var i = carrito.findIndex(function (item) { return item.id === id; });
-      if (i === -1) return;
-      anunciar(carrito[i].nombre + ' eliminado del ticket.');
-      carrito.splice(i, 1);
-      pintar();
-    }
-
-    function pintar() {
-      var total = 0;
-      var articulos = 0;
-
-      if (!carrito.length) {
-        contenedor.innerHTML = '<p class="empty-sub text-center py-10 mx-auto">El ticket está vacío.</p>';
-      } else {
-        contenedor.textContent = '';
-
-        carrito.forEach(function (item) {
-          var subtotal = item.cantidad * item.precio;
-          total += subtotal;
-          articulos += item.cantidad;
-
-          var fila = document.createElement('div');
-          fila.className = 'pos-line';
-
-          var info = document.createElement('div');
-          info.className = 'flex-1 min-w-0';
-          var nombre = document.createElement('p');
-          nombre.className = 'pos-line-name';
-          nombre.textContent = item.nombre;
-          var unit = document.createElement('p');
-          unit.className = 'pos-line-unit';
-          unit.textContent = bs(item.precio) + ' / ' + item.unidad;
-          info.appendChild(nombre);
-          info.appendChild(unit);
-
-          var acciones = document.createElement('div');
-          acciones.className = 'flex items-center gap-2 shrink-0';
-
-          var qty = document.createElement('div');
-          qty.className = 'qty';
-
-          var menos = document.createElement('button');
-          menos.type = 'button';
-          menos.setAttribute('aria-label', 'Quitar una unidad de ' + item.nombre);
-          menos.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M5 12h14"/></svg>';
-          menos.addEventListener('click', function () { cambiar(item.id, -1); });
-
-          var salida = document.createElement('output');
-          salida.setAttribute('aria-label', 'Cantidad de ' + item.nombre);
-          salida.textContent = item.cantidad;
-
-          var mas = document.createElement('button');
-          mas.type = 'button';
-          mas.setAttribute('aria-label', 'Agregar una unidad de ' + item.nombre);
-          mas.disabled = item.cantidad >= item.stock;
-          mas.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" d="M12 5v14M5 12h14"/></svg>';
-          mas.addEventListener('click', function () { cambiar(item.id, 1); });
-
-          qty.appendChild(menos);
-          qty.appendChild(salida);
-          qty.appendChild(mas);
-
-          var monto = document.createElement('span');
-          monto.className = 'pos-line-total';
-          monto.textContent = bs(subtotal);
-
-          var quitar = document.createElement('button');
-          quitar.type = 'button';
-          quitar.className = 'btn-icon btn-icon--danger';
-          quitar.setAttribute('aria-label', 'Eliminar ' + item.nombre + ' del ticket');
-          quitar.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
-          quitar.addEventListener('click', function () { eliminar(item.id); });
-
-          acciones.appendChild(qty);
-          acciones.appendChild(monto);
-          acciones.appendChild(quitar);
-
-          fila.appendChild(info);
-          fila.appendChild(acciones);
-          contenedor.appendChild(fila);
-        });
-      }
-
-      document.getElementById('totalCarrito').textContent = bs(total);
-      document.getElementById('totalProductos').textContent = articulos;
-
-      var totalUsd = document.getElementById('totalUsd');
-      if (totalUsd && TASA_USD > 0) {
-        var usd = (total / TASA_USD).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        totalUsd.firstChild.textContent = '≈ $ ' + usd + ' ';
-      }
-
-      inputProductos.value = JSON.stringify(carrito.map(function (item) {
-        return { id: item.id, cantidad: item.cantidad, precio: item.precio };
-      }));
-
-      cobrarBtn.disabled = carrito.length === 0;
-      vaciarBtn.hidden = carrito.length === 0;
-    }
-
-    if (grid) {
-      grid.addEventListener('click', function (e) {
-        var tile = e.target.closest('.pos-tile');
-        if (tile && !tile.disabled) agregar(tile);
-      });
-    }
-
-    vaciarBtn.addEventListener('click', function () {
-      carrito = [];
-      anunciar('Ticket vaciado.');
-      pintar();
-      if (buscador) buscador.focus();
-    });
-
-    /* ── Estado de la venta ───────────────────────────────────────────── */
-    var estado = document.getElementById('estado_venta');
-    var metodoBox = document.getElementById('metodoPagoContainer');
-    var numeroBox = document.getElementById('numeroPagoContainer');
-    var metodo = document.getElementById('metodo_pago');
-    var numero = document.getElementById('numero_pago');
-
-    function sincronizarEstado() {
-      var completada = estado.value === 'completada';
-      metodoBox.hidden = !completada;
-      numeroBox.hidden = !completada;
-      // Deshabilitados además de ocultos: una venta pendiente no debe
-      // guardar un método de pago que el cajero nunca eligió.
-      metodo.disabled = !completada;
-      numero.disabled = !completada;
-      cobrarBtn.textContent = completada ? 'Cobrar ticket' : 'Guardar como pendiente';
-    }
-
-    estado.addEventListener('change', sincronizarEstado);
-    sincronizarEstado();
-    pintar();
-  })();
+  window.TASA_USD = <?= json_encode($tasa_usd) ?>;
 </script>
+<script src="<?= assets('scripts/pos.js') ?>"></script>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

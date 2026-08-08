@@ -11,6 +11,32 @@ class BaseModel
         $this->db = Conexion::conectar();
     }
 
+    public function beginTransaction(): void
+    {
+        if (!$this->db->inTransaction()) {
+            $this->db->beginTransaction();
+        }
+    }
+
+    public function commit(): void
+    {
+        if ($this->db->inTransaction()) {
+            $this->db->commit();
+        }
+    }
+
+    public function rollBack(): void
+    {
+        if ($this->db->inTransaction()) {
+            $this->db->rollBack();
+        }
+    }
+
+    protected function lastInsertId(): string
+    {
+        return $this->db->lastInsertId();
+    }
+
     protected function query(string $sql, array $params = [])
     {
         $stmt = $this->db->prepare($sql);
@@ -35,15 +61,41 @@ class BaseModel
         return $stmt->execute($params);
     }
 
-    protected function deleteById(string $table, string $idColumn, int $id): bool
+    protected function paginate(string $sql, string $countSql, array $params = [], int $page = 1, int $perPage = 15): array
+    {
+        $page = max(1, $page);
+        $offset = ($page - 1) * $perPage;
+
+        $stmtCount = $this->db->prepare($countSql);
+        $stmtCount->execute($params);
+        $totalRows = (int) $stmtCount->fetchColumn();
+
+        $sqlPaginada = $sql . " LIMIT {$perPage} OFFSET {$offset}";
+        $stmt = $this->db->prepare($sqlPaginada);
+        $stmt->execute($params);
+        $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $totalPages = $totalRows > 0 ? (int) ceil($totalRows / $perPage) : 1;
+
+        return [
+            'data' => $data,
+            'total' => $totalRows,
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalPages' => $totalPages,
+        ];
+    }
+
+    public function deleteById(string $table, string $idColumn, int $id): bool
     {
         return $this->execute("DELETE FROM {$table} WHERE {$idColumn} = ?", [$id]);
     }
 
-    protected function updateStatusById(string $table, string $statusColumn, string $status, string $idColumn, int $id): bool
+    public function updateStatusById(string $table, string $statusColumn, string $status, string $idColumn, int $id): bool
     {
         return $this->execute("UPDATE {$table} SET {$statusColumn} = ? WHERE {$idColumn} = ?", [$status, $id]);
     }
+
 
     protected function isDuplicateField(string $table, string $field, string $value, ?int $exceptId = null, string $idColumn = 'id'): bool
     {
@@ -64,3 +116,4 @@ class BaseModel
         return (bool) $this->fetchOne($sql, $params);
     }
 }
+

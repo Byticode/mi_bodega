@@ -1,13 +1,13 @@
 <?php
 $page_title = 'Ventas';
 $page_desc  = 'Historial de ventas de mostrador.';
-include ruta . '/includes/head.php';
-include ruta . '/includes/sidebar.php';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
-$hoy         = date('Y-m-d');
-$total_hoy   = 0;
-$ventas_hoy  = 0;
-$pendientes  = 0;
+$hoy        = date('Y-m-d');
+$total_hoy  = 0;
+$ventas_hoy = 0;
+$pendientes = 0;
 
 foreach ($ventas as $v) {
     if (date('Y-m-d', strtotime($v['venta_fecha'])) === $hoy && $v['venta_estado'] !== 'cancelada') {
@@ -29,13 +29,13 @@ foreach ($ventas as $v) {
         <h1 class="page-title">Ventas</h1>
         <p class="page-sub">Movimientos de mostrador, del más reciente al más antiguo.</p>
       </div>
-      <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary">
+      <a href="<?= url('pos') ?>" class="btn btn-primary">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Nueva venta
       </a>
     </div>
 
-    <?php include ruta . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
     <!-- Resumen del día -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -89,7 +89,7 @@ foreach ($ventas as $v) {
                     <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
                     <p class="empty-title">Todavía no hay ventas</p>
                     <p class="empty-sub">Registra la primera desde el punto de venta.</p>
-                    <a href="index.php?controller=ventasController&action=pos" class="btn btn-primary mt-3">Abrir punto de venta</a>
+                    <a href="<?= url('pos') ?>" class="btn btn-primary mt-3">Abrir punto de venta</a>
                   </div>
                 </td>
               </tr>
@@ -117,12 +117,12 @@ foreach ($ventas as $v) {
                     <?php endif; ?>
                   </td>
                   <td class="col-actions">
-                    <a href="index.php?controller=ventasController&action=ver&id=<?= (int) $venta['venta_id'] ?>"
+                    <a href="<?= url('ventas/ver/' . $venta['venta_id']) ?>"
                        class="btn-icon" aria-label="Ver detalle de la venta #<?= (int) $venta['venta_id'] ?>">
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </a>
                     <?php if ($venta['venta_estado'] === 'pendiente'): ?>
-                      <a href="index.php?controller=ventasController&action=editar&id=<?= (int) $venta['venta_id'] ?>"
+                      <a href="<?= url('ventas/editar/' . $venta['venta_id']) ?>"
                          class="btn-icon" aria-label="Cobrar la venta #<?= (int) $venta['venta_id'] ?>">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
                       </a>
@@ -173,11 +173,11 @@ foreach ($ventas as $v) {
         if (coincide) visibles++;
       });
 
-      vacio.hidden = visibles > 0;
-      conteo.textContent = visibles === 1 ? '1 venta' : visibles + ' ventas';
+      if (vacio) vacio.hidden = visibles > 0;
+      if (conteo) conteo.textContent = visibles === 1 ? '1 venta' : visibles + ' ventas';
     });
   })();
 </script>
 <?php endif; ?>
 
-<?php include ruta . '/includes/footer.php'; ?>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

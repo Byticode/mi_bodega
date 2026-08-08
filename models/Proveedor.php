@@ -15,6 +15,14 @@ class Proveedor extends BaseModel
         return $this->fetchAll("SELECT * FROM proveedores ORDER BY proveedor_id ASC");
     }
 
+    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    {
+        $sql = "SELECT * FROM proveedores ORDER BY proveedor_id ASC";
+        $countSql = "SELECT COUNT(*) FROM proveedores";
+        return $this->paginate($sql, $countSql, [], $page, $perPage);
+    }
+
+
     public function editar(string $proveedor_nombre, string $proveedor_telefono, int $proveedor_id): bool
     {
         return $this->execute(
