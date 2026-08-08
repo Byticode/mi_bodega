@@ -1,13 +1,18 @@
 <?php
-// Cabecera HTML compartida. Cada vista define $page_title antes de incluir.
+// Cabecera HTML compartida. Cada vista define $page_title (y opcionalmente
+// $page_desc) antes de incluir este archivo.
 $page_title = $page_title ?? 'Panel';
+$page_desc  = $page_desc  ?? 'Control de mercancía, ventas y surtido para tu bodega.';
 ?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="description" content="<?= htmlspecialchars($page_desc) ?>">
+  <meta name="theme-color" content="#3a6341">
+  <meta name="color-scheme" content="light">
   <title><?= htmlspecialchars($page_title) ?> · mi_bodega</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,4 +35,5 @@ $page_title = $page_title ?? 'Panel';
 </head>
 
 <body class="min-h-screen flex">
-<?php include RUTA_APP . '/includes/spinner.php'; ?>
+  <a href="#contenido" class="skip-link">Saltar al contenido</a>
+  <?php include RUTA_APP . '/includes/spinner.php'; ?>

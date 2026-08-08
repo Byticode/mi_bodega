@@ -1,111 +1,89 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Surtidos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php
+$page_title = 'Surtido';
+$page_desc  = 'Historial de compras y entradas de mercancía.';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
-  <!-- SIDEBAR -->
-  <?php
-  include RUTA_APP . '/includes/sidebar.php';
-  ?>
+$inversion = array_sum(array_column($surtidos, 'surtido_costo_total'));
+$ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
+?>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6 space-y-6 max-w-5xl mx-auto">
-    <div class="flex items-center justify-between">
+<main id="contenido" class="app-main">
+  <div class="app-wrap">
+
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Surtidos</h2>
-        <p class="text-xs text-gray-500">Historial de compras y surtidos de productos</p>
+        <h1 class="page-title">Surtido</h1>
+        <p class="page-sub">Entradas de mercancía al inventario y su costo.</p>
       </div>
-      <a href="<?= url('surtidos/crear') ?>" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Nuevo Surtido
+      <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+        Nuevo surtido
       </a>
     </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="flex items-center gap-3 p-4 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
-    <?php if (isset($_SESSION['success'])): ?>
-      <div class="flex items-center gap-3 p-4 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+    <!-- Resumen -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div class="stat">
+        <span class="stat-label">Surtidos</span>
+        <span class="stat-value"><?= count($surtidos) ?></span>
       </div>
-      <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
+      <div class="stat">
+        <span class="stat-label">Inversión acumulada</span>
+        <span class="stat-value stat-value--money stat-value--accent"><?= money($inversion) ?></span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Último surtido</span>
+        <span class="stat-value"><?= $ultimo ? date('d/m/Y', strtotime($ultimo)) : '—' ?></span>
+      </div>
+    </div>
 
-    <!-- TABLA DE SURTIDOS -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
+    <!-- Tabla -->
+    <div class="card overflow-hidden">
+      <div class="card-head">
+        <h2 class="section-title">Historial de surtidos</h2>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Surtidos registrados con proveedor, número de productos, costo y fecha</caption>
+          <thead>
             <tr>
-              <th class="p-3"># Surtido</th>
-              <th class="p-3">Proveedor</th>
-              <th class="p-3 text-center">Productos</th>
-              <th class="p-3 text-right">Costo Total</th>
-              <th class="p-3 text-right">Fecha</th>
-              <th class="p-3 text-right">Acción</th>
+              <th scope="col">Surtido</th>
+              <th scope="col">Proveedor</th>
+              <th scope="col" class="num">Productos</th>
+              <th scope="col" class="num">Costo total</th>
+              <th scope="col">Fecha</th>
+              <th scope="col" class="col-actions">Acción</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100">
+          <tbody>
             <?php if (empty($surtidos)): ?>
               <tr>
-                <td colspan="6" class="p-6 text-center text-gray-500">
-                  <svg class="w-12 h-12 mx-auto text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
-                  </svg>
-                  <p class="font-medium">No hay surtidos registrados</p>
-                  <p class="text-xs">Haz clic en "Nuevo Surtido" para comenzar</p>
+                <td colspan="6">
+                  <div class="empty">
+                    <svg class="empty-icon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
+                    <p class="empty-title">Todavía no hay surtidos</p>
+                    <p class="empty-sub">Registra una entrada de mercancía para aumentar el stock y llevar el costo.</p>
+                    <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary mt-3">Nuevo surtido</a>
+                  </div>
                 </td>
               </tr>
             <?php else: ?>
               <?php foreach ($surtidos as $surtido): ?>
-                <tr class="hover:bg-gray-50">
-                  <td class="p-3 font-mono font-semibold text-olive">#<?= $surtido['surtido_id'] ?></td>
-                  <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></td>
-                  <td class="p-3 text-center"><?= $surtido['total_productos'] ?></td>
-                  <td class="p-3 text-right font-semibold">Bs. <?= number_format($surtido['surtido_costo_total'], 2) ?></td>
-                  <td class="p-3 text-right text-gray-500"><?= date('d/m/Y H:i', strtotime($surtido['surtido_fecha'])) ?></td>
-                  <td class="p-3 text-right">
-                    <a href="<?= url('surtidos/ver/' . $surtido['surtido_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors" title="Ver detalles">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                      </svg>
+                <tr>
+                  <td class="font-mono text-xs font-semibold text-olive">#<?= (int) $surtido['surtido_id'] ?></td>
+                  <td class="font-medium"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></td>
+                  <td class="num text-ink-2"><?= (int) $surtido['total_productos'] ?></td>
+                  <td class="num money"><?= money($surtido['surtido_costo_total']) ?></td>
+                  <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($surtido['surtido_fecha'])) ?></td>
+                  <td class="col-actions">
+                    <a href="<?= url('surtidos/ver/' . $surtido['surtido_id']) ?>"
+                       class="btn-icon" aria-label="Ver detalle del surtido #<?= (int) $surtido['surtido_id'] ?>">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </a>
                   </td>
                 </tr>
@@ -114,31 +92,15 @@
           </tbody>
         </table>
       </div>
+
+      <?php if (!empty($surtidos)): ?>
+        <div class="card-foot">
+          <span><?= count($surtidos) ?> surtidos registrados</span>
+        </div>
+      <?php endif; ?>
     </div>
 
-    <!-- Resumen rápido -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Total Surtidos</p>
-        <p class="text-2xl font-bold text-gray-900"><?= count($surtidos) ?></p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Inversión Total</p>
-        <p class="text-2xl font-bold text-olive">
-          Bs. <?= number_format(array_sum(array_column($surtidos, 'surtido_costo_total')), 2) ?>
-        </p>
-      </div>
-      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <p class="text-xs text-gray-500">Último Surtido</p>
-        <p class="text-lg font-bold text-gray-900">
-          <?= !empty($surtidos) ? date('d/m/Y', strtotime($surtidos[0]['surtido_fecha'])) : 'N/A' ?>
-        </p>
-      </div>
-    </div>
-  </main>
+  </div>
+</main>
 
-  <?php
-  include RUTA_APP . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

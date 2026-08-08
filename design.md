@@ -20,21 +20,21 @@ modern-minimal (app de gestión / dashboard), con calidez de marca.
 Marca preservada (paper cálido + olive), en OKLCH. Los valores canónicos viven
 en `assets/css/input.css` (`@theme`); aquí la referencia:
 
-- `--color-paper`        oklch(98.6% 0.004 95)   — fondo de app (antes warmBg)
-- `--color-card`         oklch(99.6% 0.002 95)   — superficie de tarjetas
-- `--color-card-2`       oklch(96.3% 0.007 95)   — superficie hundida (antes warmCard)
-- `--color-ink`          oklch(26% 0.012 130)    — texto principal
-- `--color-ink-2`        oklch(46% 0.01 130)     — texto secundario
-- `--color-ink-3`        oklch(58% 0.01 120)     — texto terciario / placeholders
-- `--color-rule`         oklch(90.5% 0.008 100)  — bordes hairline
-- `--color-olive`        oklch(45% 0.08 148)     — acento (único)
-- `--color-olive-hover`  oklch(38% 0.07 148)
-- `--color-olive-light`  oklch(94.5% 0.016 148)  — fondo de ítem activo / badges
-- `--color-focus`        = `--color-olive`
-- `--color-danger`       oklch(50% 0.16 25)      — errores / acciones destructivas
-- `--color-danger-bg`    oklch(95% 0.02 25)
-- `--color-success`      oklch(48% 0.1 150)      — confirmaciones
-- `--color-success-bg`   oklch(95% 0.02 150)
+- `--color-paper` oklch(98.6% 0.004 95) — fondo de app (antes warmBg)
+- `--color-card` oklch(99.6% 0.002 95) — superficie de tarjetas
+- `--color-card-2` oklch(96.3% 0.007 95) — superficie hundida (antes warmCard)
+- `--color-ink` oklch(26% 0.012 130) — texto principal
+- `--color-ink-2` oklch(46% 0.01 130) — texto secundario
+- `--color-ink-3` oklch(58% 0.01 120) — texto terciario / placeholders
+- `--color-rule` oklch(90.5% 0.008 100) — bordes hairline
+- `--color-olive` oklch(45% 0.08 148) — acento (único)
+- `--color-olive-hover` oklch(38% 0.07 148)
+- `--color-olive-light` oklch(94.5% 0.016 148) — fondo de ítem activo / badges
+- `--color-focus` = `--color-olive`
+- `--color-danger` oklch(50% 0.16 25) — errores / acciones destructivas
+- `--color-danger-bg` oklch(95% 0.02 25)
+- `--color-success` oklch(48% 0.1 150) — confirmaciones
+- `--color-success-bg` oklch(95% 0.02 150)
 
 Regla de acento: olive ≤ 5 % del viewport — botones primarios, ítem activo del
 sidebar, focus rings, montos destacados. Nunca fondos de sección.
@@ -50,6 +50,7 @@ sidebar, focus rings, montos destacados. Nunca fondos de sección.
   base 1rem · `--text-md` 1.25rem · `--text-lg` 1.56rem · `--text-xl` 1.95rem.
 - Título de página: `var(--text-xl)` Fraunces 600. Mínimo de cuerpo: 14 px.
 - Números en tablas y montos: `font-variant-numeric: tabular-nums`.
+- Todas las páginas deben tener las mismas y tamaños de fuentes.
 
 ## Spacing
 
@@ -85,21 +86,74 @@ usan las utilidades de Tailwind (p-3 / p-4 / p-6), que ya siguen 4 pt.
 - Peligro: `.btn-danger` — borde danger, texto danger.
 - Copy: verbo corto en infinitivo o imperativo ("Agregar", "Guardar cambios").
 
+## Accesibilidad (no negociable)
+
+Toda vista debe cumplir esto; hay un arnés de verificación en la sección final.
+
+- **Un solo `<h1>` por página**: el título de la página. Los encabezados de
+  tarjeta o sección son `<h2>` / `<h3>`.
+- **Todo control tiene `<label for>`** asociado. El `placeholder` nunca sustituye
+  a la etiqueta: desaparece al escribir.
+- **Campos obligatorios** marcados con `<span class="req" aria-hidden="true">*</span>`
+  y `required`; el asterisco se explica en la etiqueta, no solo con color.
+- **Iconos**: `aria-hidden="true"` en todo `<svg>` decorativo. Los enlaces y
+  botones solo-icono llevan `aria-label` que nombra el objeto concreto
+  ("Editar la categoría Víveres"), no genérico ("Editar").
+- **Tablas**: `<th scope="col">` y un `<caption class="sr-only">` que describe
+  el contenido.
+- **Estado nunca solo por color**: los badges combinan tinte + `.badge-dot` +
+  texto; el ítem activo del sidebar suma una barra de posición.
+- **Foco visible siempre**, y sin transición: el anillo aparece al instante.
+- **Objetivos táctiles** de 44 px mínimo en punteros gruesos.
+- **Salto al contenido** (`.skip-link` → `#contenido`) como primer foco.
+- **Cambios dinámicos anunciados** con `role="status"` + `aria-live="polite"`
+  (carrito del POS, contadores de filtro, totales).
+- **Contraste**: todo par texto/fondo ≥ 4.5:1; bordes de control ≥ 1.4:1.
+
 ## Componentes (clases en assets/css/input.css)
 
-`.card` · `.btn` / `.btn-primary` / `.btn-secondary` / `.btn-danger` /
-`.btn-icon` · `.input` / `.select` / `.label` · `.table` · `.badge` (+`-success`
-/ `-warn` / `-danger` / `-neutral`) · `.alert` / `.alert-error` /
-`.alert-success` · `.page-title` / `.page-sub` · `.tnum`
+- **Layout** — `.app-main` · `.app-wrap` (+`--narrow` / `--mid` / `--wide`) ·
+  `.topbar` (barra móvil) · `.page-head` · `.page-title` / `.page-sub` ·
+  `.breadcrumb` · `.section-title` / `.section-sub`
+- **Superficies** — `.card` · `.card-head` / `.card-foot` · `.stat` (+`-label` /
+  `-value` / `-note`; modificadores `--money` / `--accent` / `--warn` /
+  `--danger`) · `.dl-item` / `.dl-label` / `.dl-value` · `.empty` (+`-icon` /
+  `-title` / `-sub`)
+- **Acción** — `.btn` + `.btn-primary` / `-secondary` / `-ghost` / `-danger`,
+  tamaños `.btn-sm` / `.btn-lg` / `.btn-block` · `.btn-icon` (+`--danger`) ·
+  `.link`
+- **Formulario** — `.field` · `.label` · `.req` · `.hint` · `.input` /
+  `.select` / `.textarea` · `.input--num` · `.search` / `.search-icon` ·
+  `.toolbar`
+- **Datos** — `.table-wrap` / `.table` (+`.num` / `.col-actions`) · `.badge`
+  (+`-success` / `-warn` / `-danger` / `-info` / `-neutral` / `-olive`) ·
+  `.badge-dot` · `.tnum` / `.money`
+- **Avisos** — `.alert` + `-error` / `-success` / `-warn` / `-info`
+- **Rail** — `.sidebar` / `.sidebar-overlay` / `.sidebar-brand` / `.sidebar-mark`
+  / `.sidebar-wordmark` / `.sidebar-nav` / `.sidebar-section` / `.sidebar-foot` ·
+  `.nav-link` / `.nav-disclosure` / `.nav-caret` / `.nav-submenu` / `.nav-sublink`
+- **POS** — `.pos-tile` (+`-name` / `-meta` / `-price`) · `.pos-ticket` ·
+  `.pos-line` (+`-name` / `-unit` / `-total`) · `.qty` · `.pos-total` (+`-label`
+  / `-value`)
+- **Accesibilidad** — `.sr-only` · `.skip-link`
 
 Las vistas usan estas clases para lo repetido y utilidades Tailwind para layout.
+Tras tocar `input.css`, recompila: `npm run build:css`.
+
+## Formato de cifras
+
+Todo monto pasa por `money()` (helpers.php) → `Bs 1.234,56`. Las cantidades
+pasan por `qty()` → sin decimales sobrantes. Nunca `number_format()` suelto en
+una vista: es lo que hacía que cada pantalla mostrara las cifras distinto.
 
 ## Estructura de includes (todas las vistas)
 
-1. `<?php $page_title = '…'; include ruta . '/includes/head.php'; ?>` — doctype,
-   `<head>` completo (fuentes + styles.css), apertura de `<body>`.
-2. `include ruta . '/includes/sidebar.php';` — rail con estado activo dinámico.
-3. `<main class="app-main">` → page header → `include ruta . '/includes/flash.php';`
+1. `<?php $page_title = '…'; $page_desc = '…'; include ruta . '/includes/head.php'; ?>`
+   — doctype, `<head>` completo (fuentes + styles.css), `<body>` y skip-link.
+2. `include ruta . '/includes/sidebar.php';` — barra móvil + rail con estado
+   activo dinámico (controller **y** action).
+3. `<main id="contenido" class="app-main">` → `<div class="app-wrap">` → page
+   header (`<h1 class="page-title">`) → `include ruta . '/includes/flash.php';`
    → contenido.
 4. `include ruta . '/includes/footer.php';` — cierre + sidebar.js.
 
@@ -122,3 +176,13 @@ Las vistas usan estas clases para lo repetido y utilidades Tailwind para layout.
 
 - App pages MUST NOT use enrichment — function carries the page.
 - Sin métricas inventadas: solo datos reales de la base de datos.
+
+## Deuda conocida
+
+- `views/inventario/inventario.php` es una maqueta con datos inventados
+  («124 productos», «Bs 14.250,00») y ningún controlador la enruta — la ruta
+  real de Inventario es `productosController&action=listar`. Viola la regla de
+  «sin métricas inventadas». Borrar o conectar a datos reales.
+- `views/credenciales/credenciales.php` tampoco está enrutada en `index.php` y
+  su formulario no envía nada (`onsubmit="event.preventDefault()"`).
+- Los borrados siguen siendo GET directos, sin confirmación ni CSRF.

@@ -1,50 +1,50 @@
 <?php
 $page_title = 'Editar proveedor';
-include ruta . '/includes/head.php';
+$page_desc  = 'Actualiza los datos de un proveedor.';
+include RUTA_APP . '/includes/head.php';
 include RUTA_APP . '/includes/sidebar.php';
+
+$proveedor = $dato[0] ?? $proveedor ?? [];
 ?>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="app-main">
-    <div class="max-w-xl mx-auto space-y-6">
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--narrow">
 
-      <!-- Page header -->
-      <div class="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 class="page-title">Editar proveedor</h2>
-          <p class="page-sub">
-            <a href="<?= url('proveedores') ?>" class="text-olive hover:underline">Proveedores</a>
-            <span class="text-ink-3"> / <?= htmlspecialchars($dato[0]['proveedor_nombre']) ?></span>
-          </p>
-        </div>
+    <!-- Page header -->
+    <div class="page-head">
+      <div>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="<?= url('proveedores') ?>">Proveedores</a>
+          <span aria-hidden="true">/</span>
+          <span><?= htmlspecialchars($proveedor['proveedor_nombre'] ?? '') ?></span>
+        </nav>
+        <h1 class="page-title">Editar proveedor</h1>
       </div>
-
-      <?php include ruta . '/includes/flash.php'; ?>
-
-      <!-- FORMULARIO -->
-      <div class="card p-5">
-        <form action="<?= url('proveedores/editar/' . $dato[0]['proveedor_id']) ?>" method="POST" class="space-y-4">
-
-          <div>
-            <label for="nombre" class="label">Nombre comercial</label>
-            <input type="text" id="nombre" name="nombre" class="input" required
-              value="<?= htmlspecialchars($dato[0]['proveedor_nombre']) ?>">
-          </div>
-
-          <div>
-            <label for="telefono" class="label">Teléfono</label>
-            <input type="text" id="telefono" name="telefono" class="input"
-              value="<?= htmlspecialchars($dato[0]['proveedor_telefono']) ?>">
-          </div>
-
-          <div class="flex items-center gap-3 pt-2">
-            <button type="submit" class="btn btn-primary">Guardar cambios</button>
-            <a href="<?= url('proveedores') ?>" class="btn btn-secondary">Cancelar</a>
-          </div>
-        </form>
-      </div>
-
     </div>
-  </main>
 
-<?php include ruta . '/includes/footer.php'; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
+
+    <form action="<?= url('proveedores/editar/' . ($proveedor['proveedor_id'] ?? 0)) ?>" method="POST" class="card p-5 flex flex-col gap-4">
+
+      <div class="field">
+        <label for="nombre" class="label">Nombre comercial <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="nombre" name="nombre" class="input" required autocomplete="organization"
+          value="<?= htmlspecialchars($proveedor['proveedor_nombre'] ?? '') ?>">
+      </div>
+
+      <div class="field">
+        <label for="telefono" class="label">Teléfono</label>
+        <input type="tel" id="telefono" name="telefono" class="input" autocomplete="tel"
+          value="<?= htmlspecialchars($proveedor['proveedor_telefono'] ?? '') ?>">
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="<?= url('proveedores') ?>" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<?php include RUTA_APP . '/includes/footer.php'; ?>

@@ -1,117 +1,86 @@
-<!DOCTYPE html>
-<html lang="es">
+<?php
+$page_title = 'Unidades de medida';
+$page_desc  = 'Administra las unidades de medida de los productos.';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
+?>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Unidades</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            warmCard: '#f5f3ec',
-            olive: {
-              DEFAULT: '#3a6341',
-              hover: '#2f5135',
-              light: '#eaf0eb'
-            }
-          }
-        }
-      }
-    }
-  </script>
-</head>
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--mid">
 
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
-
-  <!-- SIDEBAR -->
-  <?php
-  include RUTA_APP . '/includes/sidebar.php';
-  ?>
-
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 p-6 space-y-6 max-w-4xl mx-auto">
-    <div class="flex items-center justify-between">
+    <!-- Page header -->
+    <div class="page-head">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Unidades de Medida</h2>
-        <p class="text-xs text-gray-500">Administra las unidades de medida para los productos</p>
+        <h1 class="page-title">Unidades de medida</h1>
+        <p class="page-sub">La abreviatura se pega al nombre del producto: «Arroz 1kg».</p>
       </div>
     </div>
 
-    <!-- REGISTRO -->
-    <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <h3 class="font-bold text-gray-900 text-sm">Nueva Unidad</h3>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
-      <?php if (isset($_SESSION['error'])): ?>
-        <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-          <div class="flex-1">
-            <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-          </div>
-          <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-            <i data-lucide="x" class="w-4 h-4"></i>
-          </button>
+    <!-- Registro -->
+    <div class="card p-5 flex flex-col gap-4">
+      <h2 class="section-title">Nueva unidad</h2>
+
+      <form class="flex flex-col sm:flex-row sm:items-end gap-3" action="<?= url('unidades/crear') ?>" method="POST">
+        <div class="field flex-1">
+          <label for="nombre" class="label">Nombre <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="nombre" name="nombre" class="input" placeholder="Ej: Kilogramo" required autocomplete="off">
         </div>
-        <?php unset($_SESSION['error']); ?>
-      <?php endif; ?>
-
-      <form class="flex gap-3" action="<?= url('unidades/crear') ?>" method="POST">
-        <input type="text" name="nombre" placeholder="Nombre de la unidad" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <input type="text" name="abreviatura" placeholder="Abreviatura" class="w-32 px-3 py-2 border border-gray-300 rounded-lg text-xs focus:outline-none focus:border-olive">
-        <button type="submit" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors">
-          Agregar
-        </button>
+        <div class="field sm:w-40">
+          <label for="abreviatura" class="label">Abreviatura <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="abreviatura" name="abreviatura" class="input" placeholder="Ej: kg" required autocomplete="off" maxlength="10">
+        </div>
+        <button type="submit" class="btn btn-primary">Agregar</button>
       </form>
     </div>
 
-    <?php if (isset($_SESSION['success'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-green-800 border border-green-200/80 rounded-2xl bg-green-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-green-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Correcto.</span> <?= htmlspecialchars($_SESSION['success']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-green-800 p-1 rounded-lg hover:bg-green-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
+    <!-- Tabla -->
+    <div class="card overflow-hidden">
+      <div class="card-head">
+        <h2 class="section-title">Unidades registradas</h2>
       </div>
-      <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
 
-    <!-- TABLA -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-      <table class="w-full text-left text-xs">
-        <thead class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold uppercase">
-          <tr>
-            <th class="p-3">Nombre</th>
-            <th class="p-3">Abreviatura</th>
-            <th class="p-3 text-right">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <?php foreach ($unidades as $unidad): ?>
-            <tr class="hover:bg-gray-50">
-              <td class="p-3 font-medium text-gray-900"><?= htmlspecialchars($unidad['unidad_nombre']) ?></td>
-              <td class="p-3 font-mono font-semibold text-olive"><?= htmlspecialchars($unidad['unidad_abreviatura']) ?></td>
-              <td class="p-3 text-right">
-                <a href="<?= url('unidades/editar/' . $unidad['unidad_id']) ?>" class="inline-block p-1.5 text-gray-500 hover:text-olive hover:bg-gray-100 rounded-md transition-colors">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                  </svg>
-                </a>
-              </td>
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Unidades de medida registradas</caption>
+          <thead>
+            <tr>
+              <th scope="col">Nombre</th>
+              <th scope="col">Abreviatura</th>
+              <th scope="col" class="col-actions">Acción</th>
             </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <?php if (empty($unidades)): ?>
+              <tr>
+                <td colspan="3">
+                  <div class="empty">
+                    <p class="empty-title">No hay unidades registradas</p>
+                    <p class="empty-sub">Agrega al menos una para poder crear productos.</p>
+                  </div>
+                </td>
+              </tr>
+            <?php else: ?>
+              <?php foreach ($unidades as $unidad): ?>
+                <tr>
+                  <td class="font-medium"><?= htmlspecialchars($unidad['unidad_nombre']) ?></td>
+                  <td><span class="badge badge-olive font-mono"><?= htmlspecialchars($unidad['unidad_abreviatura']) ?></span></td>
+                  <td class="col-actions">
+                    <a href="<?= url('unidades/editar/' . $unidad['unidad_id']) ?>"
+                       class="btn-icon" aria-label="Editar la unidad <?= htmlspecialchars($unidad['unidad_nombre'], ENT_QUOTES) ?>">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/></svg>
+                    </a>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </main>
 
-  <?php
-  include RUTA_APP . '/includes/sidebar.js';
-  ?>
-</body>
+  </div>
+</main>
 
-</html>
+<?php include RUTA_APP . '/includes/footer.php'; ?>

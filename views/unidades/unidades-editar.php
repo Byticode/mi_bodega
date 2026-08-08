@@ -1,72 +1,50 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>mi_bodega - Editar Unidad</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            warmBg: '#fcfbf7',
-            olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="bg-warmBg text-gray-800 font-sans min-h-screen flex">
+<?php
+$page_title = 'Editar unidad';
+$page_desc  = 'Actualiza una unidad de medida.';
+include RUTA_APP . '/includes/head.php';
+include RUTA_APP . '/includes/sidebar.php';
 
-  <!-- SIDEBAR -->
-  <?php 
-  include RUTA_APP . '/includes/sidebar.php';
-  ?>
+$unidad = $dato[0] ?? $unidad ?? [];
+?>
 
-  <main class="flex-1 p-6 space-y-6 max-w-2xl mx-auto">
-    <div class="flex items-center space-x-3">
-      <a href="<?= url('unidades') ?>" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </a>
-      <h2 class="text-2xl font-bold text-gray-900">Editar Unidad</h2>
+<main id="contenido" class="app-main">
+  <div class="app-wrap app-wrap--narrow">
+
+    <!-- Page header -->
+    <div class="page-head">
+      <div>
+        <nav class="breadcrumb" aria-label="Ruta de navegación">
+          <a href="<?= url('unidades') ?>">Unidades</a>
+          <span aria-hidden="true">/</span>
+          <span><?= htmlspecialchars($unidad['unidad_nombre'] ?? '') ?></span>
+        </nav>
+        <h1 class="page-title">Editar unidad</h1>
+        <p class="page-sub">Cambiar la abreviatura no renombra los productos ya creados.</p>
+      </div>
     </div>
 
-    <?php if (isset($_SESSION['error'])): ?>
-      <div class="flex items-center gap-3 p-4 mb-6 text-sm text-rose-800 border border-rose-200/80 rounded-2xl bg-rose-50/80 shadow-sm" role="alert">
-        <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0"></i>
-        <div class="flex-1">
-          <span class="font-semibold">Ha ocurrido un error.</span> <?= htmlspecialchars($_SESSION['error']) ?>
-        </div>
-        <button type="button" onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-rose-800 p-1 rounded-lg hover:bg-rose-100/60 transition-colors">
-          <i data-lucide="x" class="w-4 h-4"></i>
-        </button>
-      </div>
-      <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
+    <?php include RUTA_APP . '/includes/flash.php'; ?>
 
-    <form action="<?= url('unidades/editar/' . $dato[0]['unidad_id']) ?>" method="POST" class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Nombre de la Unidad</label>
-        <input type="text" name="nombre" value="<?= htmlspecialchars($dato[0]['unidad_nombre']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-gray-700 mb-1">Abreviatura</label>
-        <input type="text" name="abreviatura" value="<?= htmlspecialchars($dato[0]['unidad_abreviatura']) ?>" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-olive">
+    <form action="<?= url('unidades/editar/' . ($unidad['unidad_id'] ?? 0)) ?>" method="POST" class="card p-5 flex flex-col gap-4">
+      <div class="field">
+        <label for="nombre" class="label">Nombre <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="nombre" name="nombre" class="input" required autocomplete="off"
+               value="<?= htmlspecialchars($unidad['unidad_nombre'] ?? '') ?>">
       </div>
 
-      <div class="pt-4 border-t border-gray-100 flex justify-end space-x-3">
-        <a href="<?= url('unidades') ?>" class="px-4 py-2 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600">Cancelar</a>
-        <button type="submit" class="px-5 py-2 bg-olive text-white text-xs font-bold rounded-lg">Guardar</button>
+      <div class="field">
+        <label for="abreviatura" class="label">Abreviatura <span class="req" aria-hidden="true">*</span></label>
+        <input type="text" id="abreviatura" name="abreviatura" class="input" required autocomplete="off" maxlength="10"
+               value="<?= htmlspecialchars($unidad['unidad_abreviatura'] ?? '') ?>">
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="<?= url('unidades') ?>" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </form>
-  </main>
 
-  <?php 
-  include RUTA_APP . '/includes/sidebar.js';
-  ?>
-</body>
-</html>
+  </div>
+</main>
+
+<?php include RUTA_APP . '/includes/footer.php'; ?>

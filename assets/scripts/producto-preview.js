@@ -1,36 +1,45 @@
-document.addEventListener('DOMContentLoaded', function () {
-    const nombreInput = document.querySelector('input[name="nombre"]');
-    const pesoInput = document.querySelector('input[name="peso"]');
-    const unidadSelect = document.querySelector('select[name="unidad"]');
-    const previewElement = document.getElementById('previewNombre');
+// Vista previa en tiempo real para el nombre del producto (crear y editar)
+(function () {
+  'use strict';
 
-    if (!nombreInput || !pesoInput || !unidadSelect || !previewElement) return;
+  var nombre = document.getElementById('nombre');
+  var peso = document.getElementById('peso');
+  var unidad = document.getElementById('unidad');
+  var preview = document.getElementById('previewNombre');
 
-    function updatePreview() {
-        let nombre = nombreInput.value.trim() || 'Nombre';
-        const peso = pesoInput.value.trim();
-        const unidadText = unidadSelect.options[unidadSelect.selectedIndex]?.text || '';
-        const abreviatura = unidadText.match(/\(([^)]+)\)/);
-        const unidadAbrev = abreviatura ? abreviatura[1] : '';
+  if (!nombre || !preview) return;
 
-        if (nombre) {
-            nombre = nombre.charAt(0).toUpperCase() + nombre.slice(1);
-        }
+  function abreviatura() {
+    if (!unidad) return '';
+    var texto = unidad.options[unidad.selectedIndex] ? unidad.options[unidad.selectedIndex].text : '';
+    var match = texto.match(/\(([^)]+)\)/);
+    return match ? match[1] : '';
+  }
 
-        let preview = nombre;
-        if (peso && unidadAbrev) {
-            const pesoNum = parseFloat(peso);
-            const pesoFormateado = Number.isInteger(pesoNum) ? pesoNum : pesoNum.toFixed(2);
-            preview = nombre + ' ' + pesoFormateado + unidadAbrev;
-        } else if (peso) {
-            preview = nombre + ' ' + peso;
-        }
-
-        previewElement.textContent = preview || 'Nombre del producto';
+  function actualizar() {
+    var base = nombre.value.trim();
+    if (!base) {
+      preview.textContent = '—';
+      return;
     }
 
-    nombreInput.addEventListener('input', updatePreview);
-    pesoInput.addEventListener('input', updatePreview);
-    unidadSelect.addEventListener('change', updatePreview);
-    updatePreview();
-});
+    base = base.charAt(0).toUpperCase() + base.slice(1);
+
+    var valorPeso = peso ? peso.value.trim() : '';
+    var abrev = abreviatura();
+
+    if (valorPeso && abrev) {
+      var n = parseFloat(valorPeso);
+      preview.textContent = base + ' ' + (Number.isInteger(n) ? n : n.toFixed(2)) + abrev;
+    } else if (valorPeso) {
+      preview.textContent = base + ' ' + valorPeso;
+    } else {
+      preview.textContent = base;
+    }
+  }
+
+  nombre.addEventListener('input', actualizar);
+  if (peso) peso.addEventListener('input', actualizar);
+  if (unidad) unidad.addEventListener('change', actualizar);
+  actualizar();
+})();
