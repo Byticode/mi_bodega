@@ -225,6 +225,7 @@ class Producto
                 FROM productos p
                 LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
                 LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
+                WHERE p.producto_stock > 0 
                 ORDER BY p.producto_nombre ASC;";
 
         $stmt = $this->db->prepare($sql);
