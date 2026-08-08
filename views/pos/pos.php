@@ -4,11 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mi_bodega - POS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            display: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['Geist Mono', 'ui-monospace', 'monospace']
+          },
           colors: {
             warmBg: '#fcfbf7',
             warmCard: '#f5f3ec',
@@ -36,7 +44,7 @@
     <!-- Selección de Productos -->
     <section class="lg:col-span-2 space-y-4 overflow-y-auto max-h-[calc(100vh-80px)]">
       <div class="flex items-center justify-between sticky top-0 bg-warmBg z-10 py-2">
-        <h2 class="text-2xl font-bold text-gray-900">Punto de Venta (POS)</h2>
+        <h2 class="font-display text-2xl font-semibold text-gray-900">Punto de Venta (POS)</h2>
         <div class="flex space-x-2">
           <input type="text" id="buscarProducto" placeholder="Buscar producto..." class="px-3 py-2 bg-white border border-gray-300 rounded-lg text-sm w-64 focus:outline-none focus:border-olive">
           <button onclick="buscarProducto()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm bg-white hover:bg-gray-50">Buscar</button>

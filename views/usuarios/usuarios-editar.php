@@ -4,11 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mi_bodega - Editar Usuario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            display: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['Geist Mono', 'ui-monospace', 'monospace']
+          },
           colors: {
             warmBg: '#fcfbf7',
             olive: { DEFAULT: '#3a6341', hover: '#2f5135', light: '#eaf0eb' }
@@ -32,7 +40,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
         </svg>
       </a>
-      <h2 class="text-2xl font-bold text-gray-900">Editar Usuario</h2>
+      <h2 class="font-display text-2xl font-semibold text-gray-900">Editar Usuario</h2>
     </div>
 
     <?php if (isset($_SESSION['error'])): ?>

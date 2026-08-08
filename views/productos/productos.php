@@ -4,11 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mi_bodega - Inventario</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Geist', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            display: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['Geist Mono', 'ui-monospace', 'monospace']
+          },
           colors: {
             warmBg: '#fcfbf7',
             warmCard: '#f5f3ec',
@@ -29,7 +37,7 @@ include ruta . '/includes/sidebar.php';
   <main class="flex-1 p-8 space-y-8 max-w-5xl mx-auto">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-2xl font-bold text-gray-900">Inventario</h2>
+        <h2 class="font-display text-2xl font-semibold text-gray-900">Inventario</h2>
         <p class="text-xs text-gray-500">Gestión de productos y stock</p>
       </div>
       <a href="index.php?controller=productosController&action=crear" class="bg-olive hover:bg-olive-hover text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
