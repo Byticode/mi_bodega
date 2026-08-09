@@ -73,6 +73,29 @@ class UsuariosController extends BaseController
         }
     }
 
+    public function status()
+    {
+        $usuario_id = $this->limpiarVerificarId();
+        $status = isset($_GET['status']) ? intval($_GET['status']) : null;
+
+        if ($status === null || !in_array($status, [0, 1])) {
+            $this->setFlash('error', 'Estado no válido');
+            $this->redirect('usuarios');
+        }
+
+        // Prevenir que el usuario actual se desactive a sí mismo
+        if ($usuario_id === (int)($_SESSION['usuario']['usuario_id'] ?? 0)) {
+            $this->setFlash('error', 'No puedes cambiar el estado de tu propia cuenta');
+            $this->redirect('usuarios');
+        }
+
+        $success = $this->usuarioModel->cambiarEstado($usuario_id, $status);
+        $mensaje = $status === 1 ? 'Usuario activado con éxito' : 'Usuario desactivado con éxito';
+
+        $this->setFlash($success ? 'success' : 'error', $success ? $mensaje : 'No se pudo cambiar el estado del usuario');
+        $this->redirect('usuarios');
+    }
+
     public function limpiarPOST()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {

@@ -11,7 +11,7 @@ class Usuario extends BaseModel
 
     public function listar()
     {
-        $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, created_at FROM usuarios ORDER BY usuario_nombre ASC";
+        $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, status, created_at FROM usuarios ORDER BY usuario_nombre ASC";
         return $this->fetchAll($sql);
     }
 
@@ -30,8 +30,13 @@ class Usuario extends BaseModel
 
     public function consultarPorId($usuario_id)
     {
-        $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, created_at FROM usuarios WHERE usuario_id = ?";
+        $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, status, created_at FROM usuarios WHERE usuario_id = ?";
         return $this->fetchAll($sql, [$usuario_id]);
+    }
+
+    public function cambiarEstado(int $usuario_id, int $status): bool
+    {
+        return $this->updateStatusById('usuarios', 'status', (string)$status, 'usuario_id', $usuario_id);
     }
 
     public function limpiarVerificarId($usuario_id)
