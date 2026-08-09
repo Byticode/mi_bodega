@@ -29,7 +29,7 @@ class VentasController extends BaseController
     public function pos()
     {
         $clientes = $this->clienteModel->listar();
-        $productos = $this->productoModel->obtenerTodosProductos();
+        $productos = $this->productoModel->obtenerProductosConStock();
         // tasa_vigente() consulta la API (o su caché) y guarda el valor si cambió.
         $tasa = tasa_vigente();
 

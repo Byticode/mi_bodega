@@ -79,6 +79,7 @@ class SurtidosController extends BaseController
         } else {
             $proveedores = $this->proveedorModel->listar();
             $productos = $this->productoModel->obtenerTodosProductos();
+
             
             include RUTA_APP . '/views/surtidos/surtidos-crear.php';
             exit();

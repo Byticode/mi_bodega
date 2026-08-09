@@ -47,7 +47,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           <div id="productosGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
             <?php foreach ($productos as $producto):
               $stock = (int) $producto['producto_stock'];
-              $abrev = $producto['unidad_abreviatura'] ?? 'u';
+              $abrev = 'unid.';
             ?>
               <button type="button"
                 class="pos-tile"
@@ -63,8 +63,9 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
                   <span class="badge badge-danger mt-1">Agotado</span>
                 <?php elseif ($stock <= 10): ?>
                   <span class="badge badge-warn mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
+                  
                 <?php else: ?>
-                  <span class="pos-tile-meta"><?= $stock ?> <?= htmlspecialchars($abrev) ?> en stock</span>
+                  <span class="badge badge-success mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
                 <?php endif; ?>
                 <span class="pos-tile-price"><?= money($producto['producto_precio_venta']) ?></span>
               </button>

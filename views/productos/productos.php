@@ -113,9 +113,9 @@ $valor      = array_sum(array_map(fn($p) => $p['producto_stock'] * $p['producto_
                     <?php if ($stock <= 0): ?>
                       <span class="badge badge-danger"><span class="badge-dot"></span>Agotado</span>
                     <?php elseif ($stock <= 10): ?>
-                      <span class="badge badge-warn"><span class="badge-dot"></span><?= $stock ?></span>
+                      <span class="badge badge-warn"><span class="badge-dot"></span><?= $stock ?> unid.</span>
                     <?php else: ?>
-                      <?= $stock ?>
+                      <span class="badge badge-success"><span class="badge-dot"></span><?= $stock ?> unid.</span> 
                     <?php endif; ?>
                   </td>
                   <td class="col-actions">

@@ -237,7 +237,25 @@
     });
   }
 
-  function sincronizarEstado() {
+  var METODOS_CON_REFERENCIA = ['transferencia', 'pago_movil', 'cashea'];
+
+  function sincronizarMetodoPago() {
+    if (!estadoVenta || !metodoInput || !numeroBox || !numeroInput) return;
+
+    var esCompletada = estadoVenta.value === 'completada';
+    var requiereReferencia = METODOS_CON_REFERENCIA.indexOf(metodoInput.value.trim().toLowerCase()) !== -1;
+    var mostrarNumero = esCompletada && requiereReferencia;
+
+    numeroBox.hidden = !mostrarNumero;
+    numeroInput.disabled = !mostrarNumero;
+    numeroInput.required = mostrarNumero;
+
+    if (!mostrarNumero) {
+      numeroInput.value = '';
+    }
+  }
+
+function sincronizarEstado() {
     if (!estadoVenta) return;
     var completada = estadoVenta.value === 'completada';
     if (metodoBox) metodoBox.hidden = !completada;
@@ -245,12 +263,19 @@
     if (metodoInput) metodoInput.disabled = !completada;
     if (numeroInput) numeroInput.disabled = !completada;
     if (cobrarBtn) cobrarBtn.textContent = completada ? 'Cobrar ticket' : 'Guardar como pendiente';
+   sincronizarMetodoPago();
   }
 
   if (estadoVenta) {
     estadoVenta.addEventListener('change', sincronizarEstado);
-    sincronizarEstado();
+    
   }
+  if (metodoInput) {
+    metodoInput.addEventListener('change', sincronizarMetodoPago);
+    
+  }
+
+  sincronizarEstado();
 
   pintar();
 })();

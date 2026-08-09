@@ -13,7 +13,7 @@ foreach ($productos as $producto) {
         htmlspecialchars((string) $producto['producto_precio_venta'], ENT_QUOTES),
         htmlspecialchars($producto['producto_nombre']),
         (int) $producto['producto_stock'],
-        htmlspecialchars($producto['unidad_abreviatura'] ?? 'u')
+        'unid'
     );
 }
 $opciones_productos = ob_get_clean();

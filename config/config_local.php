@@ -3,6 +3,6 @@
 define("DB_HOST", "localhost");
 define("DB_NAME", "mi_bodega");
 define("DB_USER", "root"); // usuario local
-define("DB_PASS", '123123'); // contraseña local
+define("DB_PASS", ''); // contraseña local
 
 ?>

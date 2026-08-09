@@ -73,10 +73,10 @@ include RUTA_APP . '/includes/sidebar.php';
                  placeholder="0.00" required autocomplete="off">
         </div>
 
-        <div class="field">
+        <!-- <div class="field">
           <label for="stock" class="label">Stock inicial</label>
           <input type="number" step="1" min="0" id="stock" name="stock" class="input input--num" value="0" autocomplete="off">
-        </div>
+        </div> -->
       </div>
 
       <!-- Vista previa del nombre final -->

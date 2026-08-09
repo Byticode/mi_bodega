@@ -122,7 +122,7 @@ class Producto extends BaseModel
 
     public function obtenerTodosProductos()
     {
-        return $this->obtenerProductosConStock();
+        return $this->listar();
     }
 }
 
