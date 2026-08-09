@@ -69,6 +69,7 @@ include RUTA_APP . '/includes/sidebar.php';
               <th scope="col">Nombre</th>
               <th scope="col">Usuario</th>
               <th scope="col">Rol</th>
+              <th scope="col">Estado</th>
               <th scope="col">Registro</th>
               <th scope="col" class="col-actions">Acción</th>
             </tr>
@@ -76,7 +77,7 @@ include RUTA_APP . '/includes/sidebar.php';
           <tbody>
             <?php if (empty($usuarios)): ?>
               <tr>
-                <td colspan="5">
+                <td colspan="6">
                   <div class="empty">
                     <p class="empty-title">No hay usuarios registrados</p>
                     <p class="empty-sub">Crea el primero con el formulario de arriba.</p>
@@ -84,7 +85,11 @@ include RUTA_APP . '/includes/sidebar.php';
                 </td>
               </tr>
             <?php else: ?>
-              <?php foreach ($usuarios as $usuario): $es_admin = $usuario['usuario_rol'] === 'admin'; ?>
+              <?php foreach ($usuarios as $usuario): 
+                $es_admin = $usuario['usuario_rol'] === 'admin';
+                $es_activo = !isset($usuario['status']) || (int)$usuario['status'] === 1;
+                $es_mismo_usuario = $usuario['usuario_id'] == ($_SESSION['usuario']['usuario_id'] ?? 0);
+              ?>
                 <tr>
                   <td class="font-medium"><?= htmlspecialchars($usuario['usuario_nombre']) ?></td>
                   <td class="font-mono text-xs text-ink-2"><?= htmlspecialchars($usuario['usuario_username']) ?></td>
@@ -93,12 +98,35 @@ include RUTA_APP . '/includes/sidebar.php';
                       <?= $es_admin ? 'Administrador' : 'Vendedor' ?>
                     </span>
                   </td>
+                  <td>
+                    <span class="badge <?= $es_activo ? 'badge-success' : 'badge-neutral' ?>">
+                      <span class="badge-dot" aria-hidden="true"></span>
+                      <?= $es_activo ? 'Activo' : 'Inactivo' ?>
+                    </span>
+                  </td>
                   <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y', strtotime($usuario['created_at'])) ?></td>
                   <td class="col-actions">
                     <a href="<?= url('usuarios/editar/' . $usuario['usuario_id']) ?>"
-                       class="btn-icon" aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                       class="btn-icon" title="Editar usuario" aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
+                    <?php if (!$es_mismo_usuario): ?>
+                      <?php if ($es_activo): ?>
+                        <a href="<?= url('usuarios/status/' . $usuario['usuario_id'] . '?status=0') ?>"
+                           class="btn-icon btn-icon--danger"
+                           title="Desactivar usuario"
+                           aria-label="Desactivar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                          <i class="ti ti-user-x text-base" aria-hidden="true"></i>
+                        </a>
+                      <?php else: ?>
+                        <a href="<?= url('usuarios/status/' . $usuario['usuario_id'] . '?status=1') ?>"
+                           class="btn-icon"
+                           title="Activar usuario"
+                           aria-label="Activar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                          <i class="ti ti-user-check text-base" aria-hidden="true"></i>
+                        </a>
+                      <?php endif; ?>
+                    <?php endif; ?>
                   </td>
                 </tr>
               <?php endforeach; ?>

@@ -50,6 +50,11 @@ class LoginController extends BaseController
             $usuario = $this->usuarioModel->verificarCredenciales($username, $password);
 
             if ($usuario) {
+                if (isset($usuario['status']) && (int)$usuario['status'] === 0) {
+                    $this->setFlash('error', 'Tu cuenta se encuentra desactivada. Contacta al administrador.');
+                    $this->redirect('login');
+                }
+
                 unset($_SESSION['login_attempts'], $_SESSION['old']);
                 session_regenerate_id(true); 
 
