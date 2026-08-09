@@ -62,7 +62,8 @@ mi_bodega/
 ├── core/
 │   ├── BaseController.php    # Métodos base (requireAuth, validateNumericId, setFlash)
 │   ├── BaseModel.php         # Capa de datos PDO (paginate, fetchAll, execute)
-│   └── Router.php            # Enrutador dinámico de peticiones (Default: /pos)
+│   ├── Router.php            # Enrutador dinámico de peticiones (Default: /pos)
+│   └── TasaService.php       # Servicio de consulta de tasas de cambio (DolarAPI)
 ├── database/
 │   └── mi_bodega_mvp.sql     # Esquema SQL estructurado
 ├── includes/
@@ -74,6 +75,7 @@ mi_bodega/
 │   ├── Usuario.php, Producto.php, Venta.php, Surtido.php... # Clases de acceso a datos
 ├── views/                    # Plantillas de vistas HTML/PHP por módulo
 ├── docs/                     # Documentación técnica extendida
+├── server.php                # Router para el servidor built-in de PHP (desarrollo)
 └── index.php                 # Punto de entrada único y Autoloader
 ```
 
@@ -81,20 +83,31 @@ mi_bodega/
 
 ## 🚀 Inicio Rápido
 
-### 1. Servidor Local
-Para ejecutar el proyecto con el servidor embebido de PHP desde la raíz del repositorio:
+### 1. Servidor Local (Desarrollo)
+
+Para ejecutar el proyecto con el servidor embebido de PHP es **obligatorio** usar el archivo `server.php` como router:
 
 ```bash
-php -S localhost:8000
+php -S localhost:3000 server.php
 ```
 
-### 2. Acceso Web
+> ⚠️ **Importante:** No ejecutes `php -S localhost:3000` sin `server.php`. El servidor built-in de PHP **no procesa archivos `.htaccess`** (eso es exclusivo de Apache), por lo que sin el router todas las peticiones a archivos estáticos (CSS, JS, fuentes, imágenes) serán capturadas por el front-controller y devolverán un 404, dejando la interfaz sin estilos.
+>
+> El archivo `server.php` replica el comportamiento del `.htaccess`:
+> - **Archivos estáticos existentes** → los sirve directamente con el `Content-Type` correcto.
+> - **Rutas dinámicas** → las delega a `index.php` como front-controller.
+
+### 2. Servidor de Producción (Apache)
+
+En Apache con `mod_rewrite` habilitado, el `.htaccess` incluido maneja el enrutamiento automáticamente. No se requiere `server.php`.
+
+### 3. Acceso Web
 Abre tu navegador e ingresa a:
 ```text
-http://localhost:8000/mi_bodega/
+http://localhost:3000/mi_bodega/
 ```
 
-### 3. Credenciales Iniciales de Administrador
+### 4. Credenciales Iniciales de Administrador
 * **Usuario**: `admin`
 * **Contraseña**: `admin123`
 
