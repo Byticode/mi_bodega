@@ -63,7 +63,6 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
                   <span class="badge badge-danger mt-1">Agotado</span>
                 <?php elseif ($stock <= 10): ?>
                   <span class="badge badge-warn mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
-                  
                 <?php else: ?>
                   <span class="badge badge-success mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
                 <?php endif; ?>
@@ -124,15 +123,57 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
               </select>
             </div>
 
+            <!-- ══ Tarjetas de Método de Pago Horizontales (5 Métodos) ══ -->
             <div class="field" id="metodoPagoContainer">
-              <label for="metodo_pago" class="label">Método de pago</label>
-              <select id="metodo_pago" name="metodo_pago" class="select">
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="pago_movil">Pago móvil</option>
-                <option value="biopago">Biopago</option>
-                <option value="cashea">Cashea</option>
-              </select>
+              <label class="label mb-1">Método de pago</label>
+              <div class="mt-1 flex justify-center flex-wrap ">
+
+                <!-- Biopago (Rojo) -->
+                <label class="relative cursor-pointer group flex-1">
+                  <input type="radio" name="metodo_pago" value="biopago" class="peer sr-only">
+                  <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-red-500 peer-checked:bg-red-50/40 hover:border-slate-300">
+                    <i class="ti ti-fingerprint text-base text-red-500 mb-0.5" aria-hidden="true"></i>
+                    <span class="text-[4px] sm:text-[4px] font-medium text-red-500 truncate w-full text-center">Biopago</span>
+                  </div>
+                </label>
+
+                <!-- Efectivo (Verde) -->
+                <label class="relative cursor-pointer group flex-1">
+                  <input type="radio" name="metodo_pago" value="efectivo" class="peer sr-only" checked>
+                  <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-emerald-500 peer-checked:bg-emerald-50/40 hover:border-slate-300">
+                    <i class="ti ti-cash text-base text-emerald-500 mb-0.5" aria-hidden="true"></i>
+                    <span class="text-[4px] sm:text-[4px] font-medium text-emerald-600 truncate w-full text-center">Efectivo</span>
+                  </div>
+                </label>
+
+                <!-- Cashea (Amarillo/Dorado) -->
+                <label class="relative cursor-pointer group flex-1">
+                  <input type="radio" name="metodo_pago" value="cashea" class="peer sr-only">
+                  <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-amber-400 peer-checked:bg-amber-50/40 hover:border-slate-300">
+                    <span class="text-base font-black text-amber-400 leading-none mb-0.5">C</span>
+                    <span class="text-[4px] sm:text-[4px] font-medium text-amber-500 truncate w-full text-center">Cashea</span>
+                  </div>
+                </label>
+
+                <!-- Pago Móvil (Azul) -->
+                <label class="relative cursor-pointer group flex-1">
+                  <input type="radio" name="metodo_pago" value="pago_movil" class="peer sr-only">
+                  <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-blue-500 peer-checked:bg-blue-50/40 hover:border-slate-300">
+                    <i class="ti ti-device-mobile text-base text-blue-500 mb-0.5" aria-hidden="true"></i>
+                    <span class="text-[4px] sm:text-[4px] font-medium text-blue-600 truncate w-full text-center leading-tight">Pago Móvil</span>
+                  </div>
+                </label>
+
+                <!-- Transferencia (Púrpura / Morado) -->
+                <label class="relative cursor-pointer group flex-1">
+                  <input type="radio" name="metodo_pago" value="transferencia" class="peer sr-only">
+                  <div class="aspect-square flex flex-col items-center justify-center p-1 rounded-xl border-2 border-slate-200 bg-white transition-all peer-checked:border-purple-600 peer-checked:bg-purple-50/40 hover:border-slate-300">
+                    <i class="ti ti-building-bank text-base text-purple-600 mb-0.5" aria-hidden="true"></i>
+                    <span class="text-[4px] sm:text-[4px] font-medium text-purple-600 truncate w-full text-center leading-tight">Transf.</span>
+                  </div>
+                </label>
+
+              </div>
             </div>
 
             <div class="field" id="numeroPagoContainer">
