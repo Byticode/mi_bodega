@@ -67,7 +67,8 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
                 <?php else: ?>
                   <span class="badge badge-success mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
                 <?php endif; ?>
-                <span class="pos-tile-price"><?= money($producto['producto_precio_venta']) ?></span>
+                <span class="pos-tile-price"><?= usd($producto['producto_precio_venta']) ?></span>
+                <span class="text-xs text-ink-3 font-normal font-mono block mt-0.5"><?= bs($producto['producto_precio_venta']) ?></span>
               </button>
             <?php endforeach; ?>
           </div>
@@ -153,12 +154,12 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 
           <div class="p-4 border-t border-rule flex flex-col gap-3">
             <div class="pos-total">
-              <span class="pos-total-label">Total</span>
-              <span class="pos-total-value" id="totalCarrito"><?= money(0) ?></span>
+              <span class="pos-total-label">Total USD</span>
+              <span class="pos-total-value" id="totalCarrito"><?= usd(0) ?></span>
             </div>
             <?php if ($tasa_usd > 0): ?>
               <p class="text-xs text-ink-3 text-right tnum" id="totalUsd">
-                ≈ $ 0,00 <span class="text-ink-3">· tasa BCV <?= money($tasa_usd) ?></span>
+                ≈ Bs 0,00 <span class="text-ink-3">· tasa BCV <?= money($tasa_usd) ?>/$</span>
               </p>
             <?php endif; ?>
             <div class="flex items-center justify-between text-xs text-ink-3">

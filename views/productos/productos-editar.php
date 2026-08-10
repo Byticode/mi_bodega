@@ -6,6 +6,7 @@ include RUTA_APP . '/includes/sidebar.php';
 
 $producto = $dato[0] ?? $producto ?? [];
 $nombre_base = preg_replace('/\s+\d+\.?\d*[A-Za-z]+$/', '', $producto['producto_nombre'] ?? '');
+$tasa_act = tasa_vigente()['tasa_usd'] ?? 0;
 ?>
 
 <main id="contenido" class="app-main">
@@ -20,7 +21,7 @@ $nombre_base = preg_replace('/\s+\d+\.?\d*[A-Za-z]+$/', '', $producto['producto_
           <span><?= htmlspecialchars($producto['producto_nombre'] ?? '') ?></span>
         </nav>
         <h1 class="page-title">Editar producto</h1>
-        <p class="page-sub">El nombre final se arma con el peso y la unidad que elijas.</p>
+        <p class="page-sub">Actualiza la información, costos y precios en Dólares ($) del producto.</p>
       </div>
     </div>
 
@@ -72,10 +73,33 @@ $nombre_base = preg_replace('/\s+\d+\.?\d*[A-Za-z]+$/', '', $producto['producto_
           </select>
         </div>
 
+        <!-- Campos de estructura de precios -->
         <div class="field">
-          <label for="precio" class="label">Precio de venta <span class="req" aria-hidden="true">*</span></label>
-          <input type="number" step="0.01" min="0.01" id="precio" name="precio" class="input input--num" required
+          <label for="precio_costo" class="label">Precio de Costo ($ USD)</label>
+          <input type="number" step="0.01" min="0" id="precio_costo" name="precio_costo" class="input input--num" autocomplete="off"
+                 value="<?= htmlspecialchars($producto['producto_precio_costo'] ?? '0.00') ?>">
+          <p class="hint">Costo de compra en USD.</p>
+        </div>
+
+        <div class="field">
+          <label for="ganancia" class="label">% Ganancia (Mínimo 30%)</label>
+          <input type="number" step="0.01" min="0" id="ganancia" name="ganancia" class="input input--num" autocomplete="off"
+                 value="<?= htmlspecialchars($producto['producto_ganancia'] ?? '30.00') ?>">
+          <p class="hint">Margen de ganancia sugerido (30% mínimo).</p>
+        </div>
+
+        <div class="field">
+          <label for="iva" class="label">% IVA (Impuesto)</label>
+          <input type="number" step="0.01" min="0" id="iva" name="iva" class="input input--num" autocomplete="off"
+                 value="<?= htmlspecialchars($producto['producto_iva'] ?? '16.00') ?>">
+          <p class="hint">Porcentaje de IVA (Ej. 16%).</p>
+        </div>
+
+        <div class="field">
+          <label for="precio" class="label">Precio de Venta ($ USD) <span class="req" aria-hidden="true">*</span></label>
+          <input type="number" step="0.01" min="0.01" id="precio" name="precio" class="input input--num font-bold text-olive" required
                  autocomplete="off" value="<?= htmlspecialchars($producto['producto_precio_venta'] ?? '0.00') ?>">
+          <p class="hint" id="conversionBsHint">≈ Bs 0,00 (Tasa BCV: Bs <?= money($tasa_act, '') ?>/$)</p>
         </div>
 
         <div class="field">
@@ -86,21 +110,30 @@ $nombre_base = preg_replace('/\s+\d+\.?\d*[A-Za-z]+$/', '', $producto['producto_
         </div>
       </div>
 
-      <!-- Vista previa del nombre final -->
-      <div class="stat">
-        <span class="stat-label">Así se guardará</span>
-        <span class="stat-value" id="previewNombre" role="status" aria-live="polite"><?= htmlspecialchars($producto['producto_nombre'] ?? '—') ?></span>
+      <!-- Resumen / Vista previa -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+        <div class="stat">
+          <span class="stat-label">Así se guardará el nombre</span>
+          <span class="stat-value text-base font-semibold" id="previewNombre" role="status" aria-live="polite"><?= htmlspecialchars($producto['producto_nombre'] ?? '—') ?></span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Conversión a Bolívares</span>
+          <span class="stat-value text-base font-semibold stat-value--accent" id="previewBs" role="status" aria-live="polite">Bs 0,00</span>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-end gap-3 pt-1 border-t border-rule">
-        <a href="<?= url('productos') ?>" class="btn btn-secondary mt-4">Cancelar</a>
-        <button type="submit" class="btn btn-primary mt-4">Guardar cambios</button>
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="<?= url('productos') ?>" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
       </div>
     </form>
 
   </div>
 </main>
 
+<script>
+  window.TASA_USD = <?= json_encode($tasa_act) ?>;
+</script>
 <script src="<?= assets('scripts/producto-preview.js') ?>"></script>
 
 <?php include RUTA_APP . '/includes/footer.php'; ?>

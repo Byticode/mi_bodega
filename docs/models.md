@@ -46,16 +46,27 @@ abstract class BaseModel
 ### 1. `Usuario.php` (`Usuario`)
 * **Tabla**: `usuarios`
 * **Métodos**:
-  - `crear($data)`: Hashea la clave con `PASSWORD_DEFAULT` e inserta el usuario.
+  - `crear($data)`: Hashea la clave con `PASSWORD_DEFAULT` (Bcrypt) e inserta el usuario.
   - `verificarCredenciales($username, $password)`: Busca el usuario por su `usuario_nombre` y valida la clave mediante `password_verify()`.
   - `editar($id, $data)` / `editarConClave($id, $data)`: Actualiza perfil o contraseña.
+  - `changeStatus($id)`: Alterna el estado activo/inactivo del usuario.
 
 ### 2. `Producto.php` (`Producto`)
 * **Tabla**: `productos` (Unida con `categorias` y `unidades`)
+* **Campos de Pricing**: `producto_costo` (costo neto USD), `producto_ganancia` (% ganancia, mín. 30%), `producto_iva` (% IVA, 16%), `producto_precio` (precio de venta final USD calculado).
 * **Métodos**:
-  - `listarPaginado($page, $perPage, $search)`: Retorna productos paginados con el nombre de su categoría y abreviatura de unidad.
+  - `listarPaginado($page, $perPage, $search)`: Retorna productos paginados con nombre de categoría, abreviatura de unidad y todos los campos de precios.
+  - `crear($data)`: Inserta un nuevo producto con todos sus campos de pricing y stock.
+  - `editar($id, $data)`: Actualiza los datos, costo, ganancia, IVA y precio del producto.
   - `descontarStock($producto_id, $cantidad)`: Descuenta existencias tras una venta.
   - `actualizarStock($producto_id, $cantidad)`: Incrementa existencias tras un surtido.
+  - `eliminarMasivo(array $ids)`: Elimina de forma atómica un arreglo de productos seleccionados (`DELETE FROM productos WHERE producto_id IN (...)`). Construye dinámicamente los marcadores `?` para la sentencia preparada.
+  - `actualizarPreciosMasivo(array $ids, string $tipo, string $modo, float $valor, string $campo)`: Ejecuta actualizaciones en lote de costos o precios finales. Parámetros:
+    - `$campo`: `'costo'` o `'precio'` — qué columna ajustar.
+    - `$tipo`: `'aumentar'` o `'disminuir'` — dirección del ajuste.
+    - `$modo`: `'porcentaje'` o `'fijo'` — si el valor es un % o un monto absoluto en USD.
+    - `$valor`: El número a aplicar (ej. `10` para 10% o `0.50` para $0.50).
+    - Al ajustar el **costo**, recalcula automáticamente el precio de venta final con la fórmula: `precio = costo * (1 + ganancia/100) * (1 + iva/100)`.
 
 ### 3. `Venta.php` (`Venta`)
 * **Tablas**: `ventas` y `venta_detalles`
@@ -107,5 +118,16 @@ abstract class BaseModel
 ### 9. `TasaMoneda.php` (`TasaMoneda`)
 * **Tabla**: `tasa_moneda`
 * **Métodos**:
-  - `obtenerUltima()`: Obtiene el último registro de tasa activa para cálculos de precios en moneda local y divisas.
-  - `crear($data)`: Registra la nueva tasa del día.
+  - `obtenerUltima()`: Obtiene el último registro de tasa activa para cálculos de precios en moneda local y divisas. Utilizada globalmente por el helper `bs()` para la conversión USD → Bolívares.
+  - `crear($data)`: Registra la nueva tasa del día (USD Oficial, Euro, Paralelo).
+
+---
+
+## 💡 Helpers de Moneda (`includes/helpers.php`)
+
+Funciones globales usadas en vistas y controladores para formatear precios:
+
+| Helper | Descripción | Ejemplo de salida |
+| :--- | :--- | :--- |
+| `usd($amount)` | Formatea un número como precio en dólares con separador de miles. | `$ 1.508,00` |
+| `bs($amount)` | Convierte de USD a Bolívares usando la tasa BCV activa y formatea con separador. | `Bs 1.142.008,00` |

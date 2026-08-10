@@ -33,8 +33,8 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
       </div>
       <div class="stat">
         <span class="stat-label">Inversión acumulada</span>
-        <span class="stat-value stat-value--money stat-value--accent"><?= money($inversion) ?></span>
-        <?php if ($equiv = usd($inversion)): ?>
+        <span class="stat-value stat-value--money stat-value--accent"><?= usd($inversion) ?></span>
+        <?php if ($equiv = bs($inversion)): ?>
           <span class="stat-note"><?= $equiv ?> a tasa BCV</span>
         <?php endif; ?>
       </div>
@@ -82,8 +82,8 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
                   <td class="font-medium"><?= htmlspecialchars($surtido['proveedor_nombre'] ?? 'Sin proveedor') ?></td>
                   <td class="num text-ink-2"><?= (int) $surtido['total_productos'] ?></td>
                   <td class="num">
-                    <span class="money block"><?= money($surtido['surtido_costo_total']) ?></span>
-                    <?php if ($equiv = usd($surtido['surtido_costo_total'])): ?>
+                    <span class="money block"><?= usd($surtido['surtido_costo_total']) ?></span>
+                    <?php if ($equiv = bs($surtido['surtido_costo_total'])): ?>
                       <span class="text-xs text-ink-3 tnum"><?= $equiv ?></span>
                     <?php endif; ?>
                   </td>

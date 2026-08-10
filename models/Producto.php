@@ -2,11 +2,11 @@
 
 class Producto extends BaseModel
 {
-    public function crear($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock = 0)
+    public function crear($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock = 0)
     {
-        $sql = "INSERT INTO productos (producto_codigo, producto_nombre, producto_peso, categoria_id, unidad_id, producto_precio_venta, producto_stock) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock]);
+        $sql = "INSERT INTO productos (producto_codigo, producto_nombre, producto_peso, categoria_id, unidad_id, producto_precio_costo, producto_ganancia, producto_iva, producto_precio_venta, producto_stock) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock]);
     }
 
     public function listar()
@@ -32,7 +32,7 @@ class Producto extends BaseModel
         return $this->paginate($sql, $countSql, [], $page, $perPage);
     }
 
-    public function editar($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock, $producto_id)
+    public function editar($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock, $producto_id)
     {
         $sql = "UPDATE productos SET 
                 producto_codigo = ?, 
@@ -40,10 +40,84 @@ class Producto extends BaseModel
                 producto_peso = ?, 
                 categoria_id = ?, 
                 unidad_id = ?, 
+                producto_precio_costo = ?, 
+                producto_ganancia = ?, 
+                producto_iva = ?, 
                 producto_precio_venta = ?, 
                 producto_stock = ? 
                 WHERE producto_id = ?";
-        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock, $producto_id]);
+        return $this->execute($sql, [$producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock, $producto_id]);
+    }
+
+    public function eliminar($producto_id)
+    {
+        $sql = "DELETE FROM productos WHERE producto_id = ?";
+        return $this->execute($sql, [$producto_id]);
+    }
+
+    public function eliminarMasivo(array $ids)
+    {
+        $ids = array_map('intval', array_filter($ids, fn($id) => is_numeric($id) && $id > 0));
+        if (empty($ids)) {
+            return false;
+        }
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "DELETE FROM productos WHERE producto_id IN ({$placeholders})";
+        return $this->execute($sql, $ids);
+    }
+
+    public function actualizarPreciosMasivo(array $ids, string $tipo = 'aumentar', string $modo = 'porcentaje', float $valor = 0.00, string $campo = 'costo')
+    {
+        $ids = array_map('intval', array_filter($ids, fn($id) => is_numeric($id) && $id > 0));
+        if (empty($ids) || $valor <= 0) {
+            return false;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "SELECT producto_id, producto_precio_costo, producto_ganancia, producto_iva, producto_precio_venta FROM productos WHERE producto_id IN ({$placeholders})";
+        $productos = $this->fetchAll($sql, $ids);
+
+        if (empty($productos)) {
+            return false;
+        }
+
+        $factor = ($tipo === 'disminuir') ? -1 : 1;
+
+        foreach ($productos as $p) {
+            $costo_actual = (float) $p['producto_precio_costo'];
+            $ganancia = (float) $p['producto_ganancia'];
+            $iva = (float) $p['producto_iva'];
+            $precio_actual = (float) $p['producto_precio_venta'];
+
+            if ($campo === 'costo') {
+                if ($modo === 'porcentaje') {
+                    $nuevo_costo = $costo_actual + ($costo_actual * ($valor / 100) * $factor);
+                } else {
+                    $nuevo_costo = $costo_actual + ($valor * $factor);
+                }
+                $nuevo_costo = max(0, round($nuevo_costo, 2));
+
+                if ($nuevo_costo > 0) {
+                    $nuevo_precio = $nuevo_costo * (1 + ($ganancia / 100)) * (1 + ($iva / 100));
+                } else {
+                    $nuevo_precio = $precio_actual;
+                }
+                $nuevo_precio = max(0.01, round($nuevo_precio, 2));
+            } else {
+                if ($modo === 'porcentaje') {
+                    $nuevo_precio = $precio_actual + ($precio_actual * ($valor / 100) * $factor);
+                } else {
+                    $nuevo_precio = $precio_actual + ($valor * $factor);
+                }
+                $nuevo_precio = max(0.01, round($nuevo_precio, 2));
+                $nuevo_costo = $costo_actual;
+            }
+
+            $updateSql = "UPDATE productos SET producto_precio_costo = ?, producto_precio_venta = ? WHERE producto_id = ?";
+            $this->execute($updateSql, [$nuevo_costo, $nuevo_precio, $p['producto_id']]);
+        }
+
+        return true;
     }
 
     public function consultarPorId($producto_id)
