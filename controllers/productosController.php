@@ -25,7 +25,7 @@ class ProductosController extends BaseController
     public function crear()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            list($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock) = $this->limpiarPOST();
+            list($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock) = $this->limpiarPOST();
 
             $verfduplicado = $this->productoModel->verificarDuplicado($producto_nombre);
 
@@ -33,7 +33,7 @@ class ProductosController extends BaseController
                 $verfduplicadoCodigo = $this->productoModel->verificarDuplicadoCodigo($producto_codigo);
 
                 if ($verfduplicadoCodigo) {
-                    $resultado = $this->productoModel->crear($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_venta, $producto_stock);
+                    $resultado = $this->productoModel->crear($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock);
                     if ($resultado) {
                         $this->setFlash('success', 'Producto creado con éxito');
                         $this->redirect('productos');
@@ -65,7 +65,10 @@ class ProductosController extends BaseController
             $peso_input = isset($_POST['peso']) ? trim($_POST['peso']) : null;
             $categoria_input = isset($_POST['categoria']) ? trim($_POST['categoria']) : '';
             $unidad_input = isset($_POST['unidad']) ? trim($_POST['unidad']) : '';
-            $precio_input = isset($_POST['precio']) ? trim($_POST['precio']) : '';
+            $costo_input = isset($_POST['precio_costo']) ? floatval(trim($_POST['precio_costo'])) : 0.00;
+            $ganancia_input = isset($_POST['ganancia']) ? floatval(trim($_POST['ganancia'])) : 30.00;
+            $iva_input = isset($_POST['iva']) ? floatval(trim($_POST['iva'])) : 16.00;
+            $precio_input = isset($_POST['precio']) ? floatval(trim($_POST['precio'])) : 0.00;
             $stock_input = isset($_POST['stock']) ? intval(trim($_POST['stock'])) : 0;
 
             if (strlen($nombre_input) < 3) {
@@ -83,7 +86,11 @@ class ProductosController extends BaseController
                 $this->redirect("productos/editar/" . $producto_id);
             }
 
-            if (!is_numeric($precio_input) || $precio_input <= 0) {
+            if ($precio_input <= 0 && $costo_input > 0) {
+                $precio_input = $costo_input * (1 + ($ganancia_input / 100)) * (1 + ($iva_input / 100));
+            }
+
+            if ($precio_input <= 0) {
                 $this->setFlash('error', 'El precio debe ser un número válido mayor a 0');
                 $this->redirect("productos/editar/" . $producto_id);
             }
@@ -115,7 +122,7 @@ class ProductosController extends BaseController
                 $verifduplicadoCodigo = $this->productoModel->verificarDuplicadoCodigoId($codigo_input, $producto_id);
 
                 if ($verifduplicadoCodigo) {
-                    $resultado = $this->productoModel->editar($codigo_input, $nombre_completo, $peso_input, $categoria_input, $unidad_input, $precio_input, $stock_input, $producto_id);
+                    $resultado = $this->productoModel->editar($codigo_input, $nombre_completo, $peso_input, $categoria_input, $unidad_input, $costo_input, $ganancia_input, $iva_input, $precio_input, $stock_input, $producto_id);
 
                     if ($resultado) {
                         $this->setFlash('success', 'Producto editado con éxito');
@@ -140,6 +147,90 @@ class ProductosController extends BaseController
         }
     }
 
+    public function eliminar()
+    {
+        $producto_id = $this->limpiarVerificarId();
+        $resultado = $this->productoModel->eliminar($producto_id);
+
+        if ($resultado) {
+            $this->setFlash('success', 'Producto eliminado con éxito');
+        } else {
+            $this->setFlash('error', 'No se pudo eliminar el producto');
+        }
+
+        $this->redirect('productos');
+    }
+
+    public function eliminarMasivo()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $idsRaw = $_POST['ids'] ?? [];
+            if (is_string($idsRaw)) {
+                $idsRaw = json_decode($idsRaw, true) ?? [];
+            }
+            if (!is_array($idsRaw)) {
+                $idsRaw = [];
+            }
+
+            $ids = array_map('intval', array_filter($idsRaw, fn($id) => is_numeric($id) && $id > 0));
+
+            if (empty($ids)) {
+                $this->setFlash('error', 'No se seleccionaron productos para eliminar');
+                $this->redirect('productos');
+            }
+
+            $resultado = $this->productoModel->eliminarMasivo($ids);
+            if ($resultado) {
+                $conteo = count($ids);
+                $this->setFlash('success', "Se eliminaron {$conteo} producto(s) correctamente");
+            } else {
+                $this->setFlash('error', 'No se pudieron eliminar los productos seleccionados');
+            }
+        }
+        $this->redirect('productos');
+    }
+
+    public function ajustarPreciosMasivo()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $idsRaw = $_POST['ids'] ?? [];
+            if (is_string($idsRaw)) {
+                $idsRaw = json_decode($idsRaw, true) ?? [];
+            }
+            if (!is_array($idsRaw)) {
+                $idsRaw = [];
+            }
+
+            $ids = array_map('intval', array_filter($idsRaw, fn($id) => is_numeric($id) && $id > 0));
+            $tipo = in_array($_POST['tipo'] ?? '', ['aumentar', 'disminuir']) ? $_POST['tipo'] : 'aumentar';
+            $modo = in_array($_POST['modo'] ?? '', ['porcentaje', 'monto']) ? $_POST['modo'] : 'porcentaje';
+            $campo = in_array($_POST['campo'] ?? '', ['costo', 'precio']) ? $_POST['campo'] : 'costo';
+            $valor = isset($_POST['valor']) ? floatval($_POST['valor']) : 0.00;
+
+            if (empty($ids)) {
+                $this->setFlash('error', 'No se seleccionaron productos para ajustar precios');
+                $this->redirect('productos');
+            }
+
+            if ($valor <= 0) {
+                $this->setFlash('error', 'El valor del ajuste debe ser mayor a 0');
+                $this->redirect('productos');
+            }
+
+            $resultado = $this->productoModel->actualizarPreciosMasivo($ids, $tipo, $modo, $valor, $campo);
+            if ($resultado) {
+                $conteo = count($ids);
+                $simbolo = ($modo === 'porcentaje') ? '%' : '$';
+                $accion = ($tipo === 'aumentar') ? 'incrementaron' : 'redujeron';
+                $campoTexto = ($campo === 'costo') ? 'los costos y precios de venta' : 'los precios de venta';
+                $this->setFlash('success', "Se {$accion} {$campoTexto} de {$conteo} producto(s) en {$valor}{$simbolo}");
+            } else {
+                $this->setFlash('error', 'No se pudieron actualizar los precios de los productos');
+            }
+        }
+        $this->redirect('productos');
+    }
+
     public function limpiarPOST()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -148,7 +239,10 @@ class ProductosController extends BaseController
             $peso_input = isset($_POST['peso']) ? trim($_POST['peso']) : null;
             $categoria_input = isset($_POST['categoria']) ? trim($_POST['categoria']) : '';
             $unidad_input = isset($_POST['unidad']) ? trim($_POST['unidad']) : '';
-            $precio_input = isset($_POST['precio']) ? trim($_POST['precio']) : '';
+            $costo_input = isset($_POST['precio_costo']) ? floatval(trim($_POST['precio_costo'])) : 0.00;
+            $ganancia_input = isset($_POST['ganancia']) ? floatval(trim($_POST['ganancia'])) : 30.00;
+            $iva_input = isset($_POST['iva']) ? floatval(trim($_POST['iva'])) : 16.00;
+            $precio_input = isset($_POST['precio']) ? floatval(trim($_POST['precio'])) : 0.00;
             $stock_input = isset($_POST['stock']) ? intval(trim($_POST['stock'])) : 0;
 
             if (strlen($nombre_input) < 3) {
@@ -166,7 +260,11 @@ class ProductosController extends BaseController
                 $this->redirect('productos/crear');
             }
 
-            if (!is_numeric($precio_input) || $precio_input <= 0) {
+            if ($precio_input <= 0 && $costo_input > 0) {
+                $precio_input = $costo_input * (1 + ($ganancia_input / 100)) * (1 + ($iva_input / 100));
+            }
+
+            if ($precio_input <= 0) {
                 $this->setFlash('error', 'El precio debe ser un número válido mayor a 0');
                 $this->redirect('productos/crear');
             }
@@ -202,7 +300,7 @@ class ProductosController extends BaseController
 
             $stock_input = intval($stock_input);
 
-            return [$codigo_input, $nombre_completo, $peso_input, $categoria_input, $unidad_input, $precio_input, $stock_input];
+            return [$codigo_input, $nombre_completo, $peso_input, $categoria_input, $unidad_input, $costo_input, $ganancia_input, $iva_input, $precio_input, $stock_input];
         }
     }
 

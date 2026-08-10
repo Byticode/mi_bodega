@@ -23,6 +23,10 @@
     return 'Bs ' + Number(n).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function usd(n) {
+    return '$ ' + Number(n).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   function anunciar(texto) {
     if (aviso) aviso.textContent = texto;
   }
@@ -145,7 +149,7 @@
         nombre.textContent = item.nombre;
         var unit = document.createElement('p');
         unit.className = 'text-gray-500 text-[11px]';
-        unit.textContent = bs(item.precio) + ' / ' + item.unidad;
+        unit.textContent = usd(item.precio) + ' / ' + item.unidad;
         info.appendChild(nombre);
         info.appendChild(unit);
 
@@ -178,9 +182,10 @@
         qty.appendChild(salida);
         qty.appendChild(mas);
 
-        var monto = document.createElement('span');
-        monto.className = 'font-bold min-w-[70px] text-right';
-        monto.textContent = bs(subtotal);
+        var monto = document.createElement('div');
+        monto.className = 'text-right min-w-[80px]';
+        monto.innerHTML = '<span class="font-bold block text-gray-900">' + usd(subtotal) + '</span>' +
+                          '<span class="text-[10px] text-gray-500 font-mono block">' + bs(subtotal * TASA_USD) + '</span>';
 
         var quitar = document.createElement('button');
         quitar.type = 'button';
@@ -200,15 +205,14 @@
     }
 
     var totalEl = document.getElementById('totalCarrito');
-    if (totalEl) totalEl.textContent = bs(total);
+    if (totalEl) totalEl.textContent = usd(total);
 
     var articulosEl = document.getElementById('totalProductos');
     if (articulosEl) articulosEl.textContent = articulos;
 
     var totalUsd = document.getElementById('totalUsd');
     if (totalUsd && TASA_USD > 0) {
-      var usd = (total / TASA_USD).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      totalUsd.innerHTML = '≈ $ ' + usd + ' <span class="text-ink-3">· tasa ' + bs(TASA_USD) + '</span>';
+      totalUsd.innerHTML = '≈ ' + bs(total * TASA_USD) + ' <span class="text-ink-3">· tasa BCV ' + bs(TASA_USD) + '/$</span>';
     }
 
     if (inputProductos) {

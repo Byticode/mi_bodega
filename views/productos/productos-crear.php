@@ -3,6 +3,8 @@ $page_title = 'Nuevo producto';
 $page_desc  = 'Registra un producto nuevo en el inventario.';
 include RUTA_APP . '/includes/head.php';
 include RUTA_APP . '/includes/sidebar.php';
+
+$tasa_act = tasa_vigente()['tasa_usd'] ?? 0;
 ?>
 
 <main id="contenido" class="app-main">
@@ -17,7 +19,7 @@ include RUTA_APP . '/includes/sidebar.php';
           <span>Nuevo producto</span>
         </nav>
         <h1 class="page-title">Nuevo producto</h1>
-        <p class="page-sub">El nombre final se arma con el peso y la unidad que elijas.</p>
+        <p class="page-sub">El precio base se establece en Dólares ($) y se calcula su equivalente en Bolívares (Bs).</p>
       </div>
     </div>
 
@@ -37,7 +39,7 @@ include RUTA_APP . '/includes/sidebar.php';
           <label for="codigo" class="label">Código de barras</label>
           <input type="text" id="codigo" name="codigo" class="input" placeholder="Opcional" autocomplete="off"
                  aria-describedby="codigo-hint">
-          <p class="hint" id="codigo-hint">Si lo dejas vacío se genera automáticamente. Mínimo 5 caracteres.</p>
+          <p class="hint" id="codigo-hint">Opcional. Mínimo 5 caracteres.</p>
         </div>
 
         <div class="field">
@@ -67,33 +69,60 @@ include RUTA_APP . '/includes/sidebar.php';
           </select>
         </div>
 
+        <!-- Campos de estructura de precios -->
         <div class="field">
-          <label for="precio" class="label">Precio de venta <span class="req" aria-hidden="true">*</span></label>
-          <input type="number" step="0.01" min="0.01" id="precio" name="precio" class="input input--num"
-                 placeholder="0.00" required autocomplete="off">
+          <label for="precio_costo" class="label">Precio de Costo ($ USD)</label>
+          <input type="number" step="0.01" min="0" id="precio_costo" name="precio_costo" class="input input--num"
+                 placeholder="0.00" autocomplete="off">
+          <p class="hint">Costo de compra por unidad en USD.</p>
         </div>
 
-        <!-- <div class="field">
-          <label for="stock" class="label">Stock inicial</label>
-          <input type="number" step="1" min="0" id="stock" name="stock" class="input input--num" value="0" autocomplete="off">
-        </div> -->
+        <div class="field">
+          <label for="ganancia" class="label">% Ganancia (Mínimo 30%)</label>
+          <input type="number" step="0.01" min="0" id="ganancia" name="ganancia" class="input input--num"
+                 value="30.00" autocomplete="off">
+          <p class="hint">Margen de ganancia sugerido (30% mínimo).</p>
+        </div>
+
+        <div class="field">
+          <label for="iva" class="label">% IVA (Impuesto)</label>
+          <input type="number" step="0.01" min="0" id="iva" name="iva" class="input input--num"
+                 value="16.00" autocomplete="off">
+          <p class="hint">Aplicar IVA correspondiente (Ej: 16%).</p>
+        </div>
+
+        <div class="field">
+          <label for="precio" class="label">Precio de Venta ($ USD) <span class="req" aria-hidden="true">*</span></label>
+          <input type="number" step="0.01" min="0.01" id="precio" name="precio" class="input input--num font-bold text-olive"
+                 placeholder="0.00" required autocomplete="off">
+          <p class="hint" id="conversionBsHint">≈ Bs 0,00 (Tasa BCV: Bs <?= money($tasa_act, '') ?>/$)</p>
+        </div>
       </div>
 
-      <!-- Vista previa del nombre final -->
-      <div class="stat">
-        <span class="stat-label">Así se guardará</span>
-        <span class="stat-value" id="previewNombre" role="status" aria-live="polite">—</span>
+      <!-- Resumen / Vista previa -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+        <div class="stat">
+          <span class="stat-label">Así se guardará el nombre</span>
+          <span class="stat-value text-base font-semibold" id="previewNombre" role="status" aria-live="polite">—</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Conversión a Bolívares</span>
+          <span class="stat-value text-base font-semibold stat-value--accent" id="previewBs" role="status" aria-live="polite">Bs 0,00</span>
+        </div>
       </div>
 
-      <div class="flex flex-wrap items-center justify-end gap-3 pt-1 border-t border-rule">
-        <a href="<?= url('productos') ?>" class="btn btn-secondary mt-4">Cancelar</a>
-        <button type="submit" class="btn btn-primary mt-4">Guardar producto</button>
+      <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-rule">
+        <a href="<?= url('productos') ?>" class="btn btn-secondary">Cancelar</a>
+        <button type="submit" class="btn btn-primary">Guardar producto</button>
       </div>
     </form>
 
   </div>
 </main>
 
+<script>
+  window.TASA_USD = <?= json_encode($tasa_act) ?>;
+</script>
 <script src="<?= assets('scripts/producto-preview.js') ?>"></script>
 
 <?php include RUTA_APP . '/includes/footer.php'; ?>
