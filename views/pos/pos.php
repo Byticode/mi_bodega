@@ -1,16 +1,16 @@
 <?php
-$page_title = 'Punto de venta';
-$page_desc  = 'Registra ventas de mostrador y cobra el ticket.';
-include RUTA_APP . '/includes/head.php';
-include RUTA_APP . '/includes/sidebar.php';
+$page_title = "Punto de venta";
+$page_desc = "Registra ventas de mostrador y cobra el ticket.";
+include RUTA_APP . "/includes/head.php";
+include RUTA_APP . "/includes/sidebar.php";
 
-$tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
+$tasa_usd = isset($tasa["tasa_usd"]) ? (float) $tasa["tasa_usd"] : 0;
 ?>
 
 <main id="contenido" class="app-main">
   <div class="app-wrap app-wrap--wide">
 
-    <?php include RUTA_APP . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . "/includes/flash.php"; ?>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
 
@@ -40,37 +40,61 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
               <i class="ti ti-package empty-icon" aria-hidden="true"></i>
               <p class="empty-title">Todavía no hay productos</p>
               <p class="empty-sub">Registra mercancía en el inventario para poder venderla desde aquí.</p>
-              <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Crear producto</a>
+              <a href="<?= url(
+                  "productos/crear",
+              ) ?>" class="btn btn-primary mt-3">Crear producto</a>
             </div>
           </div>
         <?php else: ?>
           <div id="productosGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
             <?php foreach ($productos as $producto):
-              $stock = (int) $producto['producto_stock'];
-              $abrev = 'unid.';
-            ?>
+
+                $stock = (int) $producto["producto_stock"];
+                $abrev = "unid.";
+                ?>
               <button type="button"
                 class="pos-tile"
-                data-id="<?= (int) $producto['producto_id'] ?>"
-                data-nombre="<?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>"
-                data-precio="<?= (float) $producto['producto_precio_venta'] ?>"
+                data-id="<?= (int) $producto["producto_id"] ?>"
+                data-nombre="<?= htmlspecialchars(
+                    $producto["producto_nombre"],
+                    ENT_QUOTES,
+                ) ?>"
+                data-precio="<?= (float) $producto["producto_precio_venta"] ?>"
                 data-unidad="<?= htmlspecialchars($abrev, ENT_QUOTES) ?>"
                 data-stock="<?= $stock ?>"
-                data-buscar="<?= htmlspecialchars(mb_strtolower($producto['producto_nombre'] . ' ' . ($producto['producto_codigo'] ?? '')), ENT_QUOTES) ?>"
-                <?= $stock <= 0 ? 'disabled' : '' ?>>
-                <span class="pos-tile-name"><?= htmlspecialchars($producto['producto_nombre']) ?></span>
+                data-buscar="<?= htmlspecialchars(
+                    mb_strtolower(
+                        $producto["producto_nombre"] .
+                            " " .
+                            ($producto["producto_codigo"] ?? ""),
+                    ),
+                    ENT_QUOTES,
+                ) ?>"
+                <?= $stock <= 0 ? "disabled" : "" ?>>
+                <span class="pos-tile-name"><?= htmlspecialchars(
+                    $producto["producto_nombre"],
+                ) ?></span>
                 <?php if ($stock <= 0): ?>
                   <span class="badge badge-danger mt-1">Agotado</span>
                 <?php elseif ($stock <= 10): ?>
-                  <span class="badge badge-warn mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
-                  
+                  <span class="badge badge-warn mt-1">Quedan <?= $stock ?> <?= htmlspecialchars(
+     $abrev,
+ ) ?></span>
+
                 <?php else: ?>
-                  <span class="badge badge-success mt-1">Quedan <?= $stock ?> <?= htmlspecialchars($abrev) ?></span>
+                  <span class="badge badge-success mt-1">Quedan <?= $stock ?> <?= htmlspecialchars(
+     $abrev,
+ ) ?></span>
                 <?php endif; ?>
-                <span class="pos-tile-price"><?= usd($producto['producto_precio_venta']) ?></span>
-                <span class="text-xs text-ink-3 font-normal font-mono block mt-0.5"><?= bs($producto['producto_precio_venta']) ?></span>
+                <span class="pos-tile-price"><?= usd(
+                    $producto["producto_precio_venta"],
+                ) ?></span>
+                <span class="text-xs text-ink-3 font-normal font-mono block mt-0.5"><?= bs(
+                    $producto["producto_precio_venta"],
+                ) ?></span>
               </button>
-            <?php endforeach; ?>
+            <?php
+            endforeach; ?>
           </div>
 
           <div id="sinResultados" class="card" hidden>
@@ -84,7 +108,9 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 
       <!-- ══ Ticket ══ -->
       <section class="card pos-ticket" aria-labelledby="tituloTicket">
-        <form id="ventaForm" method="POST" action="<?= url('ventas/crear') ?>" class="flex flex-col min-h-0">
+        <form id="ventaForm" method="POST" action="<?= url(
+            "ventas/crear",
+        ) ?>" class="flex flex-col">
 
           <div class="card-head">
             <h2 class="section-title" id="tituloTicket">Ticket actual</h2>
@@ -98,7 +124,9 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
                 <div class="flex-1">
                   <span class="font-semibold">Sin tasa de cambio.</span>
                   No se podrá guardar la venta.
-                  <a href="<?= url('tasa-moneda') ?>" class="underline font-semibold">Configúrala aquí.</a>
+                  <a href="<?= url(
+                      "tasa-moneda",
+                  ) ?>" class="underline font-semibold">Configúrala aquí.</a>
                 </div>
               </div>
             </div>
@@ -110,8 +138,12 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
               <select id="cliente_id" name="cliente_id" class="select">
                 <option value="">Consumidor final</option>
                 <?php foreach ($clientes as $cliente): ?>
-                  <option value="<?= (int) $cliente['cliente_id'] ?>">
-                    <?= htmlspecialchars($cliente['cliente_nombre'] . ' ' . $cliente['cliente_apellido']) ?>
+                  <option value="<?= (int) $cliente["cliente_id"] ?>">
+                    <?= htmlspecialchars(
+                        $cliente["cliente_nombre"] .
+                            " " .
+                            $cliente["cliente_apellido"],
+                    ) ?>
                   </option>
                 <?php endforeach; ?>
               </select>
@@ -126,14 +158,46 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
             </div>
 
             <div class="field" id="metodoPagoContainer">
-              <label for="metodo_pago" class="label">Método de pago</label>
-              <select id="metodo_pago" name="metodo_pago" class="select">
-                <option value="efectivo">Efectivo</option>
+              <span class="label block mb-1.5">Método de pago</span>
+              <select id="metodo_pago" name="metodo_pago" class="sr-only" aria-hidden="true" tabindex="-1">
+                <option value="efectivo" selected>Efectivo</option>
                 <option value="transferencia">Transferencia</option>
                 <option value="pago_movil">Pago móvil</option>
                 <option value="biopago">Biopago</option>
                 <option value="cashea">Cashea</option>
               </select>
+
+              <div class="grid grid-cols-3 gap-1.5" role="radiogroup" aria-label="Método de pago">
+                <!-- Efectivo -->
+                <button type="button" class="payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95 border-emerald-600 text-emerald-600 bg-emerald-50/40 ring-2 ring-emerald-100/50" data-value="efectivo" role="radio" aria-checked="true">
+                  <i class="ti ti-cash text-xl mb-1 text-slate-400" aria-hidden="true"></i>
+                  <span class="text-xs font-semibold leading-tight text-slate-600">Efectivo</span>
+                </button>
+
+                <!-- Pago Movil / Transf -->
+                <button type="button" class="payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95 border-slate-200 text-slate-500 bg-white hover:bg-slate-50/50 hover:border-purple-200 hover:text-purple-600" data-value="pago_movil" role="radio" aria-checked="false">
+                  <i class="ti ti-device-mobile text-xl mb-1 text-slate-400" aria-hidden="true"></i>
+                  <span class="text-xs font-medium leading-tight text-slate-600">Pago Móvil/Transf</span>
+                </button>
+
+                <!-- Punto -->
+                <button type="button" class="payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95 border-slate-200 text-slate-500 bg-white hover:bg-slate-50/50 hover:border-blue-200 hover:text-blue-600" data-value="transferencia" role="radio" aria-checked="false">
+                  <i class="ti ti-credit-card text-xl mb-1 text-slate-400" aria-hidden="true"></i>
+                  <span class="text-xs font-medium leading-tight text-slate-600">Punto</span>
+                </button>
+
+                <!-- Biopago -->
+                <button type="button" class="payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95 border-slate-200 text-slate-500 bg-white hover:bg-slate-50/50 hover:border-rose-200 hover:text-rose-600" data-value="biopago" role="radio" aria-checked="false">
+                  <i class="ti ti-fingerprint text-xl mb-1 text-slate-400" aria-hidden="true"></i>
+                  <span class="text-xs font-medium leading-tight text-slate-600">Biopago</span>
+                </button>
+
+                <!-- Cashea -->
+                <button type="button" class="payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95 border-slate-200 text-slate-500 bg-white hover:bg-slate-50/50 hover:border-amber-200 hover:text-amber-600" data-value="cashea" role="radio" aria-checked="false">
+                  <span class="text-xl font-extrabold font-sans leading-none mb-1 text-slate-400">C</span>
+                  <span class="text-xs font-medium leading-tight text-slate-600">Cashea</span>
+                </button>
+              </div>
             </div>
 
             <div class="field" id="numeroPagoContainer">
@@ -143,7 +207,7 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           </div>
 
           <!-- Líneas del carrito -->
-          <div class="flex-1 overflow-y-auto px-4 min-h-36">
+          <div class="px-4">
             <div id="carritoContainer">
               <p class="empty-sub text-center py-10 mx-auto" id="carritoVacio">El ticket está vacío.</p>
             </div>
@@ -155,11 +219,15 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
           <div class="p-4 border-t border-rule flex flex-col gap-3">
             <div class="pos-total">
               <span class="pos-total-label">Total USD</span>
-              <span class="pos-total-value" id="totalCarrito"><?= usd(0) ?></span>
+              <span class="pos-total-value" id="totalCarrito"><?= usd(
+                  0,
+              ) ?></span>
             </div>
             <?php if ($tasa_usd > 0): ?>
               <p class="text-xs text-ink-3 text-right tnum" id="totalUsd">
-                ≈ Bs 0,00 <span class="text-ink-3">· tasa BCV <?= money($tasa_usd) ?>/$</span>
+                ≈ Bs 0,00 <span class="text-ink-3">· tasa BCV <?= money(
+                    $tasa_usd,
+                ) ?>/$</span>
               </p>
             <?php endif; ?>
             <div class="flex items-center justify-between text-xs text-ink-3">
@@ -182,6 +250,6 @@ $tasa_usd = isset($tasa['tasa_usd']) ? (float) $tasa['tasa_usd'] : 0;
 <script>
   window.TASA_USD = <?= json_encode($tasa_usd) ?>;
 </script>
-<script src="<?= assets('scripts/pos.js') ?>"></script>
+<script src="<?= assets("scripts/pos.js") ?>"></script>
 
-<?php include RUTA_APP . '/includes/footer.php'; ?>
+<?php include RUTA_APP . "/includes/footer.php"; ?>
