@@ -209,7 +209,7 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`usuario_id`, `usuario_nombre`, `usuario_username`, `usuario_clave`, `usuario_rol`, `created_at`, `updated_at`) VALUES
-(1, 'Administrador', 'admin', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', '2026-08-06 04:00:00', '2026-08-06 04:00:00');
+(1, 'Administrador', 'admin', '$2y$12$Wu0tmb.VzzgQ1hbyFkIfY.iUq.dnVMQZEHnIdGy4q4E1aA7sw9oOW', 'admin', '2026-08-06 04:00:00', '2026-08-06 04:00:00');
 
 -- --------------------------------------------------------
 
