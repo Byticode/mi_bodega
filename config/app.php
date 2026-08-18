@@ -1,6 +1,13 @@
 <?php
 
-define('BASE_URL', '/mi_bodega/');
+/* ── URL base ────────────────────────────────────────────────────────────────
+ * Se detecta automáticamente según dónde esté servida la app:
+ *   - php -S en la raíz del proyecto -> http://localhost:8000/       -> '/'
+ *   - Apache / XAMPP (htdocs)        -> http://localhost/mi_bodega/  -> '/mi_bodega/'
+ * Así los assets (CSS, JS, fuentes) y los redirects apuntan siempre bien.
+ */
+$scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+define('BASE_URL', rtrim($scriptDir, '/') . '/');
 define('APP_NAME', 'mi_bodega');
 define('DEFAULT_CONTROLLER', 'VentasController');
 define('DEFAULT_ACTION', 'pos');
