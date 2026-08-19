@@ -23,6 +23,6 @@ class TasaMoneda extends BaseModel
     public function consultarPorId($tasa_id)
     {
         $sql = "SELECT * FROM tasa_moneda WHERE tasa_id = ?";
-        return $this->fetchAll($sql, [$tasa_id]);
+        return $this->fetchOne($sql, [$tasa_id]);
     }
 }

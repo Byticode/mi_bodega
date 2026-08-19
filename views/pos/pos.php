@@ -1,10 +1,15 @@
 <?php
 $page_title = "Punto de venta";
 $page_desc = "Registra ventas de mostrador y cobra el ticket.";
-include RUTA_APP . "/includes/head.php";
-include RUTA_APP . "/includes/sidebar.php";
+
+$tasa = $tasa ?? [];
+$productos = $productos ?? [];
+$clientes = $clientes ?? [];
 
 $tasa_usd = isset($tasa["tasa_usd"]) ? (float) $tasa["tasa_usd"] : 0;
+
+include RUTA_APP . "/includes/head.php";
+include RUTA_APP . "/includes/sidebar.php";
 ?>
 
 <main id="contenido" class="app-main">

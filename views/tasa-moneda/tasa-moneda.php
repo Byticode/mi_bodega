@@ -2,6 +2,10 @@
 $page_title = "Tasa de cambio";
 $page_desc =
     "Tasas de cambio actualizadas automáticamente desde la API del BCV.";
+
+$tasa = $tasa ?? [];
+$tasas = $tasas ?? [];
+
 include RUTA_APP . "/includes/head.php";
 include RUTA_APP . "/includes/sidebar.php";
 
