@@ -1,19 +1,23 @@
 <?php
-$page_title = 'Tasa de cambio';
-$page_desc  = 'Tasas de cambio actualizadas automáticamente desde la API del BCV.';
-include RUTA_APP . '/includes/head.php';
-include RUTA_APP . '/includes/sidebar.php';
+$page_title = "Tasa de cambio";
+$page_desc =
+    "Tasas de cambio actualizadas automáticamente desde la API del BCV.";
+include RUTA_APP . "/includes/head.php";
+include RUTA_APP . "/includes/sidebar.php";
 
-$vigente_ts = !empty($tasa['vigente_desde']) ? strtotime($tasa['vigente_desde']) : null;
-$vieja      = $vigente_ts && (time() - $vigente_ts) > TASA_ANTIGUA;
+$vigente_ts = !empty($tasa["vigente_desde"])
+    ? strtotime($tasa["vigente_desde"])
+    : null;
+$vieja = $vigente_ts && time() - $vigente_ts > TASA_ANTIGUA;
 
 $origenes = [
-    'api'     => ['badge-success', 'Recién consultada'],
-    'cache'   => ['badge-success', 'Al día'],
-    'bd'      => ['badge-warn',    'Guardada localmente'],
-    'ninguna' => ['badge-danger',  'Sin datos'],
+    "api" => ["badge-success", "Recién consultada"],
+    "cache" => ["badge-success", "Al día"],
+    "bd" => ["badge-warn", "Guardada localmente"],
+    "ninguna" => ["badge-danger", "Sin datos"],
 ];
-[$origen_clase, $origen_texto] = $origenes[$tasa['origen']] ?? $origenes['ninguna'];
+[$origen_clase, $origen_texto] =
+    $origenes[$tasa["origen"]] ?? $origenes["ninguna"];
 ?>
 
 <main id="contenido" class="app-main">
@@ -23,17 +27,17 @@ $origenes = [
     <div class="page-head">
       <div>
         <h1 class="page-title">Tasa de cambio</h1>
-        <p class="page-sub">Se consulta sola desde la API del BCV. La app convierte a dólares con la tasa oficial.</p>
+        <p class="page-sub">Se utiliza la tasa oficial del BCV. La app convierte a dólares con la tasa oficial.</p>
       </div>
-      <a href="<?= url('tasa-moneda/actualizar') ?>" class="btn btn-primary">
+      <a href="<?= url("tasa-moneda/actualizar") ?>" class="btn btn-primary">
         <i class="ti ti-refresh text-base" aria-hidden="true"></i>
         Actualizar ahora
       </a>
     </div>
 
-    <?php include RUTA_APP . '/includes/flash.php'; ?>
+    <?php include RUTA_APP . "/includes/flash.php"; ?>
 
-    <?php if ($tasa['origen'] === 'bd'): ?>
+    <?php if ($tasa["origen"] === "bd"): ?>
       <div class="alert alert-warn" role="status">
         <i class="ti ti-alert-circle shrink-0 text-lg" aria-hidden="true"></i>
         <div class="flex-1">
@@ -41,7 +45,7 @@ $origenes = [
           Se muestra la última tasa guardada. Vuelve a intentar o registra una manualmente.
         </div>
       </div>
-    <?php elseif ($tasa['origen'] === 'ninguna'): ?>
+    <?php elseif ($tasa["origen"] === "ninguna"): ?>
       <div class="alert alert-error" role="alert">
         <i class="ti ti-alert-triangle shrink-0 text-lg" aria-hidden="true"></i>
         <div class="flex-1">
@@ -70,33 +74,36 @@ $origenes = [
         <div class="stat border-olive-rule">
           <span class="stat-label">Dólar BCV</span>
           <span class="stat-value stat-value--money stat-value--accent">
-            <?= $tasa['tasa_usd'] ? money($tasa['tasa_usd']) : '—' ?>
+            <?= $tasa["tasa_usd"] ? money($tasa["tasa_usd"]) : "—" ?>
           </span>
           <span class="stat-note">La app convierte con esta</span>
         </div>
         <div class="stat">
           <span class="stat-label">Paralelo</span>
-          <span class="stat-value stat-value--money"><?= $tasa['tasa_paralelo'] ? money($tasa['tasa_paralelo']) : '—' ?></span>
+          <span class="stat-value stat-value--money"><?= $tasa["tasa_paralelo"]
+              ? money($tasa["tasa_paralelo"])
+              : "—" ?></span>
           <span class="stat-note">Solo referencia</span>
         </div>
         <div class="stat">
           <span class="stat-label">Euro BCV</span>
-          <span class="stat-value stat-value--money"><?= $tasa['tasa_euro'] ? money($tasa['tasa_euro']) : '—' ?></span>
+          <span class="stat-value stat-value--money"><?= $tasa["tasa_euro"]
+              ? money($tasa["tasa_euro"])
+              : "—" ?></span>
           <span class="stat-note">Solo referencia</span>
         </div>
       </div>
 
       <p class="text-xs text-ink-3">
         <?php if ($vigente_ts): ?>
-          Publicada el <?= date('d/m/Y \a \l\a\s H:i', $vigente_ts) ?>.
+          Publicada el <?= date("d/m/Y \a \l\a\s H:i", $vigente_ts) ?>.
         <?php endif; ?>
-        Se vuelve a consultar cada <?= (int) round(TASA_TTL / 60) ?> minutos.
-        Fuente: <span class="font-mono">ve.dolarapi.com</span>.
+        Se vuelve a actualizar cada <?= (int) round(TASA_TTL / 60) ?> minutos.
       </p>
     </section>
 
     <!-- Conversor rápido -->
-    <?php if (!empty($tasa['tasa_usd'])): ?>
+    <?php if (!empty($tasa["tasa_usd"])): ?>
       <div class="card p-5 flex flex-col gap-4">
         <div>
           <h2 class="section-title">Conversor</h2>
@@ -106,7 +113,9 @@ $origenes = [
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
           <div class="field">
             <label for="conv_bs" class="label">Bolívares</label>
-            <input type="number" step="0.01" min="0" id="conv_bs" class="input input--num" value="<?= htmlspecialchars((string) round($tasa['tasa_usd'], 2)) ?>" autocomplete="off">
+            <input type="number" step="0.01" min="0" id="conv_bs" class="input input--num" value="<?= htmlspecialchars(
+                (string) round($tasa["tasa_usd"], 2),
+            ) ?>" autocomplete="off">
           </div>
           <div class="field">
             <label for="conv_usd" class="label">Dólares</label>
@@ -117,13 +126,17 @@ $origenes = [
     <?php endif; ?>
 
     <!-- Registro manual -->
-    <details class="card p-5" <?= $tasa['origen'] === 'ninguna' ? 'open' : '' ?>>
+    <details class="card p-5" <?= $tasa["origen"] === "ninguna"
+        ? "open"
+        : "" ?>>
       <summary class="section-title cursor-pointer">Registrar una tasa manualmente</summary>
       <p class="section-sub mb-4 mt-1">
         Úsalo solo si la API está caída. La próxima consulta automática correcta la reemplazará.
       </p>
 
-      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="<?= url('tasa-moneda/crear') ?>" method="POST">
+      <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="<?= url(
+          "tasa-moneda/crear",
+      ) ?>" method="POST">
         <div class="field">
           <label for="moneda" class="label">Moneda base</label>
           <input type="text" id="moneda" name="moneda" class="input" value="Bs" required autocomplete="off">
@@ -180,16 +193,31 @@ $origenes = [
             <?php else: ?>
               <?php foreach ($tasas as $fila): ?>
                 <tr>
-                  <td class="font-mono text-xs text-ink-3">#<?= (int) $fila['tasa_id'] ?></td>
-                  <td class="font-medium"><?= htmlspecialchars($fila['moneda']) ?></td>
-                  <td class="num money text-olive"><?= money($fila['tasa_usd']) ?></td>
-                  <td class="num money <?= $fila['tasa_euro'] ? 'text-ink-2' : 'text-ink-3' ?>">
-                    <?= $fila['tasa_euro'] ? money($fila['tasa_euro']) : '—' ?>
+                  <td class="font-mono text-xs text-ink-3">#<?= (int) $fila[
+                      "tasa_id"
+                  ] ?></td>
+                  <td class="font-medium"><?= htmlspecialchars(
+                      $fila["moneda"],
+                  ) ?></td>
+                  <td class="num money text-olive"><?= money(
+                      $fila["tasa_usd"],
+                  ) ?></td>
+                  <td class="num money <?= $fila["tasa_euro"]
+                      ? "text-ink-2"
+                      : "text-ink-3" ?>">
+                    <?= $fila["tasa_euro"] ? money($fila["tasa_euro"]) : "—" ?>
                   </td>
-                  <td class="num money <?= $fila['tasa_paralelo'] ? 'text-ink-2' : 'text-ink-3' ?>">
-                    <?= $fila['tasa_paralelo'] ? money($fila['tasa_paralelo']) : '—' ?>
+                  <td class="num money <?= $fila["tasa_paralelo"]
+                      ? "text-ink-2"
+                      : "text-ink-3" ?>">
+                    <?= $fila["tasa_paralelo"]
+                        ? money($fila["tasa_paralelo"])
+                        : "—" ?>
                   </td>
-                  <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y H:i', strtotime($fila['created_at'])) ?></td>
+                  <td class="text-ink-2 whitespace-nowrap"><?= date(
+                      "d/m/Y H:i",
+                      strtotime($fila["created_at"]),
+                  ) ?></td>
                 </tr>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -201,11 +229,11 @@ $origenes = [
   </div>
 </main>
 
-<?php if (!empty($tasa['tasa_usd'])): ?>
+<?php if (!empty($tasa["tasa_usd"])): ?>
 <script>
-  window.TASA_USD = <?= json_encode((float) $tasa['tasa_usd']) ?>;
+  window.TASA_USD = <?= json_encode((float) $tasa["tasa_usd"]) ?>;
 </script>
-<script src="<?= assets('scripts/tasa-conversor.js') ?>"></script>
+<script src="<?= assets("scripts/tasa-conversor.js") ?>"></script>
 <?php endif; ?>
 
-<?php include RUTA_APP . '/includes/footer.php'; ?>
+<?php include RUTA_APP . "/includes/footer.php"; ?>
