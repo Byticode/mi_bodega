@@ -1,7 +1,8 @@
-<?php 
-$page_title = 'Iniciar Sesión'; 
-$errorMessage = flash('error');
-$successMessage = flash('success');
+<?php
+$page_title = "Iniciar Sesión";
+$flashError = $_SESSION["error"] ?? null;
+$flashSuccess = $_SESSION["success"] ?? null;
+unset($_SESSION["error"], $_SESSION["success"]);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -13,19 +14,65 @@ $successMessage = flash('success');
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
-  <link rel="preload" href="<?= assets('vendor/tabler/fonts/tabler-icons.woff2') ?>" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="<?= assets('vendor/tabler/tabler-icons.min.css') ?>">
-  <link rel="stylesheet" href="<?= url('assets/css/styles.css') ?>">
+  <link rel="preload" href="<?= assets(
+      "vendor/tabler/fonts/tabler-icons.woff2",
+  ) ?>" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="<?= assets(
+      "vendor/tabler/tabler-icons.min.css",
+  ) ?>">
+  <link rel="stylesheet" href="<?= url("assets/css/styles.css") ?>">
 </head>
 
-<body class="min-h-screen flex items-center justify-center p-4 bg-warmBg text-gray-800">
+<body class="min-h-screen p-4 bg-warmBg text-gray-800">
 
-  <div class="w-full mx-auto space-y-6" style="max-width: 400px;">
+  <!-- Flash notifications flotantes -->
+  <?php if ($flashError || $flashSuccess): ?>
+    <div id="flash-container" style="position:fixed; top:1rem; left:50%; transform:translateX(-50%); z-index:9999; display:flex; flex-direction:column; align-items:center; gap:0.625rem; padding:0 1rem; pointer-events:none;">
+      <?php if ($flashError): ?>
+        <div class="flash-msg alert alert-error" style="max-width:32rem; width:100%; opacity:0; transform:translateY(-0.5rem); transition: all 300ms ease-out; box-shadow: 0 4px 24px oklch(0% 0 0 / 0.12), 0 1px 3px oklch(0% 0 0 / 0.08); pointer-events:auto;">
+          <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+          <div><?= htmlspecialchars($flashError) ?></div>
+        </div>
+      <?php endif; ?>
+      <?php if ($flashSuccess): ?>
+        <div class="flash-msg alert alert-success" style="max-width:32rem; width:100%; opacity:0; transform:translateY(-0.5rem); transition: all 300ms ease-out; box-shadow: 0 4px 24px oklch(0% 0 0 / 0.12), 0 1px 3px oklch(0% 0 0 / 0.08); pointer-events:auto;">
+          <i class="ti ti-circle-check" aria-hidden="true"></i>
+          <div><?= htmlspecialchars($flashSuccess) ?></div>
+        </div>
+      <?php endif; ?>
+    </div>
+    <script>
+      (function () {
+        var msgs = document.querySelectorAll('.flash-msg');
+        msgs.forEach(function (el, i) {
+          setTimeout(function () {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+          }, 50 * i);
+          setTimeout(function () {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(-0.5rem)';
+            setTimeout(function () {
+              el.remove();
+              var c = document.getElementById('flash-container');
+              if (c && c.children.length === 0) c.remove();
+            }, 300);
+          }, 5000 + (500 * i));
+        });
+      })();
+    </script>
+  <?php endif; ?>
+
+  <div class="w-full mx-auto flex items-center justify-center" style="max-width: 400px; min-height: calc(100vh - 2rem);">
+
+  <div class="w-full space-y-6">
 
     <!-- Logo / Brand -->
     <div class="flex flex-col items-center justify-center text-center space-y-2">
       <div class="w-20 h-20 bg-olive text-white font-bold text-lg rounded-2xl flex items-center justify-center shadow-md overflow-hidden shrink-0">
-        <img src="<?= url('assets/images/logo.png') ?>" alt="Logo Mi Bodega" class="w-full h-full object-cover">
+        <img src="<?= url(
+            "assets/images/logo.png",
+        ) ?>" alt="Logo Mi Bodega" class="w-full h-full object-cover">
       </div>
       <div>
         <h1 class="font-bold text-2xl text-gray-900 leading-none tracking-tight">Mi Bodega</h1>
@@ -41,29 +88,10 @@ $successMessage = flash('success');
         <p class="text-xs text-gray-500 mt-0.5">Ingresa tus credenciales para acceder</p>
       </div>
 
-      <!-- Alertas de Sesión -->
-      <?php if (!empty($errorMessage)): ?>
-        <div class="flex items-start gap-3 p-3.5 text-xs text-rose-800 border border-rose-200/80 rounded-xl bg-rose-50/90 shadow-sm" role="alert">
-          <i class="ti ti-alert-triangle text-rose-600 shrink-0 mt-0.5 text-base" aria-hidden="true"></i>
-          <div class="flex-1 leading-relaxed">
-            <span class="font-bold block text-rose-900 mb-0.5">Acceso Denegado</span>
-            <?= htmlspecialchars($errorMessage) ?>
-          </div>
-        </div>
-      <?php endif; ?>
 
-      <?php if (!empty($successMessage)): ?>
-        <div class="flex items-start gap-3 p-3.5 text-xs text-emerald-800 border border-emerald-200/80 rounded-xl bg-emerald-50/90 shadow-sm" role="status">
-          <i class="ti ti-circle-check text-emerald-600 shrink-0 mt-0.5 text-base" aria-hidden="true"></i>
-          <div class="flex-1 leading-relaxed">
-            <span class="font-bold block text-emerald-900 mb-0.5">Notificación</span>
-            <?= htmlspecialchars($successMessage) ?>
-          </div>
-        </div>
-      <?php endif; ?>
 
       <!-- Formulario de Login -->
-      <form method="POST" action="<?= url('login') ?>" class="space-y-4">
+      <form method="POST" action="<?= url("login") ?>" class="space-y-4">
         <?= csrf_field() ?>
 
         <div>
@@ -78,7 +106,7 @@ $successMessage = flash('success');
               name="username"
               class="w-full bg-gray-100/80 border border-gray-200 focus:bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-olive focus:border-olive rounded-xl pl-9 pr-3 py-2.5 text-sm transition-all"
               placeholder="Ej: admin"
-              value="<?= old('username') ?>"
+              value="<?= old("username") ?>"
               autocomplete="username"
               autofocus
               required
@@ -145,13 +173,14 @@ $successMessage = flash('success');
 
     <!-- Footer -->
     <p class="text-center text-xs text-gray-400">
-      Mi Bodega &copy; <?= date('Y') ?> · Todos los derechos reservados
+      Mi Bodega &copy; <?= date("Y") ?> · Todos los derechos reservados
     </p>
 
   </div>
+  </div>
 
-  <?php include RUTA_APP . '/includes/spinner.php'; ?>
-  <script src="<?= assets('scripts/ojito.js') ?>"></script>
+  <?php include RUTA_APP . "/includes/spinner.php"; ?>
+  <script src="<?= assets("scripts/ojito.js") ?>"></script>
 
 </body>
 </html>
