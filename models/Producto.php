@@ -198,5 +198,17 @@ class Producto extends BaseModel
     {
         return $this->listar();
     }
+
+    public function obtenerProductosStockBajo(int $limite = 10): array
+    {
+        $sql = "SELECT p.*, c.categorias_nombre, u.unidad_nombre, u.unidad_abreviatura
+                FROM productos p
+                LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
+                LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
+                WHERE p.producto_stock <= 5
+                ORDER BY p.producto_stock ASC
+                LIMIT ?";
+        return $this->fetchAll($sql, [$limite]);
+    }
 }
 

@@ -107,4 +107,48 @@ class Venta extends BaseModel
         $sql = "UPDATE ventas SET venta_estado = 'completada', venta_metodo_pago = ?, venta_numero_pago = ? WHERE venta_id = ?";
         return $this->execute($sql, [$metodo_pago, $numero_pago, $venta_id]);
     }
+
+    public function obtenerReporteVentas(string $fecha_desde, string $fecha_hasta): array
+    {
+        $sql = "SELECT 
+                    COUNT(*) as total_ventas,
+                    COALESCE(SUM(CASE WHEN venta_estado = 'completada' THEN venta_total ELSE 0 END), 0) as total_completadas,
+                    COALESCE(SUM(CASE WHEN venta_estado = 'pendiente' THEN venta_total ELSE 0 END), 0) as total_pendientes,
+                    COALESCE(SUM(CASE WHEN venta_estado = 'cancelada' THEN venta_total ELSE 0 END), 0) as total_canceladas
+                FROM ventas
+                WHERE DATE(venta_fecha) BETWEEN ? AND ?";
+        return $this->fetchOne($sql, [$fecha_desde, $fecha_hasta]);
+    }
+
+    public function obtenerTopProductos(string $fecha_desde, string $fecha_hasta, int $limite = 10): array
+    {
+        $sql = "SELECT 
+                    p.producto_nombre,
+                    p.producto_codigo,
+                    SUM(vd.detalle_cantidad) as cantidad_vendida,
+                    SUM(vd.detalle_subtotal) as total_vendido
+                FROM venta_detalles vd
+                INNER JOIN ventas v ON vd.venta_id = v.venta_id
+                INNER JOIN productos p ON vd.producto_id = p.producto_id
+                WHERE DATE(v.venta_fecha) BETWEEN ? AND ?
+                    AND v.venta_estado = 'completada'
+                GROUP BY p.producto_id, p.producto_nombre, p.producto_codigo
+                ORDER BY cantidad_vendida DESC
+                LIMIT ?";
+        return $this->fetchAll($sql, [$fecha_desde, $fecha_hasta, $limite]);
+    }
+
+    public function obtenerVentasPorMetodoPago(string $fecha_desde, string $fecha_hasta): array
+    {
+        $sql = "SELECT 
+                    COALESCE(venta_metodo_pago, 'Sin especificar') as metodo_pago,
+                    COUNT(*) as cantidad_ventas,
+                    SUM(venta_total) as total_ventas
+                FROM ventas
+                WHERE DATE(venta_fecha) BETWEEN ? AND ?
+                    AND venta_estado = 'completada'
+                GROUP BY venta_metodo_pago
+                ORDER BY total_ventas DESC";
+        return $this->fetchAll($sql, [$fecha_desde, $fecha_hasta]);
+    }
 }

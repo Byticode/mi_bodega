@@ -1,4 +1,6 @@
 node_modules/
+vendor/
+composer.lock
 mi_bodega/config/config_local.php
 mi_bodega/database/importar.sh
 storage/

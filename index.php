@@ -5,6 +5,7 @@ session_start();
 define('RUTA_APP', __DIR__);
 define('ruta', __DIR__);
 
+require_once RUTA_APP . '/vendor/autoload.php';
 require_once RUTA_APP . '/config/app.php';
 require_once RUTA_APP . '/includes/helpers.php';
 require_once RUTA_APP . '/core/BaseController.php';

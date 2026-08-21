@@ -173,7 +173,7 @@ unset($_SESSION["error"], $_SESSION["success"]);
 
     <!-- Footer -->
     <p class="text-center text-xs text-gray-400">
-      Mi Bodega &copy; <?= date("Y") ?> · Todos los derechos reservados
+      Byticode &copy; <?= date("Y") ?> · Todos los derechos reservados
     </p>
 
   </div>

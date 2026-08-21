@@ -16,6 +16,7 @@ class Router
         'unidades'      => 'UnidadesController',
         'tasa-moneda'   => 'TasaMonedaController',
         'tasamoneda'    => 'TasaMonedaController',
+        'reportes'      => 'ReportesController',
     ];
 
     public function dispatch(): void

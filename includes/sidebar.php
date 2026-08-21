@@ -43,6 +43,7 @@ $icons = [
     'clientes'    => 'ti-users',
     'tasa'        => 'ti-currency-dollar',
     'usuarios'    => 'ti-user-circle',
+    'reportes'    => 'ti-report-analytics',
 ];
 
 $configControllers = ['categoriasController', 'unidadesController', 'proveedoresController', 'clientesController', 'tasaMonedaController', 'usuariosController'];
@@ -85,6 +86,7 @@ $fecha = ucfirst($dias[(int) date('w')]) . ' ' . date('j') . ' de ' . $meses[(in
     <?= $navLink(url('productos'), 'Inventario', $icons['inventario'], $isActive(['productosController'], ['productos'])) ?>
     <?= $navLink(url('ventas'), 'Ventas', $icons['ventas'], $isActive(['ventasController'], ['ventas']) && $currentAction !== 'pos') ?>
     <?= $navLink(url('surtidos'), 'Surtido', $icons['surtido'], $isActive(['surtidosController'], ['surtidos'])) ?>
+    <?= $navLink(url('reportes'), 'Reportes', $icons['reportes'], $isActive(['reportesController'], ['reportes'])) ?>
 
     <p class="sidebar-section">Ajustes</p>
     <button id="configBtn" type="button" class="nav-disclosure" aria-expanded="<?= $configOpen ? 'true' : 'false' ?>" aria-controls="configMenu">
