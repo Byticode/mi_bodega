@@ -115,6 +115,7 @@ http://localhost:3000/mi_bodega/
 
 ## 📚 Documentación Técnica Extendida
 
+* [Guía de instalación con XAMPP en Windows](docs/instalacion-xampp.md): instalación completa de Apache, PHP, MariaDB, Composer, Node.js y configuración del proyecto.
 * [`docs/architecture.md`](file:///home/jp/Documentos/proyectos/Byticode/mi_bodega/docs/architecture.md): Arquitectura MVC, mapa exhaustivo de archivos y ciclo de vida de peticiones.
 * [`docs/security.md`](file:///home/jp/Documentos/proyectos/Byticode/mi_bodega/docs/security.md): Manual de Seguridad, PDO, Anti-Fuerza Bruta, CSRF, RBAC y XSS.
 * [`docs/controllers.md`](file:///home/jp/Documentos/proyectos/Byticode/mi_bodega/docs/controllers.md): Guía detallada de los 10 controladores y sus acciones.
