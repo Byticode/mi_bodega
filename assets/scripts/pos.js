@@ -1,4 +1,4 @@
-// Punto de Venta (POS) — Lógica interactiva con manejo de stock y tasa de cambio
+// Punto de Venta (POS) — Lógica interactiva con modo lista, contenedor de ticket inferior y métodos de pago
 (function () {
   "use strict";
 
@@ -18,6 +18,24 @@
   var numeroBox = document.getElementById("numeroPagoContainer");
   var metodoInput = document.getElementById("metodo_pago");
   var numeroInput = document.getElementById("numero_pago");
+
+  // Elementos de paginación
+  var paginacionContenedor = document.getElementById("paginacionPos");
+  var btnPaginaAnt = document.getElementById("btnPaginaAnt");
+  var btnPaginaSig = document.getElementById("btnPaginaSig");
+  var numerosPagina = document.getElementById("numerosPagina");
+  var infoPaginacion = document.getElementById("infoPaginacion");
+
+  var POR_PAGINA = 6;
+  var paginaActual = 1;
+  var todosLosProductos = [];
+  var productosFiltrados = [];
+
+  if (grid) {
+    todosLosProductos = Array.prototype.slice.call(
+      grid.querySelectorAll(".pos-list-item, .pos-tile")
+    );
+  }
 
   function bs(n) {
     return (
@@ -43,25 +61,104 @@
     if (aviso) aviso.textContent = texto;
   }
 
-  /* ── Búsqueda ─────────────────────────────────────────────────────── */
+  /* ── Paginación y Filtrado del Catálogo ───────────────────────────── */
+  function renderPaginacion() {
+    var totalItems = productosFiltrados.length;
+    var totalPaginas = Math.ceil(totalItems / POR_PAGINA) || 1;
+
+    if (paginaActual > totalPaginas) paginaActual = totalPaginas;
+    if (paginaActual < 1) paginaActual = 1;
+
+    var inicio = (paginaActual - 1) * POR_PAGINA;
+    var fin = inicio + POR_PAGINA;
+
+    // Mostrar solo los elementos de la página actual
+    todosLosProductos.forEach(function (el) {
+      el.hidden = true;
+    });
+
+    var itemsPagina = productosFiltrados.slice(inicio, fin);
+    itemsPagina.forEach(function (el) {
+      el.hidden = false;
+    });
+
+    // Actualizar texto informativo
+    if (infoPaginacion) {
+      if (totalItems === 0) {
+        infoPaginacion.textContent = "0 productos";
+      } else {
+        var mostradosHasta = Math.min(fin, totalItems);
+        infoPaginacion.textContent =
+          (inicio + 1) + "–" + mostradosHasta + " de " + totalItems + " productos";
+      }
+    }
+
+    if (contador) {
+      contador.textContent =
+        totalItems === 1 ? "1 producto" : totalItems + " productos";
+    }
+
+    if (sinResultados) sinResultados.hidden = totalItems > 0;
+    if (paginacionContenedor) paginacionContenedor.hidden = totalItems <= POR_PAGINA;
+
+    // Actualizar botones de navegación
+    if (btnPaginaAnt) btnPaginaAnt.disabled = paginaActual <= 1;
+    if (btnPaginaSig) btnPaginaSig.disabled = paginaActual >= totalPaginas;
+
+    // Renderizar botones numéricos
+    if (numerosPagina) {
+      numerosPagina.innerHTML = "";
+      if (totalPaginas > 1) {
+        for (var p = 1; p <= totalPaginas; p++) {
+          (function (num) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className =
+              "px-2 py-0.5 rounded text-xs font-semibold transition-colors " +
+              (num === paginaActual
+                ? "bg-olive text-white shadow-xs"
+                : "bg-card hover:bg-card-2 text-ink border border-rule");
+            btn.textContent = num;
+            btn.setAttribute("aria-label", "Ir a página " + num);
+            btn.addEventListener("click", function () {
+              irAPagina(num);
+            });
+            numerosPagina.appendChild(btn);
+          })(p);
+        }
+      }
+    }
+  }
+
+  function irAPagina(p) {
+    paginaActual = p;
+    renderPaginacion();
+    if (grid) grid.scrollTop = 0;
+  }
+
+  if (btnPaginaAnt) {
+    btnPaginaAnt.addEventListener("click", function () {
+      if (paginaActual > 1) irAPagina(paginaActual - 1);
+    });
+  }
+
+  if (btnPaginaSig) {
+    btnPaginaSig.addEventListener("click", function () {
+      var totalPaginas = Math.ceil(productosFiltrados.length / POR_PAGINA);
+      if (paginaActual < totalPaginas) irAPagina(paginaActual + 1);
+    });
+  }
+
   function filtrar() {
     if (!grid || !buscador) return;
     var q = buscador.value.trim().toLowerCase();
-    var visibles = 0;
 
-    Array.prototype.forEach.call(
-      grid.querySelectorAll(".pos-tile"),
-      function (tile) {
-        var coincide = !q || (tile.dataset.buscar || "").indexOf(q) !== -1;
-        tile.hidden = !coincide;
-        if (coincide) visibles++;
-      },
-    );
+    productosFiltrados = todosLosProductos.filter(function (item) {
+      return !q || (item.dataset.buscar || "").indexOf(q) !== -1;
+    });
 
-    if (sinResultados) sinResultados.hidden = visibles > 0;
-    if (contador)
-      contador.textContent =
-        visibles === 1 ? "1 producto" : visibles + " productos";
+    paginaActual = 1;
+    renderPaginacion();
   }
 
   if (buscador) {
@@ -69,29 +166,64 @@
     buscador.addEventListener("keydown", function (e) {
       if (e.key !== "Enter") return;
       e.preventDefault();
-      var visibles = grid
-        ? Array.prototype.filter.call(
-            grid.querySelectorAll(".pos-tile"),
-            function (t) {
-              return !t.hidden;
-            },
-          )
-        : [];
-      if (visibles.length === 1) {
-        agregar(visibles[0]);
+      var noAgotados = productosFiltrados.filter(function (t) {
+        return !t.disabled;
+      });
+      if (noAgotados.length === 1) {
+        agregar(noAgotados[0]);
         buscador.select();
       }
     });
   }
 
-  /* ── Carrito ──────────────────────────────────────────────────────── */
+  // Inicializar productos filtrados
+  productosFiltrados = todosLosProductos.slice();
+  renderPaginacion();
+
+  /* ── Notificaciones Toast en Tiempo Real ─────────────────────────── */
+  var toastContainer = document.getElementById("posToastContainer");
+
+  function notificar(tipo, mensaje) {
+    if (!toastContainer) {
+      anunciar(mensaje);
+      return;
+    }
+
+    var iconos = {
+      success: "ti-circle-check",
+      error: "ti-circle-x",
+      info: "ti-info-circle",
+      warn: "ti-alert-circle"
+    };
+
+    var toast = document.createElement("div");
+    toast.className = "pos-toast pos-toast--" + (tipo || "info");
+    toast.innerHTML =
+      '<i class="ti ' + (iconos[tipo] || iconos.info) + ' text-base shrink-0" aria-hidden="true"></i>' +
+      '<div>' + mensaje + '</div>';
+
+    toastContainer.appendChild(toast);
+
+    requestAnimationFrame(function () {
+      toast.setAttribute("data-show", "true");
+    });
+
+    setTimeout(function () {
+      toast.removeAttribute("data-show");
+      setTimeout(function () {
+        if (toast.parentNode) toast.parentNode.removeChild(toast);
+      }, 250);
+    }, 3500);
+  }
+
+  /* ── Carrito / Ticket de compra ───────────────────────────────────── */
   function agregar(tile) {
     var id = Number(tile.dataset.id);
     var stock = Number(tile.dataset.stock);
     var nombre = tile.dataset.nombre;
 
     if (stock <= 0) {
-      anunciar(nombre + " está agotado.");
+      notificar("error", '<strong>' + nombre + '</strong> está agotado. No se puede agregar al ticket.');
       return;
     }
 
@@ -101,10 +233,15 @@
 
     if (linea) {
       if (linea.cantidad >= stock) {
-        anunciar("No hay más stock de " + nombre + ". Máximo " + stock + ".");
+        notificar("warn", '<strong>' + nombre + '</strong> alcanzó el stock máximo disponible (' + stock + ' unidades).');
         return;
       }
       linea.cantidad++;
+
+      // Notificar cuando se alcanza exactamente el tope
+      if (linea.cantidad === stock) {
+        notificar("warn", 'Has agregado todo el stock de <strong>' + nombre + '</strong> (' + stock + ' unidades).');
+      }
     } else {
       carrito.push({
         id: id,
@@ -114,9 +251,13 @@
         stock: stock,
         cantidad: 1,
       });
+
+      // Si el producto solo tiene 1 unidad, ya alcanzó su máximo
+      if (stock === 1) {
+        notificar("warn", '<strong>' + nombre + '</strong> tiene solo 1 unidad disponible.');
+      }
     }
 
-    anunciar(nombre + " agregado al ticket.");
     pintar();
   }
 
@@ -132,16 +273,15 @@
       anunciar(carrito[i].nombre + " eliminado del ticket.");
       carrito.splice(i, 1);
     } else if (nueva > carrito[i].stock) {
-      anunciar(
-        "No hay más stock de " +
-          carrito[i].nombre +
-          ". Máximo " +
-          carrito[i].stock +
-          ".",
-      );
+      notificar("warn", '<strong>' + carrito[i].nombre + '</strong> alcanzó el stock máximo (' + carrito[i].stock + ' unidades).');
       return;
     } else {
       carrito[i].cantidad = nueva;
+
+      // Notificar al llegar exactamente al tope
+      if (nueva === carrito[i].stock) {
+        notificar("warn", 'Has agregado todo el stock de <strong>' + carrito[i].nombre + '</strong> (' + carrito[i].stock + ' unidades).');
+      }
     }
 
     pintar();
@@ -165,9 +305,16 @@
 
     if (!carrito.length) {
       contenedor.innerHTML =
-        '<p class="empty-sub text-center py-10 mx-auto">El ticket está vacío.</p>';
+        '<div class="empty py-10 my-auto text-center" id="carritoVacio">' +
+        '  <i class="ti ti-shopping-cart-x empty-icon text-ink-3 opacity-40 text-3xl mb-2" aria-hidden="true"></i>' +
+        '  <p class="empty-title text-sm">El ticket está vacío</p>' +
+        '  <p class="empty-sub text-xs">Toca o haz clic en cualquier producto de la lista superior para agregarlo.</p>' +
+        '</div>';
     } else {
       contenedor.textContent = "";
+
+      var listaContenedor = document.createElement("div");
+      listaContenedor.className = "flex flex-col divide-y divide-rule";
 
       carrito.forEach(function (item) {
         var subtotal = item.cantidad * item.precio;
@@ -176,48 +323,51 @@
 
         var fila = document.createElement("div");
         fila.className =
-          "pos-line flex justify-between items-center border-b border-gray-100 py-2 text-xs gap-2";
+          "pos-cart-row flex flex-wrap sm:flex-nowrap items-center justify-between gap-3 p-3 bg-card hover:bg-card-2/60 transition-colors";
 
+        // Nombre y precio unitario
         var info = document.createElement("div");
-        info.className = "flex-1 min-w-0";
+        info.className = "flex flex-col min-w-0 flex-1";
         var nombre = document.createElement("p");
-        nombre.className = "font-semibold text-gray-900 truncate";
+        nombre.className = "font-medium text-sm text-ink truncate";
         nombre.textContent = item.nombre;
         var unit = document.createElement("p");
-        unit.className = "text-gray-500 text-[11px]";
-        unit.textContent = usd(item.precio) + " / " + item.unidad;
+        unit.className = "text-xs text-ink-3 font-mono";
+        unit.textContent =
+          usd(item.precio) +
+          " / " +
+          item.unidad +
+          (TASA_USD > 0 ? " (" + bs(item.precio * TASA_USD) + ")" : "");
         info.appendChild(nombre);
         info.appendChild(unit);
 
-        var acciones = document.createElement("div");
-        acciones.className = "flex items-center gap-2 shrink-0";
+        // Controles de cantidad y subtotales
+        var controles = document.createElement("div");
+        controles.className = "flex items-center gap-3 sm:gap-4 shrink-0";
 
+        // Stepper de cantidad
         var qty = document.createElement("div");
-        qty.className =
-          "flex items-center border border-gray-200 rounded overflow-hidden";
+        qty.className = "qty";
 
         var menos = document.createElement("button");
         menos.type = "button";
-        menos.className =
-          "px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-600";
         menos.setAttribute("aria-label", "Quitar una unidad de " + item.nombre);
-        menos.textContent = "-";
-        menos.addEventListener("click", function () {
+        menos.innerHTML = '<i class="ti ti-minus text-xs" aria-hidden="true"></i>';
+        menos.addEventListener("click", function (e) {
+          e.stopPropagation();
           cambiar(item.id, -1);
         });
 
         var salida = document.createElement("span");
-        salida.className = "px-2 text-xs font-bold min-w-[28px] text-center";
         salida.textContent = item.cantidad;
 
         var mas = document.createElement("button");
         mas.type = "button";
-        mas.className =
-          "px-2 py-0.5 bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-600";
         mas.setAttribute("aria-label", "Agregar una unidad de " + item.nombre);
         mas.disabled = item.cantidad >= item.stock;
-        mas.textContent = "+";
-        mas.addEventListener("click", function () {
+        mas.innerHTML = '<i class="ti ti-plus text-xs" aria-hidden="true"></i>';
+        mas.addEventListener("click", function (e) {
+          e.stopPropagation();
           cambiar(item.id, 1);
         });
 
@@ -225,37 +375,44 @@
         qty.appendChild(salida);
         qty.appendChild(mas);
 
+        // Subtotal de la línea
         var monto = document.createElement("div");
-        monto.className = "text-right min-w-[80px]";
+        monto.className = "text-right min-w-[70px]";
         monto.innerHTML =
-          '<span class="font-bold block text-gray-900">' +
+          '<span class="font-mono font-semibold text-sm text-ink block">' +
           usd(subtotal) +
           "</span>" +
-          '<span class="text-[10px] text-gray-500 font-mono block">' +
-          bs(subtotal * TASA_USD) +
-          "</span>";
+          (TASA_USD > 0
+            ? '<span class="font-mono text-xs text-ink-3 block">' +
+              bs(subtotal * TASA_USD) +
+              "</span>"
+            : "");
 
+        // Botón eliminar
         var quitar = document.createElement("button");
         quitar.type = "button";
-        quitar.className = "text-rose-600 hover:text-rose-800 p-1";
+        quitar.className =
+          "w-8 h-8 rounded-lg flex items-center justify-center text-ink-3 hover:text-danger hover:bg-danger-bg transition-colors";
         quitar.setAttribute(
           "aria-label",
-          "Eliminar " + item.nombre + " del ticket",
+          "Eliminar " + item.nombre + " del ticket"
         );
-        quitar.innerHTML =
-          '<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>';
-        quitar.addEventListener("click", function () {
+        quitar.innerHTML = '<i class="ti ti-trash text-base" aria-hidden="true"></i>';
+        quitar.addEventListener("click", function (e) {
+          e.stopPropagation();
           eliminar(item.id);
         });
 
-        acciones.appendChild(qty);
-        acciones.appendChild(monto);
-        acciones.appendChild(quitar);
+        controles.appendChild(qty);
+        controles.appendChild(monto);
+        controles.appendChild(quitar);
 
         fila.appendChild(info);
-        fila.appendChild(acciones);
-        contenedor.appendChild(fila);
+        fila.appendChild(controles);
+        listaContenedor.appendChild(fila);
       });
+
+      contenedor.appendChild(listaContenedor);
     }
 
     var totalEl = document.getElementById("totalCarrito");
@@ -267,10 +424,9 @@
     var totalUsd = document.getElementById("totalUsd");
     if (totalUsd && TASA_USD > 0) {
       totalUsd.innerHTML =
-        "≈ " +
         bs(total * TASA_USD) +
-        ' <span class="text-ink-3">· tasa BCV ' +
-        bs(TASA_USD) +
+        ' <span class="text-[11px] text-ink-3">· BCV ' +
+        money(TASA_USD) +
         "/$</span>";
     }
 
@@ -278,18 +434,94 @@
       inputProductos.value = JSON.stringify(
         carrito.map(function (item) {
           return { id: item.id, cantidad: item.cantidad, precio: item.precio };
-        }),
+        })
       );
     }
 
-    if (cobrarBtn) cobrarBtn.disabled = carrito.length === 0;
+    // Actualizar estado seleccionado, badges y botón de restar en el catálogo
+    todosLosProductos.forEach(function (tile) {
+      var id = Number(tile.dataset.id);
+      var enCarrito = carrito.find(function (item) {
+        return item.id === id;
+      });
+
+      var badge = tile.querySelector(".pos-cart-badge");
+      var badgeQty = tile.querySelector(".badge-qty");
+      var minusBtn = tile.querySelector(".pos-quick-minus");
+
+      if (enCarrito && enCarrito.cantidad > 0) {
+        tile.classList.add("is-selected");
+        if (badge) {
+          badge.hidden = false;
+          if (badgeQty) badgeQty.textContent = enCarrito.cantidad;
+        }
+        if (minusBtn) {
+          minusBtn.hidden = false;
+        }
+      } else {
+        tile.classList.remove("is-selected");
+        if (badge) {
+          badge.hidden = true;
+        }
+        if (minusBtn) {
+          minusBtn.hidden = true;
+        }
+      }
+    });
+
+    if (cobrarBtn) {
+      cobrarBtn.disabled = carrito.length === 0 || (TASA_USD <= 0 && estadoVenta && estadoVenta.value === "completada");
+    }
     if (vaciarBtn) vaciarBtn.hidden = carrito.length === 0;
+  }
+
+  function money(n) {
+    return (
+      "Bs " +
+      Number(n).toLocaleString("es-VE", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
   }
 
   if (grid) {
     grid.addEventListener("click", function (e) {
-      var tile = e.target.closest(".pos-tile");
-      if (tile && !tile.disabled) agregar(tile);
+      // 1. Botón de restar cantidad
+      var minusBtn = e.target.closest(".pos-quick-minus");
+      if (minusBtn) {
+        e.stopPropagation();
+        var pid = Number(minusBtn.dataset.pid);
+        cambiar(pid, -1);
+        return;
+      }
+
+      // 2. Botón de sumar cantidad
+      var plusBtn = e.target.closest(".pos-quick-plus");
+      if (plusBtn) {
+        e.stopPropagation();
+        var item = plusBtn.closest(".pos-list-item, .pos-tile");
+        if (item && item.getAttribute("aria-disabled") !== "true" && !item.disabled) {
+          agregar(item);
+        }
+        return;
+      }
+
+      // 3. Clic en la fila completa
+      var item = e.target.closest(".pos-list-item, .pos-tile");
+      if (item && item.getAttribute("aria-disabled") !== "true" && !item.disabled) {
+        agregar(item);
+      }
+    });
+
+    grid.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") {
+        var item = e.target.closest(".pos-list-item, .pos-tile");
+        if (item && item.getAttribute("aria-disabled") !== "true" && !item.disabled) {
+          e.preventDefault();
+          agregar(item);
+        }
+      }
     });
   }
 
@@ -302,7 +534,7 @@
     });
   }
 
-  var METODOS_CON_REFERENCIA = ["pago_movil", "cashea"];
+  var METODOS_CON_REFERENCIA = ["pago_movil", "cashea", "transferencia"];
 
   function actualizarCardsPago() {
     if (!metodoInput) return;
@@ -313,55 +545,6 @@
       var val = card.dataset.value;
       var esActivo = val === valorActual;
       card.setAttribute("aria-checked", esActivo ? "true" : "false");
-
-      // Resetear clases base de Tailwind que SÍ existen
-      card.className =
-        "payment-card flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 active:scale-95";
-
-      var icono = card.querySelector(".ti, span.text-xl");
-      var texto = card.querySelector("span:last-child");
-
-      if (esActivo) {
-        // Colores en línea para asegurar que se apliquen
-        if (val === "efectivo") {
-          card.style.borderColor = "#059669"; // emerald-600
-          card.style.backgroundColor = "#ecfdf5"; // emerald-50
-          card.style.color = "#059669";
-          if (icono) icono.style.color = "#059669";
-          if (texto) texto.style.color = "#059669";
-        } else if (val === "pago_movil") {
-          card.style.borderColor = "#9333ea"; // purple-600
-          card.style.backgroundColor = "#f5f3ff"; // purple-50
-          card.style.color = "#9333ea";
-          if (icono) icono.style.color = "#9333ea";
-          if (texto) texto.style.color = "#9333ea";
-        } else if (val === "transferencia") {
-          card.style.borderColor = "#2563eb"; // blue-600
-          card.style.backgroundColor = "#eff6ff"; // blue-50
-          card.style.color = "#2563eb";
-          if (icono) icono.style.color = "#2563eb";
-          if (texto) texto.style.color = "#2563eb";
-        } else if (val === "biopago") {
-          card.style.borderColor = "#e11d48"; // rose-600
-          card.style.backgroundColor = "#fff1f2"; // rose-50
-          card.style.color = "#e11d48";
-          if (icono) icono.style.color = "#e11d48";
-          if (texto) texto.style.color = "#e11d48";
-        } else if (val === "cashea") {
-          card.style.borderColor = "#d97706"; // amber-600
-          card.style.backgroundColor = "#fffbeb"; // amber-50
-          card.style.color = "#d97706";
-          if (icono) icono.style.color = "#d97706";
-          if (texto) texto.style.color = "#d97706";
-        }
-      } else {
-        // Estado inactivo
-        card.style.borderColor = "#e2e8f0"; // slate-200
-        card.style.backgroundColor = "#ffffff";
-        card.style.color = "#64748b"; // slate-500
-        if (icono) icono.style.color = "#94a3b8"; // slate-400
-        if (texto) texto.style.color = "#475569"; // slate-600
-      }
     });
   }
 
@@ -392,15 +575,19 @@
     if (numeroBox) numeroBox.hidden = !completada;
     if (metodoInput) metodoInput.disabled = !completada;
     if (numeroInput) numeroInput.disabled = !completada;
-    if (cobrarBtn)
-      cobrarBtn.textContent = completada
-        ? "Cobrar ticket"
-        : "Guardar como pendiente";
+    if (cobrarBtn) {
+      cobrarBtn.innerHTML = completada
+        ? '<i class="ti ti-check text-base mr-1" aria-hidden="true"></i> Cobrar ticket'
+        : '<i class="ti ti-clock text-base mr-1" aria-hidden="true"></i> Guardar como pendiente';
+    }
     sincronizarMetodoPago();
   }
 
   if (estadoVenta) {
-    estadoVenta.addEventListener("change", sincronizarEstado);
+    estadoVenta.addEventListener("change", function () {
+      sincronizarEstado();
+      pintar();
+    });
   }
   if (metodoInput) {
     metodoInput.addEventListener("change", sincronizarMetodoPago);
@@ -418,6 +605,296 @@
   });
 
   sincronizarEstado();
-
   pintar();
+
+  /* ── 1. Buscador de Clientes en Tiempo Real ────────────────────────── */
+  var buscarClienteInput = document.getElementById("buscarCliente");
+  var clienteSelect = document.getElementById("cliente_id");
+
+  if (buscarClienteInput && clienteSelect) {
+    buscarClienteInput.addEventListener("input", function () {
+      var q = buscarClienteInput.value.trim().toLowerCase();
+      var options = clienteSelect.querySelectorAll("option");
+      var primeraCoincidencia = null;
+
+      Array.prototype.forEach.call(options, function (opt) {
+        var textoBuscar = (opt.dataset.buscar || opt.textContent || "").toLowerCase();
+        var coincide = !q || textoBuscar.indexOf(q) !== -1;
+        opt.hidden = !coincide;
+        if (coincide && !primeraCoincidencia && opt.value !== "") {
+          primeraCoincidencia = opt;
+        }
+      });
+
+      if (q && primeraCoincidencia) {
+        clienteSelect.value = primeraCoincidencia.value;
+      } else if (!q) {
+        clienteSelect.value = "";
+      }
+    });
+
+    buscarClienteInput.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        var optionsVisibles = Array.prototype.filter.call(
+          clienteSelect.querySelectorAll("option:not([hidden])"),
+          function (opt) {
+            return opt.value !== "";
+          }
+        );
+        if (optionsVisibles.length > 0) {
+          clienteSelect.value = optionsVisibles[0].value;
+          anunciar("Cliente seleccionado: " + optionsVisibles[0].textContent);
+        }
+      }
+    });
+  }
+
+  /* ── Utilidades de Modales ─────────────────────────────────────────── */
+  function abrirModal(modalEl) {
+    if (!modalEl) return;
+    modalEl.setAttribute("data-open", "true");
+    modalEl.setAttribute("aria-hidden", "false");
+    var primerInput = modalEl.querySelector("input, select, button");
+    if (primerInput) setTimeout(function () { primerInput.focus(); }, 50);
+  }
+
+  function cerrarModal(modalEl) {
+    if (!modalEl) return;
+    modalEl.removeAttribute("data-open");
+    modalEl.setAttribute("aria-hidden", "true");
+  }
+
+  // Cerrar modales con Escape o haciendo clic en el fondo
+  document.querySelectorAll(".modal-overlay").forEach(function (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) cerrarModal(modal);
+    });
+  });
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      document.querySelectorAll('.modal-overlay[data-open="true"]').forEach(function (modal) {
+        cerrarModal(modal);
+      });
+    }
+  });
+
+
+
+  /* ── 2. Modal de Registro Rápido de Cliente ────────────────────────── */
+  var modalCliente = document.getElementById("modalCliente");
+  var btnNuevoCliente = document.getElementById("btnNuevoCliente");
+  var btnModalClienteDirecto = document.getElementById("btnModalClienteDirecto");
+  var btnCerrarModalCliente = document.getElementById("btnCerrarModalCliente");
+  var btnCancelarCliente = document.getElementById("btnCancelarCliente");
+  var formClienteRapido = document.getElementById("formClienteRapido");
+  var alertaClienteRapido = document.getElementById("alertaClienteRapido");
+  var btnGuardarCliente = document.getElementById("btnGuardarCliente");
+
+  function abrirModalCliente() {
+    if (typeof hideSpinner === "function") hideSpinner();
+    if (alertaClienteRapido) alertaClienteRapido.hidden = true;
+    if (formClienteRapido) formClienteRapido.reset();
+    abrirModal(modalCliente);
+  }
+
+  if (btnNuevoCliente) btnNuevoCliente.addEventListener("click", abrirModalCliente);
+  if (btnModalClienteDirecto) btnModalClienteDirecto.addEventListener("click", abrirModalCliente);
+  if (btnCerrarModalCliente) btnCerrarModalCliente.addEventListener("click", function () { cerrarModal(modalCliente); });
+  if (btnCancelarCliente) btnCancelarCliente.addEventListener("click", function () { cerrarModal(modalCliente); });
+
+  if (formClienteRapido) {
+    formClienteRapido.addEventListener("submit", function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof hideSpinner === "function") hideSpinner();
+      if (!window.URL_CREAR_CLIENTE) return;
+
+      var formData = new FormData(formClienteRapido);
+      if (btnGuardarCliente) {
+        btnGuardarCliente.disabled = true;
+        btnGuardarCliente.innerHTML = '<i class="ti ti-loader animate-spin text-xs mr-1" aria-hidden="true"></i> Guardando...';
+      }
+
+      fetch(window.URL_CREAR_CLIENTE, {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (typeof hideSpinner === "function") hideSpinner();
+          if (btnGuardarCliente) {
+            btnGuardarCliente.disabled = false;
+            btnGuardarCliente.innerHTML = '<i class="ti ti-check text-xs mr-1" aria-hidden="true"></i> Guardar y seleccionar';
+          }
+
+          if (data.success && data.cliente) {
+            var nuevo = data.cliente;
+            var nom = nuevo.cliente_nombre + " " + nuevo.cliente_apellido;
+            var ced = nuevo.cliente_cedula || "";
+            var opt = document.createElement("option");
+            opt.value = nuevo.cliente_id;
+            opt.dataset.cedula = ced;
+            opt.dataset.buscar = (nom + " " + ced).toLowerCase();
+            opt.textContent = nom + (ced ? " (V-" + ced + ")" : "");
+
+            if (clienteSelect) {
+              clienteSelect.appendChild(opt);
+              clienteSelect.value = nuevo.cliente_id;
+            }
+
+            if (buscarClienteInput) buscarClienteInput.value = "";
+            cerrarModal(modalCliente);
+            notificar("success", "Cliente <strong>" + nom + "</strong> registrado y seleccionado.");
+          } else {
+            if (alertaClienteRapido) {
+              alertaClienteRapido.textContent = data.message || "Error al registrar cliente.";
+              alertaClienteRapido.hidden = false;
+            }
+            notificar("error", data.message || "Error al registrar cliente.");
+          }
+        })
+        .catch(function (err) {
+          if (typeof hideSpinner === "function") hideSpinner();
+          if (btnGuardarCliente) {
+            btnGuardarCliente.disabled = false;
+            btnGuardarCliente.innerHTML = '<i class="ti ti-check text-xs mr-1" aria-hidden="true"></i> Guardar y seleccionar';
+          }
+          if (alertaClienteRapido) {
+            alertaClienteRapido.textContent = "Ocurrió un error de conexión al guardar el cliente.";
+            alertaClienteRapido.hidden = false;
+          }
+          notificar("error", "Error de conexión al registrar cliente.");
+        });
+    });
+  }
+
+  /* ── 3. Actualizar Tasa BCV en Tiempo Real ─────────────────────────── */
+  var btnRefrescarTasa = document.getElementById("btnRefrescarTasa");
+  var iconoRefrescarTasa = document.getElementById("iconoRefrescarTasa");
+  var textoRefrescarTasa = document.getElementById("textoRefrescarTasa");
+
+  if (btnRefrescarTasa) {
+    btnRefrescarTasa.addEventListener("click", function () {
+      if (!window.URL_REFRESCAR_TASA) return;
+      if (typeof hideSpinner === "function") hideSpinner();
+
+      btnRefrescarTasa.disabled = true;
+      if (iconoRefrescarTasa) iconoRefrescarTasa.classList.add("animate-spin");
+      if (textoRefrescarTasa) textoRefrescarTasa.textContent = "Consultando API...";
+
+      fetch(window.URL_REFRESCAR_TASA, {
+        method: "POST",
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (typeof hideSpinner === "function") hideSpinner();
+          btnRefrescarTasa.disabled = false;
+          if (iconoRefrescarTasa) iconoRefrescarTasa.classList.remove("animate-spin");
+          if (textoRefrescarTasa) textoRefrescarTasa.textContent = "Actualizar tasa BCV";
+
+          if (data.success && data.tasa_usd) {
+            TASA_USD = Number(data.tasa_usd);
+            window.TASA_USD = TASA_USD;
+            notificar("success", "Tasa oficial BCV actualizada a <strong>" + bs(TASA_USD) + "/$</strong>");
+            pintar();
+          } else {
+            notificar("error", "No se pudo refrescar la tasa: " + (data.mensaje || "Error"));
+          }
+        })
+        .catch(function () {
+          if (typeof hideSpinner === "function") hideSpinner();
+          btnRefrescarTasa.disabled = false;
+          if (iconoRefrescarTasa) iconoRefrescarTasa.classList.remove("animate-spin");
+          if (textoRefrescarTasa) textoRefrescarTasa.textContent = "Actualizar tasa BCV";
+          notificar("error", "Error al consultar la tasa oficial desde la API.");
+        });
+    });
+  }
+
+  /* ── 4. Vista Previa e Impresión de Ticket ─────────────────────────── */
+  var modalTicketPreview = document.getElementById("modalTicketPreview");
+  var btnPreviewTicket = document.getElementById("btnPreviewTicket");
+  var btnCerrarModalTicket = document.getElementById("btnCerrarModalTicket");
+  var btnCerrarTicketPreview = document.getElementById("btnCerrarTicketPreview");
+  var btnImprimirTicket = document.getElementById("btnImprimirTicket");
+
+  var ticketFecha = document.getElementById("ticketPreviewFecha");
+  var ticketCliente = document.getElementById("ticketPreviewCliente");
+  var ticketEstado = document.getElementById("ticketPreviewEstado");
+  var ticketMetodo = document.getElementById("ticketPreviewMetodo");
+  var ticketItems = document.getElementById("ticketPreviewItems");
+  var ticketTotalUsd = document.getElementById("ticketPreviewTotalUsd");
+  var ticketTotalBs = document.getElementById("ticketPreviewTotalBs");
+
+  if (btnPreviewTicket) {
+    btnPreviewTicket.addEventListener("click", function () {
+      if (carrito.length === 0) {
+        anunciar("Agrega al menos un producto al ticket para ver la vista previa.");
+        return;
+      }
+
+      var ahora = new Date();
+      if (ticketFecha) {
+        ticketFecha.textContent = "Fecha: " + ahora.toLocaleDateString("es-VE") + " " + ahora.toLocaleTimeString("es-VE", { hour: "2-digit", minute: "2-digit" });
+      }
+
+      if (ticketCliente) {
+        var optSel = clienteSelect ? clienteSelect.options[clienteSelect.selectedIndex] : null;
+        ticketCliente.textContent = optSel ? optSel.textContent.trim() : "Consumidor final";
+      }
+
+      if (ticketEstado && estadoVenta) {
+        ticketEstado.textContent = estadoVenta.value === "completada" ? "Completada" : "Pendiente de cobro";
+      }
+
+      if (ticketMetodo && metodoInput) {
+        var labels = {
+          efectivo: "Efectivo",
+          transferencia: "Punto de venta",
+          pago_movil: "Pago móvil / Transf",
+          biopago: "Biopago",
+          cashea: "Cashea"
+        };
+        ticketMetodo.textContent = labels[metodoInput.value] || metodoInput.value;
+      }
+
+      if (ticketItems) {
+        ticketItems.innerHTML = "";
+        var total = 0;
+
+        carrito.forEach(function (it) {
+          var sub = it.cantidad * it.precio;
+          total += sub;
+
+          var itemRow = document.createElement("div");
+          itemRow.className = "grid grid-cols-12 gap-1 py-0.5 border-b border-gray-100";
+          itemRow.innerHTML =
+            '<span class="col-span-6 truncate font-medium">' + it.cantidad + 'x ' + it.nombre + '</span>' +
+            '<span class="col-span-3 text-right text-gray-600">' + usd(it.precio) + '</span>' +
+            '<span class="col-span-3 text-right font-bold">' + usd(sub) + '</span>';
+          ticketItems.appendChild(itemRow);
+        });
+
+        if (ticketTotalUsd) ticketTotalUsd.textContent = usd(total);
+        if (ticketTotalBs && TASA_USD > 0) ticketTotalBs.textContent = bs(total * TASA_USD);
+      }
+
+      abrirModal(modalTicketPreview);
+    });
+  }
+
+  if (btnCerrarModalTicket) btnCerrarModalTicket.addEventListener("click", function () { cerrarModal(modalTicketPreview); });
+  if (btnCerrarTicketPreview) btnCerrarTicketPreview.addEventListener("click", function () { cerrarModal(modalTicketPreview); });
+
+  if (btnImprimirTicket) {
+    btnImprimirTicket.addEventListener("click", function () {
+      window.print();
+    });
+  }
+
 })();
+

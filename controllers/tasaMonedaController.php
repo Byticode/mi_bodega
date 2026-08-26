@@ -38,6 +38,28 @@ class TasaMonedaController extends BaseController
         exit();
     }
 
+    /** Refresco asíncrono para el POS */
+    public function actualizarAjax()
+    {
+        header('Content-Type: application/json');
+        $tasa = (new TasaService())->refrescar();
+
+        if (!empty($tasa['tasa_usd'])) {
+            echo json_encode([
+                'success' => true,
+                'tasa_usd' => (float) $tasa['tasa_usd'],
+                'origen' => $tasa['origen'] ?? 'api',
+                'mensaje' => 'Tasa actualizada: Bs ' . number_format((float) $tasa['tasa_usd'], 2, ',', '.') . '/$'
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'mensaje' => $tasa['error'] ?: 'No se pudo obtener la tasa desde la API.'
+            ]);
+        }
+        exit();
+    }
+
     public function crear()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
