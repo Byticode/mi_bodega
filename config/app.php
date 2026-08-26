@@ -25,8 +25,8 @@ define('TASA_TTL', 1800);
 /** TTL corto tras un fallo, para no pagar el timeout en cada carga de página. */
 define('TASA_TTL_ERROR', 300);
 
-define('TASA_TIMEOUT_CONEXION', 3);
-define('TASA_TIMEOUT_TOTAL', 6);
+define('TASA_TIMEOUT_CONEXION', 5);
+define('TASA_TIMEOUT_TOTAL', 10);
 
 /** A partir de cuántos segundos la tasa se considera vieja y se avisa en pantalla. */
 define('TASA_ANTIGUA', 86400);

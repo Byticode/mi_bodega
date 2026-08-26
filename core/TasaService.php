@@ -130,20 +130,23 @@ class TasaService
         return null;
     }
 
-    /** GET con timeout corto. Devuelve el JSON decodificado o null. */
+    /** GET con timeout y fallback SSL. Devuelve el JSON decodificado o null. */
     private function traer(string $url): ?array
     {
         $ch = curl_init($url);
 
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_CONNECTTIMEOUT => TASA_TIMEOUT_CONEXION,
-            CURLOPT_TIMEOUT        => TASA_TIMEOUT_TOTAL,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_USERAGENT      => 'mi_bodega/1.0',
-            CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+            CURLOPT_CONNECTTIMEOUT => defined('TASA_TIMEOUT_CONEXION') ? TASA_TIMEOUT_CONEXION : 5,
+            CURLOPT_TIMEOUT        => defined('TASA_TIMEOUT_TOTAL') ? TASA_TIMEOUT_TOTAL : 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_USERAGENT      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+            CURLOPT_HTTPHEADER     => [
+                'Accept: application/json',
+                'Cache-Control: no-cache',
+            ],
         ]);
 
         $cuerpo = curl_exec($ch);

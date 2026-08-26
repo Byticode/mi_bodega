@@ -56,6 +56,57 @@ class ClientesController extends BaseController
         $this->redirect('clientes');
     }
 
+    public function crearRapido()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Método no permitido']);
+            exit();
+        }
+
+        $nombre = trim($_POST['nombre'] ?? '');
+        $apellido = trim($_POST['apellido'] ?? '');
+        $cedula = trim($_POST['cedula'] ?? '');
+        $telefono = trim($_POST['telefono'] ?? '');
+        $correo = trim($_POST['correo'] ?? '');
+
+        if (empty($nombre) || empty($apellido) || empty($cedula)) {
+            echo json_encode(['success' => false, 'message' => 'Nombre, apellido y cédula son obligatorios']);
+            exit();
+        }
+
+        if ($this->clienteModel->isDuplicateCedula($cedula)) {
+            echo json_encode(['success' => false, 'message' => 'Esta cédula ya está registrada']);
+            exit();
+        }
+
+        if (!empty($correo) && !$this->clienteModel->isDuplicateCorreo($correo)) {
+            echo json_encode(['success' => false, 'message' => 'Este correo ya está registrado']);
+            exit();
+        }
+
+        $success = $this->clienteModel->crear(
+            $nombre,
+            $apellido,
+            $cedula,
+            $telefono ?: null,
+            $correo ?: null
+        );
+
+        if ($success) {
+            $todos = $this->clienteModel->listar();
+            $nuevo = end($todos);
+            echo json_encode([
+                'success' => true,
+                'message' => 'Cliente registrado con éxito',
+                'cliente' => $nuevo
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'No se pudo registrar el cliente']);
+        }
+        exit();
+    }
+
     public function editar()
     {
         $cliente_id = $this->validateId($_GET['id'] ?? '');

@@ -16,7 +16,10 @@ function hideSpinner() {
 
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('form').forEach(function (form) {
-        form.addEventListener('submit', function () {
+        form.addEventListener('submit', function (e) {
+            if (form.hasAttribute('data-ajax') || form.hasAttribute('data-no-spinner') || e.defaultPrevented) {
+                return;
+            }
             if (form.checkValidity && !form.checkValidity()) {
                 return;
             }
