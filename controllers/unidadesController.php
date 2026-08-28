@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 class UnidadesController extends BaseController
 {
@@ -12,9 +12,11 @@ class UnidadesController extends BaseController
 
     public function listar()
     {
-        $unidades = $this->unidadModel->listar();
-        include RUTA_APP . '/views/unidades/unidades.php';
-        exit();
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->unidadModel->listarPaginado($page, 10, $search);
+        $unidades = $paginacion['data'];
+        $this->render('unidades/unidades.php', compact('unidades', 'paginacion', 'search'));
     }
 
     public function crear()
@@ -26,7 +28,7 @@ class UnidadesController extends BaseController
 
             if ($verfduplicado) {
                 $verfduplicadoAbreviatura = $this->unidadModel->verificarDuplicadoAbreviatura($unidad_abreviatura);
-                
+
                 if ($verfduplicadoAbreviatura) {
                     $resultado = $this->unidadModel->crear($unidad_nombre, $unidad_abreviatura);
                     if ($resultado) {
@@ -57,10 +59,10 @@ class UnidadesController extends BaseController
 
             if ($verifduplicado) {
                 $verifduplicadoAbreviatura = $this->unidadModel->verificarDuplicadoAbreviaturaId($unidad_abreviatura, $unidad_id);
-                
+
                 if ($verifduplicadoAbreviatura) {
                     $resultado = $this->unidadModel->editar($unidad_nombre, $unidad_abreviatura, $unidad_id);
-                    
+
                     if ($resultado) {
                         $this->setFlash('success', 'Unidad editada con éxito');
                         $this->redirect('unidades');
@@ -82,24 +84,24 @@ class UnidadesController extends BaseController
         }
     }
 
-    public function limpiarPOST()
+    public function limpiarPOST(): array
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nombre_input = isset($_POST['nombre']) ? ucwords(trim($_POST['nombre'])) : '';
-            $abreviatura_input = isset($_POST['abreviatura']) ? strtoupper(trim($_POST['abreviatura'])) : '';
+        $nombre_input = isset($_POST['nombre']) ? ucwords(trim($_POST['nombre'])) : '';
+        $abreviatura_input = isset($_POST['abreviatura']) ? strtoupper(trim($_POST['abreviatura'])) : '';
 
-            if (strlen($nombre_input) < 2) {
-                $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
-                $this->redirect('unidades');
-            }
-
-            if (strlen($abreviatura_input) < 1) {
-                $this->setFlash('error', 'La abreviatura debe tener al menos 1 caracter');
-                $this->redirect('unidades');
-            }
-
-            return [$nombre_input, $abreviatura_input];
+        if (strlen($nombre_input) < 2) {
+            $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
+            $this->redirect('unidades');
+            exit;
         }
+
+        if (strlen($abreviatura_input) < 1) {
+            $this->setFlash('error', 'La abreviatura debe tener al menos 1 caracter');
+            $this->redirect('unidades');
+            exit;
+        }
+
+        return [$nombre_input, $abreviatura_input];
     }
 
     public function limpiarVerificarId(): int
@@ -109,11 +111,12 @@ class UnidadesController extends BaseController
 
         $resultado = $this->unidadModel->limpiarVerificarId($unidad_id);
 
-        if ($resultado) {
-            return $unidad_id;
-        } else {
+        if (!$resultado) {
             $this->setFlash('error', 'Unidad no encontrada');
             $this->redirect('unidades');
+            exit;
         }
+
+        return $unidad_id;
     }
 }

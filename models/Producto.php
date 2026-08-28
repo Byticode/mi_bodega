@@ -19,18 +19,33 @@ class Producto extends BaseModel
         return $this->fetchAll($sql);
     }
 
-    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    /**
+     * Listado paginado de productos con búsqueda por nombre, código de barras o categoría.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
     {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE p.producto_nombre LIKE ? OR p.producto_codigo LIKE ? OR c.categorias_nombre LIKE ?";
+            $term = '%' . $search . '%';
+            $params = [$term, $term, $term];
+        }
+
         $sql = "SELECT p.*, c.categorias_nombre, u.unidad_nombre, u.unidad_abreviatura 
                 FROM productos p
                 LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
                 LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
+                {$where}
                 ORDER BY p.producto_nombre ASC";
 
-        $countSql = "SELECT COUNT(*) FROM productos";
+        $countSql = "SELECT COUNT(*) FROM productos p
+                     LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
+                     {$where}";
 
-        return $this->paginate($sql, $countSql, [], $page, $perPage);
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
     }
+
 
     public function editar($producto_codigo, $producto_nombre, $producto_peso, $categoria_id, $unidad_id, $producto_precio_costo, $producto_ganancia, $producto_iva, $producto_precio_venta, $producto_stock, $producto_id)
     {
@@ -209,6 +224,26 @@ class Producto extends BaseModel
                 ORDER BY p.producto_stock ASC
                 LIMIT ?";
         return $this->fetchAll($sql, [$limite]);
+    }
+
+    public function contarProductosStockBajo(): int
+    {
+        $sql = "SELECT COUNT(*) as total FROM productos WHERE producto_stock <= 5";
+        $row = $this->fetchOne($sql, []);
+        return (int) ($row['total'] ?? 0);
+    }
+
+    public function obtenerProductosStockBajoPaginado(int $page = 1, int $porPagina = 10): array
+    {
+        $offset = ($page - 1) * $porPagina;
+        $sql = "SELECT p.*, c.categorias_nombre, u.unidad_nombre, u.unidad_abreviatura
+                FROM productos p
+                LEFT JOIN categorias c ON p.categoria_id = c.categorias_id
+                LEFT JOIN unidades u ON p.unidad_id = u.unidad_id
+                WHERE p.producto_stock <= 5
+                ORDER BY p.producto_stock ASC
+                LIMIT ? OFFSET ?";
+        return $this->fetchAll($sql, [$porPagina, $offset]);
     }
 }
 

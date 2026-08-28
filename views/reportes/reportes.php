@@ -4,10 +4,21 @@ $page_desc  = 'Resumen de ventas, productos más vendidos y alertas de stock.';
 include RUTA_APP . '/includes/head.php';
 include RUTA_APP . '/includes/sidebar.php';
 
-$totalVentas = $reporte['total_ventas'] ?? 0;
+$totalVentas      = $reporte['total_ventas'] ?? 0;
 $totalCompletadas = $reporte['total_completadas'] ?? 0;
-$totalPendientes = $reporte['total_pendientes'] ?? 0;
-$totalCanceladas = $reporte['total_canceladas'] ?? 0;
+$totalPendientes  = $reporte['total_pendientes'] ?? 0;
+$totalCanceladas  = $reporte['total_canceladas'] ?? 0;
+
+// Función helper para construir la URL preservando todos los GET params
+function reporteUrl(array $override = []): string {
+    $params = array_merge([
+        'fecha_desde' => $_GET['fecha_desde'] ?? date('Y-m-01'),
+        'fecha_hasta' => $_GET['fecha_hasta'] ?? date('Y-m-d'),
+        'page_top'    => $_GET['page_top'] ?? 1,
+        'page_stock'  => $_GET['page_stock'] ?? 1,
+    ], $override);
+    return url('reportes') . '?' . http_build_query($params);
+}
 ?>
 
 <main id="contenido" class="app-main">
@@ -69,14 +80,19 @@ $totalCanceladas = $reporte['total_canceladas'] ?? 0;
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       <!-- Top Productos -->
-      <div class="card">
+      <div class="card flex flex-col">
         <div class="card-head">
           <h2 class="section-title">
             <i class="ti ti-trophy text-base" aria-hidden="true"></i>
             Productos más vendidos
           </h2>
+          <?php if ($totalTop > 0): ?>
+            <span class="text-xs text-ink-3">
+              Mostrando <strong><?= min(($pageTop - 1) * 10 + 1, $totalTop) ?>–<?= min($pageTop * 10, $totalTop) ?></strong> de <strong><?= $totalTop ?></strong>
+            </span>
+          <?php endif; ?>
         </div>
-        <div class="table-wrap">
+        <div class="table-wrap flex-1">
           <table class="table">
             <caption class="sr-only">Productos más vendidos en el período seleccionado</caption>
             <thead>
@@ -99,9 +115,12 @@ $totalCanceladas = $reporte['total_canceladas'] ?? 0;
                   </td>
                 </tr>
               <?php else: ?>
-                <?php foreach ($topProductos as $i => $prod): ?>
+                <?php
+                  $offsetTop = ($pageTop - 1) * 10;
+                  foreach ($topProductos as $i => $prod):
+                ?>
                   <tr>
-                    <td class="text-ink-3"><?= $i + 1 ?></td>
+                    <td class="text-ink-3"><?= $offsetTop + $i + 1 ?></td>
                     <td class="font-medium"><?= htmlspecialchars($prod['producto_nombre']) ?></td>
                     <td class="num"><?= qty($prod['cantidad_vendida']) ?></td>
                     <td class="num"><span class="money"><?= money($prod['total_vendido']) ?></span></td>
@@ -111,6 +130,37 @@ $totalCanceladas = $reporte['total_canceladas'] ?? 0;
             </tbody>
           </table>
         </div>
+
+        <?php if ($totalPaginasTop > 1): ?>
+          <div class="pagination">
+            <a href="<?= reporteUrl(['page_top' => max(1, $pageTop - 1)]) ?>"
+               class="pag-btn <?= $pageTop <= 1 ? 'opacity-40 pointer-events-none' : '' ?>"
+               aria-label="Página anterior de top productos"
+               <?= $pageTop <= 1 ? 'aria-disabled="true"' : '' ?>>
+              <i class="ti ti-chevron-left text-base" aria-hidden="true"></i>
+            </a>
+
+            <?php
+              $startTop = max(1, min($pageTop - 2, $totalPaginasTop - 4));
+              $endTop   = min($totalPaginasTop, $startTop + 4);
+              for ($p = $startTop; $p <= $endTop; $p++):
+            ?>
+              <a href="<?= reporteUrl(['page_top' => $p]) ?>"
+                 class="pag-btn <?= $p === $pageTop ? 'pag-btn--active' : '' ?>"
+                 aria-label="Página <?= $p ?> de top productos"
+                 <?= $p === $pageTop ? 'aria-current="page"' : '' ?>>
+                <?= $p ?>
+              </a>
+            <?php endfor; ?>
+
+            <a href="<?= reporteUrl(['page_top' => min($totalPaginasTop, $pageTop + 1)]) ?>"
+               class="pag-btn <?= $pageTop >= $totalPaginasTop ? 'opacity-40 pointer-events-none' : '' ?>"
+               aria-label="Página siguiente de top productos"
+               <?= $pageTop >= $totalPaginasTop ? 'aria-disabled="true"' : '' ?>>
+              <i class="ti ti-chevron-right text-base" aria-hidden="true"></i>
+            </a>
+          </div>
+        <?php endif; ?>
       </div>
 
       <!-- Métodos de pago -->
@@ -159,12 +209,17 @@ $totalCanceladas = $reporte['total_canceladas'] ?? 0;
     </div>
 
     <!-- Alertas de stock bajo -->
-    <div class="card">
+    <div class="card flex flex-col">
       <div class="card-head">
         <h2 class="section-title">
           <i class="ti ti-alert-triangle text-base text-warn" aria-hidden="true"></i>
           Alertas de stock bajo
         </h2>
+        <?php if ($totalStock > 0): ?>
+          <span class="text-xs text-ink-3">
+            Mostrando <strong><?= min(($pageStock - 1) * 10 + 1, $totalStock) ?>–<?= min($pageStock * 10, $totalStock) ?></strong> de <strong><?= $totalStock ?></strong> productos
+          </span>
+        <?php endif; ?>
       </div>
       <div class="table-wrap">
         <table class="table">
@@ -209,6 +264,37 @@ $totalCanceladas = $reporte['total_canceladas'] ?? 0;
           </tbody>
         </table>
       </div>
+
+      <?php if ($totalPaginasStock > 1): ?>
+        <div class="pagination">
+          <a href="<?= reporteUrl(['page_stock' => max(1, $pageStock - 1)]) ?>"
+             class="pag-btn <?= $pageStock <= 1 ? 'opacity-40 pointer-events-none' : '' ?>"
+             aria-label="Página anterior de stock bajo"
+             <?= $pageStock <= 1 ? 'aria-disabled="true"' : '' ?>>
+            <i class="ti ti-chevron-left text-base" aria-hidden="true"></i>
+          </a>
+
+          <?php
+            $startStock = max(1, min($pageStock - 2, $totalPaginasStock - 4));
+            $endStock   = min($totalPaginasStock, $startStock + 4);
+            for ($p = $startStock; $p <= $endStock; $p++):
+          ?>
+            <a href="<?= reporteUrl(['page_stock' => $p]) ?>"
+               class="pag-btn <?= $p === $pageStock ? 'pag-btn--active' : '' ?>"
+               aria-label="Página <?= $p ?>"
+               <?= $p === $pageStock ? 'aria-current="page"' : '' ?>>
+              <?= $p ?>
+            </a>
+          <?php endfor; ?>
+
+          <a href="<?= reporteUrl(['page_stock' => min($totalPaginasStock, $pageStock + 1)]) ?>"
+             class="pag-btn <?= $pageStock >= $totalPaginasStock ? 'opacity-40 pointer-events-none' : '' ?>"
+             aria-label="Página siguiente de stock bajo"
+             <?= $pageStock >= $totalPaginasStock ? 'aria-disabled="true"' : '' ?>>
+            <i class="ti ti-chevron-right text-base" aria-hidden="true"></i>
+          </a>
+        </div>
+      <?php endif; ?>
     </div>
 
   </div>

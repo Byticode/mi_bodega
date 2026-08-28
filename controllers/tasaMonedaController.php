@@ -16,11 +16,13 @@ class TasaMonedaController extends BaseController
         // si cambió, así que $ultima ya refleja lo que devolvió la API.
         $tasa = tasa_vigente();
 
-        $tasas = $this->tasaModel->listar();
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->tasaModel->listarPaginado($page, 10, $search);
+        $tasas = $paginacion['data'];
         $ultima = $this->tasaModel->obtenerUltima();
 
-        include RUTA_APP . '/views/tasa-moneda/tasa-moneda.php';
-        exit();
+        $this->render('tasa-moneda/tasa-moneda.php', compact('tasa', 'tasas', 'ultima', 'paginacion', 'search'));
     }
 
     /** Fuerza una consulta a la API, saltándose la caché. */

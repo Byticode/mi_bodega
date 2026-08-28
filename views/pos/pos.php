@@ -38,11 +38,16 @@ include RUTA_APP . "/includes/sidebar.php";
 
           <!-- Barra de búsqueda rápida -->
           <div class="p-3 border-b border-rule bg-card-2/40">
-            <div class="search w-full">
+            <div class="search w-full relative flex items-center">
               <label for="buscarProducto" class="sr-only">Buscar producto por nombre o código</label>
               <i class="ti ti-search search-icon" aria-hidden="true"></i>
-              <input type="search" id="buscarProducto" class="input bg-card"
+              <input type="text" id="buscarProducto" class="input bg-card pl-9 pr-8 w-full"
                 placeholder="Buscar por nombre, código o categoría…" autocomplete="off" autofocus>
+              <button type="button" id="btnLimpiarBuscarProducto"
+                class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                title="Limpiar búsqueda" aria-label="Limpiar búsqueda" style="display: none;">
+                <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+              </button>
             </div>
           </div>
 
@@ -120,6 +125,21 @@ include RUTA_APP . "/includes/sidebar.php";
                           class="font-mono text-xs text-ink-3 block"><?= bs($producto["producto_precio_venta"]) ?></span>
                       </div>
                       <button type="button"
+                        class="btn-info-producto-pos cursor-pointer w-7 h-7 rounded-md bg-card-2 flex items-center justify-center text-ink-3 hover:text-olive hover:bg-olive/10 transition-colors"
+                        data-producto='<?= htmlspecialchars(json_encode([
+                          "id" => (int) $producto["producto_id"],
+                          "nombre" => $producto["producto_nombre"],
+                          "codigo" => $cod,
+                          "categoria" => $catNombre ?? "Sin categoría",
+                          "unidad" => $abrev,
+                          "peso" => $producto["producto_peso"] ?? "",
+                          "precio_usd" => usd($producto["producto_precio_venta"]),
+                          "precio_bs" => bs($producto["producto_precio_venta"]),
+                          "stock" => $stock,
+                        ]), ENT_QUOTES) ?>' aria-label="Ver detalles del producto" title="Ver detalles">
+                        <i class="ti ti-eye text-sm" aria-hidden="true"></i>
+                      </button>
+                      <button type="button"
                         class="cursor-pointer pos-quick-btn pos-quick-minus w-7 h-7 rounded-md bg-card-2 flex items-center justify-center text-ink-3 hover:bg-danger-bg hover:text-danger transition-colors"
                         data-action="minus" data-pid="<?= (int) $producto["producto_id"] ?>" aria-label="Quitar una unidad"
                         title="Quitar" hidden>
@@ -175,8 +195,8 @@ include RUTA_APP . "/includes/sidebar.php";
               <h2 class="section-title text-sm sm:text-base font-semibold" id="tituloCarrito">Productos en ticket</h2>
             </div>
             <button title="Vaciar el Carrito" type="button" id="vaciarBtn"
-              class="btn btn-ghost btn-sm text-danger hover:bg-danger-bg text-xs" hidden>
-              <i class="ti ti-trash text-sm mr-1" aria-hidden="true"></i>
+              class="btn btn-ghost btn-sm text-danger hover:bg-danger-bg text-xs cursor-pointer" hidden>
+              <i class="ti ti-trash text-sm mr-1 cursor-pointer" aria-hidden="true"></i>
               Vaciar ticket
             </button>
           </div>
@@ -231,22 +251,27 @@ include RUTA_APP . "/includes/sidebar.php";
               <div class="field">
                 <div class="flex items-center justify-between mb-1">
                   <label for="cliente_id" class="label text-xs font-semibold text-ink-2 mb-0">Cliente</label>
-                  <button type="button" id="btnNuevoCliente"
-                    class="text-xs text-olive font-semibold hover:underline flex items-center gap-1">
-                    <i class="ti ti-user-plus text-xs" aria-hidden="true"></i> + Registrar
+                  <button type="button" id="btnNuevoCliente" title="Registrar un cliente"
+                    class="cursor-pointer text-xs text-olive font-semibold hover:underline flex items-center gap-1">
+                    <i class="ti ti-user-plus text-xs cursor-pointer" aria-hidden="true"></i> + Registrar
                   </button>
                 </div>
 
                 <!-- Buscador de cliente por nombre o cédula -->
-                <div class="relative mb-1.5">
+                <div class="relative mb-1.5 flex items-center">
                   <i class="ti ti-search absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-3 text-xs pointer-events-none"
                     aria-hidden="true"></i>
-                  <input type="text" id="buscarCliente" class="input text-xs pl-7 py-1.5 bg-card-2/40"
+                  <input type="text" id="buscarCliente" class="input text-xs pl-7 pr-8 py-1.5 bg-card-2/40 w-full"
                     placeholder="Filtrar por nombre o cédula…" autocomplete="off">
+                  <button type="button" id="btnLimpiarBuscarCliente"
+                    class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors cursor-pointer"
+                    title="Limpiar búsqueda" aria-label="Limpiar búsqueda" style="display: none;">
+                    <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+                  </button>
                 </div>
 
                 <select id="cliente_id" name="cliente_id" class="select text-sm">
-                  <option value="" data-buscar="consumidor final">Consumidor final</option>
+                  <option value="" data-buscar="">Seleccione un cliente</option>
                   <?php foreach ($clientes as $cliente):
                     $cedula = !empty($cliente["cliente_cedula"]) ? $cliente["cliente_cedula"] : "";
                     $nomCompleto = $cliente["cliente_nombre"] . " " . $cliente["cliente_apellido"];
@@ -367,23 +392,24 @@ include RUTA_APP . "/includes/sidebar.php";
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
             <!-- Botón 1: Registrar Cliente Rápido -->
-            <button type="button" id="btnModalClienteDirecto"
-              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full">
-              <i class="ti ti-user-plus text-base text-olive" aria-hidden="true"></i>
+            <button type="button" id="btnModalClienteDirecto" title="Registrar un cliente rápido"
+              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full cursor-pointer">
+              <i class="ti ti-user-plus text-base text-olive cursor-pointer" aria-hidden="true"></i>
               <span>Registrar cliente</span>
             </button>
 
             <!-- Botón 2: Actualizar Tasa del Día -->
-            <button type="button" id="btnRefrescarTasa"
-              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full">
-              <i class="ti ti-refresh text-base text-info" id="iconoRefrescarTasa" aria-hidden="true"></i>
+            <button type="button" id="btnRefrescarTasa" title="Actualizar tasa del BCV"
+              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full cursor-pointer">
+              <i class="ti ti-refresh text-base text-info cursor-pointer" id="iconoRefrescarTasa"
+                aria-hidden="true"></i>
               <span id="textoRefrescarTasa">Actualizar tasa BCV</span>
             </button>
 
             <!-- Botón 3: Vista Previa / Imprimir Ticket -->
-            <button type="button" id="btnPreviewTicket"
-              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full">
-              <i class="ti ti-printer text-base text-ink-2" aria-hidden="true"></i>
+            <button type="button" id="btnPreviewTicket" title="Vista previa del ticket"
+              class="btn btn-secondary btn-sm justify-start text-xs font-medium w-full cursor-pointer">
+              <i class="ti ti-printer text-base text-ink-2 cursor-pointer" aria-hidden="true"></i>
               <span>Vista previa de ticket</span>
             </button>
           </div>
@@ -521,6 +547,59 @@ include RUTA_APP . "/includes/sidebar.php";
       <button type="button" class="btn btn-secondary btn-sm text-xs" id="btnCerrarTicketPreview">Cerrar</button>
       <button type="button" class="btn btn-primary btn-sm text-xs font-semibold" id="btnImprimirTicket">
         <i class="ti ti-printer text-xs mr-1" aria-hidden="true"></i> Imprimir
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Resumido de Producto en POS -->
+<div id="modalInfoProductoPOS"
+  class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto hidden"
+  role="dialog" aria-modal="true" aria-labelledby="posInfoNombre">
+  <div class="w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 relative my-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-3">
+      <div class="flex items-start gap-2.5">
+        <div class="w-9 h-9 rounded-lg bg-olive/10 text-olive flex items-center justify-center shrink-0 mt-0.5">
+          <i class="ti ti-box text-xl" aria-hidden="true"></i>
+        </div>
+        <div>
+          <span id="posInfoCategoria" class="badge badge-olive text-[10px] py-0 px-1.5 font-semibold">Categoría</span>
+          <h3 id="posInfoNombre" class="text-base font-bold text-gray-900 leading-snug mt-0.5">Nombre del producto</h3>
+          <p id="posInfoCodigo" class="text-[11px] font-mono text-gray-500">Código: —</p>
+        </div>
+      </div>
+      <button type="button" id="btnCerrarInfoPOS"
+        class="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition-colors cursor-pointer"
+        aria-label="Cerrar modal">
+        <i class="ti ti-x text-base" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5 my-3.5 text-xs">
+      <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+        <span class="text-[10px] font-semibold text-gray-500 uppercase block">Presentación</span>
+        <span id="posInfoPresentacion" class="font-medium text-gray-900 block mt-0.5">—</span>
+      </div>
+      <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+        <span class="text-[10px] font-semibold text-gray-500 uppercase block">Stock disponible</span>
+        <span id="posInfoStock" class="font-bold text-gray-900 block mt-0.5">—</span>
+      </div>
+      <div
+        class="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200/70 col-span-2 flex items-center justify-between">
+        <div>
+          <span class="text-[10px] font-bold text-emerald-800 uppercase block">Precio de venta</span>
+          <span id="posInfoPrecioBs" class="text-[11px] text-emerald-700 block">Bs 0,00</span>
+        </div>
+        <span id="posInfoPrecioUsd" class="text-lg font-extrabold text-emerald-900">$ 0,00</span>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-2 border-t border-gray-100 pt-3">
+      <button type="button" id="btnCerrarInfoPOSFooter" class="btn btn-secondary btn-sm cursor-pointer">Cerrar</button>
+      <button type="button" id="btnAgregarDesdeInfoPOS"
+        class="btn btn-primary btn-sm cursor-pointer flex items-center gap-1">
+        <i class="ti ti-plus text-xs" aria-hidden="true"></i>
+        <span>Agregar al ticket</span>
       </button>
     </div>
   </div>

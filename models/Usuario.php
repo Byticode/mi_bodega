@@ -9,11 +9,35 @@ class Usuario extends BaseModel
         return $this->execute($sql, [$usuario_nombre, $usuario_username, $hash, $usuario_rol]);
     }
 
-    public function listar()
+    /**
+     * Catálogo completo de usuarios sin paginación para selects y consultas de sistema.
+     */
+    public function listar(): array
     {
         $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, status, created_at FROM usuarios ORDER BY usuario_nombre ASC";
         return $this->fetchAll($sql);
     }
+
+    /**
+     * Listado paginado de usuarios con búsqueda por nombre, usuario y rol.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
+    {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE usuario_nombre LIKE ? OR usuario_username LIKE ? OR usuario_rol LIKE ?";
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+        }
+
+        $sql = "SELECT usuario_id, usuario_nombre, usuario_username, usuario_rol, status, created_at FROM usuarios{$where} ORDER BY usuario_id ASC";
+        $countSql = "SELECT COUNT(*) FROM usuarios{$where}";
+
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
+    }
+
 
     public function editar($usuario_nombre, $usuario_username, $usuario_rol, $usuario_id)
     {

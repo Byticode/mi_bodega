@@ -3,6 +3,7 @@
 include RUTA_APP . '/includes/spinner.php';
 include RUTA_APP . '/includes/sidebar.js';
 ?>
+<script src="<?= assets('scripts/buscador-vivo.js') ?>"></script>
 </body>
 
 </html>

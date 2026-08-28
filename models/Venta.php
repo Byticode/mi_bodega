@@ -60,19 +60,34 @@ class Venta extends BaseModel
         return $this->fetchAll($sql);
     }
 
-    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    /**
+     * Listado paginado de ventas con búsqueda por ID de venta, cliente o vendedor.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
     {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE v.venta_id LIKE ? OR c.cliente_nombre LIKE ? OR c.cliente_apellido LIKE ? OR u.usuario_nombre LIKE ?";
+            $term = '%' . $search . '%';
+            $params = [$term, $term, $term, $term];
+        }
+
         $sql = "SELECT v.*, c.cliente_nombre, c.cliente_apellido, u.usuario_nombre, tm.moneda, tm.tasa_usd,
                        (SELECT COUNT(*) FROM venta_detalles WHERE venta_id = v.venta_id) as total_productos
                 FROM ventas v
                 LEFT JOIN clientes c ON v.cliente_id = c.cliente_id
                 LEFT JOIN usuarios u ON v.usuario_id = u.usuario_id
                 LEFT JOIN tasa_moneda tm ON v.tasa_id = tm.tasa_id
+                {$where}
                 ORDER BY v.venta_id DESC";
 
-        $countSql = "SELECT COUNT(*) FROM ventas";
+        $countSql = "SELECT COUNT(*) FROM ventas v
+                     LEFT JOIN clientes c ON v.cliente_id = c.cliente_id
+                     LEFT JOIN usuarios u ON v.usuario_id = u.usuario_id
+                     {$where}";
 
-        return $this->paginate($sql, $countSql, [], $page, $perPage);
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
     }
 
     public function consultarPorId($venta_id)
@@ -151,4 +166,35 @@ class Venta extends BaseModel
                 ORDER BY total_ventas DESC";
         return $this->fetchAll($sql, [$fecha_desde, $fecha_hasta]);
     }
-}
+
+    public function contarTopProductos(string $fecha_desde, string $fecha_hasta): int
+    {
+        $sql = "SELECT COUNT(DISTINCT p.producto_id) as total
+                FROM venta_detalles vd
+                INNER JOIN ventas v ON vd.venta_id = v.venta_id
+                INNER JOIN productos p ON vd.producto_id = p.producto_id
+                WHERE DATE(v.venta_fecha) BETWEEN ? AND ?
+                    AND v.venta_estado = 'completada'";
+        $row = $this->fetchOne($sql, [$fecha_desde, $fecha_hasta]);
+        return (int) ($row['total'] ?? 0);
+    }
+
+    public function obtenerTopProductosPaginado(string $fecha_desde, string $fecha_hasta, int $page = 1, int $porPagina = 10): array
+    {
+        $offset = ($page - 1) * $porPagina;
+        $sql = "SELECT 
+                    p.producto_nombre,
+                    p.producto_codigo,
+                    SUM(vd.detalle_cantidad) as cantidad_vendida,
+                    SUM(vd.detalle_subtotal) as total_vendido
+                FROM venta_detalles vd
+                INNER JOIN ventas v ON vd.venta_id = v.venta_id
+                INNER JOIN productos p ON vd.producto_id = p.producto_id
+                WHERE DATE(v.venta_fecha) BETWEEN ? AND ?
+                    AND v.venta_estado = 'completada'
+                GROUP BY p.producto_id, p.producto_nombre, p.producto_codigo
+                ORDER BY cantidad_vendida DESC
+                LIMIT ? OFFSET ?";
+        return $this->fetchAll($sql, [$fecha_desde, $fecha_hasta, $porPagina, $offset]);
+    }
+}

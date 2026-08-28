@@ -18,12 +18,12 @@ class VentasController extends BaseController
 
     public function listar()
     {
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $paginacion = $this->ventaModel->listarPaginado($page, 15);
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->ventaModel->listarPaginado($page, 10, $search);
         $ventas = $paginacion['data'];
 
-        include RUTA_APP . '/views/ventas/ventas.php';
-        exit();
+        $this->render('ventas/ventas.php', compact('ventas', 'paginacion', 'search'));
     }
 
     public function pos()
@@ -41,6 +41,13 @@ class VentasController extends BaseController
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $cliente_id = !empty($_POST['cliente_id']) ? (int) $_POST['cliente_id'] : null;
+            
+            if (empty($cliente_id)) {
+                $this->setFlash('error', 'Debe seleccionar un cliente antes de procesar la venta.');
+                $this->redirect('pos');
+                exit();
+            }
+
             $usuario_id = $this->getAuthUserId();
 
             // ventas.tasa_id es NOT NULL. Se bloquea la venta en vez de caer en
@@ -62,8 +69,9 @@ class VentasController extends BaseController
             $numero_pago = $_POST['numero_pago'] ?? null;
             
             if (empty($productos) || !is_array($productos)) {
-                $this->setFlash('error', 'Debe agregar al menos un producto');
+                $this->setFlash('error', 'Debe agregar al menos un producto al ticket.');
                 $this->redirect('pos');
+                exit();
             }
 
             $total = 0;

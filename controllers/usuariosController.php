@@ -13,9 +13,11 @@ class UsuariosController extends BaseController
 
     public function listar()
     {
-        $usuarios = $this->usuarioModel->listar();
-        include RUTA_APP . '/views/usuarios/usuarios.php';
-        exit();
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->usuarioModel->listarPaginado($page, 10, $search);
+        $usuarios = $paginacion['data'];
+        $this->render('usuarios/usuarios.php', compact('usuarios', 'paginacion', 'search'));
     }
 
     public function crear()
@@ -96,38 +98,40 @@ class UsuariosController extends BaseController
         $this->redirect('usuarios');
     }
 
-    public function limpiarPOST()
+    public function limpiarPOST(): array
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $nombre_input = isset($_POST['nombre']) ? ucwords(trim($_POST['nombre'])) : '';
-            $username_input = isset($_POST['username']) ? strtolower(trim($_POST['username'])) : '';
-            $clave_input = isset($_POST['clave']) ? trim($_POST['clave']) : '';
-            $rol_input = isset($_POST['rol']) ? trim($_POST['rol']) : 'vendedor';
+        $nombre_input = isset($_POST['nombre']) ? ucwords(trim($_POST['nombre'])) : '';
+        $username_input = isset($_POST['username']) ? strtolower(trim($_POST['username'])) : '';
+        $clave_input = isset($_POST['clave']) ? trim($_POST['clave']) : '';
+        $rol_input = isset($_POST['rol']) ? trim($_POST['rol']) : 'vendedor';
 
-            if (strlen($nombre_input) < 2) {
-                $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
-                $this->redirect('usuarios');
-            }
-
-            if (strlen($username_input) < 3) {
-                $this->setFlash('error', 'El nombre de usuario debe tener mínimo 3 caracteres');
-                $this->redirect('usuarios');
-            }
-
-            $is_creacion = strpos($_SERVER['REQUEST_URI'], 'action=crear') !== false;
-            if ($is_creacion && strlen($clave_input) < 4) {
-                $this->setFlash('error', 'La contraseña debe tener mínimo 4 caracteres');
-                $this->redirect('usuarios');
-            }
-
-            $roles_permitidos = ['admin', 'vendedor'];
-            if (!in_array($rol_input, $roles_permitidos)) {
-                $this->setFlash('error', 'Rol no válido');
-                $this->redirect('usuarios');
-            }
-
-            return [$nombre_input, $username_input, $clave_input, $rol_input];
+        if (strlen($nombre_input) < 2) {
+            $this->setFlash('error', 'El nombre debe tener mínimo 2 caracteres');
+            $this->redirect('usuarios');
+            exit;
         }
+
+        if (strlen($username_input) < 3) {
+            $this->setFlash('error', 'El nombre de usuario debe tener mínimo 3 caracteres');
+            $this->redirect('usuarios');
+            exit;
+        }
+
+        $is_creacion = strpos($_SERVER['REQUEST_URI'], 'action=crear') !== false || strpos($_SERVER['REQUEST_URI'], 'usuarios/crear') !== false;
+        if ($is_creacion && strlen($clave_input) < 4) {
+            $this->setFlash('error', 'La contraseña debe tener mínimo 4 caracteres');
+            $this->redirect('usuarios');
+            exit;
+        }
+
+        $roles_permitidos = ['admin', 'vendedor'];
+        if (!in_array($rol_input, $roles_permitidos)) {
+            $this->setFlash('error', 'Rol no válido');
+            $this->redirect('usuarios');
+            exit;
+        }
+
+        return [$nombre_input, $username_input, $clave_input, $rol_input];
     }
 
     public function limpiarVerificarId(): int
@@ -137,11 +141,12 @@ class UsuariosController extends BaseController
 
         $resultado = $this->usuarioModel->limpiarVerificarId($usuario_id);
 
-        if ($resultado) {
-            return $usuario_id;
-        } else {
+        if (!$resultado) {
             $this->setFlash('error', 'Usuario no encontrado');
             $this->redirect('usuarios');
+            exit;
         }
+
+        return $usuario_id;
     }
 }

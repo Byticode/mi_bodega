@@ -1,7 +1,7 @@
 <?php
 $page_title = "Tasa de cambio";
 $page_desc =
-    "Tasas de cambio actualizadas automáticamente desde la API del BCV.";
+  "Tasas de cambio actualizadas automáticamente desde la API del BCV.";
 
 $tasa = $tasa ?? [];
 $tasas = $tasas ?? [];
@@ -10,18 +10,18 @@ include RUTA_APP . "/includes/head.php";
 include RUTA_APP . "/includes/sidebar.php";
 
 $vigente_ts = !empty($tasa["vigente_desde"])
-    ? strtotime($tasa["vigente_desde"])
-    : null;
+  ? strtotime($tasa["vigente_desde"])
+  : null;
 $vieja = $vigente_ts && time() - $vigente_ts > TASA_ANTIGUA;
 
 $origenes = [
-    "api" => ["badge-success", "Recién consultada"],
-    "cache" => ["badge-success", "Al día"],
-    "bd" => ["badge-warn", "Guardada localmente"],
-    "ninguna" => ["badge-danger", "Sin datos"],
+  "api" => ["badge-success", "Recién consultada"],
+  "cache" => ["badge-success", "Al día"],
+  "bd" => ["badge-warn", "Guardada localmente"],
+  "ninguna" => ["badge-danger", "Sin datos"],
 ];
 [$origen_clase, $origen_texto] =
-    $origenes[$tasa["origen"]] ?? $origenes["ninguna"];
+  $origenes[$tasa["origen"]] ?? $origenes["ninguna"];
 ?>
 
 <main id="contenido" class="app-main">
@@ -54,7 +54,8 @@ $origenes = [
         <i class="ti ti-alert-triangle shrink-0 text-lg" aria-hidden="true"></i>
         <div class="flex-1">
           <span class="font-semibold">No hay ninguna tasa disponible.</span>
-          Falló la API y no hay valores guardados: el punto de venta no podrá mostrar el equivalente en dólares. Registra una tasa manualmente abajo.
+          Falló la API y no hay valores guardados: el punto de venta no podrá mostrar el equivalente en dólares. Registra
+          una tasa manualmente abajo.
         </div>
       </div>
     <?php elseif ($vieja): ?>
@@ -85,15 +86,15 @@ $origenes = [
         <div class="stat">
           <span class="stat-label">Paralelo</span>
           <span class="stat-value stat-value--money"><?= $tasa["tasa_paralelo"]
-              ? money($tasa["tasa_paralelo"])
-              : "—" ?></span>
+            ? money($tasa["tasa_paralelo"])
+            : "—" ?></span>
           <span class="stat-note">Solo referencia</span>
         </div>
         <div class="stat">
           <span class="stat-label">Euro BCV</span>
           <span class="stat-value stat-value--money"><?= $tasa["tasa_euro"]
-              ? money($tasa["tasa_euro"])
-              : "—" ?></span>
+            ? money($tasa["tasa_euro"])
+            : "—" ?></span>
           <span class="stat-note">Solo referencia</span>
         </div>
       </div>
@@ -118,12 +119,13 @@ $origenes = [
           <div class="field">
             <label for="conv_bs" class="label">Bolívares</label>
             <input type="number" step="0.01" min="0" id="conv_bs" class="input input--num" value="<?= htmlspecialchars(
-                (string) round($tasa["tasa_usd"], 2),
+              (string) round($tasa["tasa_usd"], 2),
             ) ?>" autocomplete="off">
           </div>
           <div class="field">
             <label for="conv_usd" class="label">Dólares</label>
-            <input type="number" step="0.01" min="0" id="conv_usd" class="input input--num" value="1.00" autocomplete="off">
+            <input type="number" step="0.01" min="0" id="conv_usd" class="input input--num" value="1.00"
+              autocomplete="off">
           </div>
         </div>
       </div>
@@ -131,15 +133,15 @@ $origenes = [
 
     <!-- Registro manual -->
     <details class="card p-5" <?= $tasa["origen"] === "ninguna"
-        ? "open"
-        : "" ?>>
+      ? "open"
+      : "" ?>>
       <summary class="section-title cursor-pointer">Registrar una tasa manualmente</summary>
       <p class="section-sub mb-4 mt-1">
         Úsalo solo si la API está caída. La próxima consulta automática correcta la reemplazará.
       </p>
 
       <form class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" action="<?= url(
-          "tasa-moneda/crear",
+        "tasa-moneda/crear",
       ) ?>" method="POST">
         <div class="field">
           <label for="moneda" class="label">Moneda base</label>
@@ -147,15 +149,18 @@ $origenes = [
         </div>
         <div class="field">
           <label for="tasa_usd" class="label">Dólar <span class="req" aria-hidden="true">*</span></label>
-          <input type="number" step="0.01" min="0.01" id="tasa_usd" name="tasa_usd" class="input input--num" placeholder="0,00" required autocomplete="off">
+          <input type="number" step="0.01" min="0.01" id="tasa_usd" name="tasa_usd" class="input input--num"
+            placeholder="0,00" required autocomplete="off">
         </div>
         <div class="field">
           <label for="tasa_euro" class="label">Euro</label>
-          <input type="number" step="0.01" min="0" id="tasa_euro" name="tasa_euro" class="input input--num" placeholder="Opcional" autocomplete="off">
+          <input type="number" step="0.01" min="0" id="tasa_euro" name="tasa_euro" class="input input--num"
+            placeholder="Opcional" autocomplete="off">
         </div>
         <div class="field">
           <label for="tasa_paralelo" class="label">Paralelo</label>
-          <input type="number" step="0.01" min="0" id="tasa_paralelo" name="tasa_paralelo" class="input input--num" placeholder="Opcional" autocomplete="off">
+          <input type="number" step="0.01" min="0" id="tasa_paralelo" name="tasa_paralelo" class="input input--num"
+            placeholder="Opcional" autocomplete="off">
         </div>
 
         <div class="sm:col-span-2 lg:col-span-4 flex justify-end">
@@ -166,9 +171,23 @@ $origenes = [
 
     <!-- Historial -->
     <div class="card overflow-hidden">
-      <div class="card-head">
-        <h2 class="section-title">Historial</h2>
-        <span class="text-xs text-ink-3">Se guarda una fila solo cuando la tasa cambia</span>
+      <div class="card-head flex-wrap gap-3">
+        <div>
+          <h2 class="section-title">Historial</h2>
+          <span class="text-xs text-ink-3">Se guarda una fila solo cuando la tasa cambia</span>
+        </div>
+        <form method="GET" action="<?= url('tasa-moneda') ?>"
+          class="search w-full sm:w-64 ml-auto relative flex items-center">
+          <label for="filtroTasas" class="sr-only">Buscar en historial</label>
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input type="text" id="filtroTasas" name="q" value="<?= htmlspecialchars($search ?? '') ?>"
+            class="input pl-9 pr-8" placeholder="Buscar por valor, fecha o moneda…" autocomplete="off">
+          <button type="button"
+            class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors"
+            title="Limpiar búsqueda" aria-label="Limpiar búsqueda" <?= empty($search) ? 'style="display:none;"' : '' ?>>
+            <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+          </button>
+        </form>
       </div>
 
       <div class="table-wrap">
@@ -188,39 +207,48 @@ $origenes = [
             <?php if (empty($tasas)): ?>
               <tr>
                 <td colspan="6">
-                  <div class="empty">
-                    <p class="empty-title">Sin registros</p>
-                    <p class="empty-sub">Cada cambio de tasa quedará aquí en orden cronológico.</p>
-                  </div>
+                  <?php if (!empty($search)): ?>
+                    <div class="empty">
+                      <i class="ti ti-search-off empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Sin resultados para «<?= htmlspecialchars($search) ?>»</p>
+                      <p class="empty-sub">Intenta con otro valor, moneda o fecha.</p>
+                      <a href="<?= url('tasa-moneda') ?>" class="btn btn-secondary btn-sm mt-2">Ver todo el historial</a>
+                    </div>
+                  <?php else: ?>
+                    <div class="empty">
+                      <p class="empty-title">Sin registros</p>
+                      <p class="empty-sub">Cada cambio de tasa quedará aquí en orden cronológico.</p>
+                    </div>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php else: ?>
               <?php foreach ($tasas as $fila): ?>
                 <tr>
                   <td class="font-mono text-xs text-ink-3">#<?= (int) $fila[
-                      "tasa_id"
+                    "tasa_id"
                   ] ?></td>
                   <td class="font-medium"><?= htmlspecialchars(
-                      $fila["moneda"],
+                    $fila["moneda"],
                   ) ?></td>
                   <td class="num money text-olive"><?= money(
-                      $fila["tasa_usd"],
+                    $fila["tasa_usd"],
                   ) ?></td>
                   <td class="num money <?= $fila["tasa_euro"]
-                      ? "text-ink-2"
-                      : "text-ink-3" ?>">
+                    ? "text-ink-2"
+                    : "text-ink-3" ?>">
                     <?= $fila["tasa_euro"] ? money($fila["tasa_euro"]) : "—" ?>
                   </td>
                   <td class="num money <?= $fila["tasa_paralelo"]
-                      ? "text-ink-2"
-                      : "text-ink-3" ?>">
+                    ? "text-ink-2"
+                    : "text-ink-3" ?>">
                     <?= $fila["tasa_paralelo"]
-                        ? money($fila["tasa_paralelo"])
-                        : "—" ?>
+                      ? money($fila["tasa_paralelo"])
+                      : "—" ?>
                   </td>
                   <td class="text-ink-2 whitespace-nowrap"><?= date(
-                      "d/m/Y H:i",
-                      strtotime($fila["created_at"]),
+                    "d/m/Y H:i",
+                    strtotime($fila["created_at"]),
                   ) ?></td>
                 </tr>
               <?php endforeach; ?>
@@ -228,16 +256,22 @@ $origenes = [
           </tbody>
         </table>
       </div>
+
+      <?php
+      $label_items = 'tasas registradas';
+      $ruta_paginacion = 'tasa-moneda';
+      include RUTA_APP . '/includes/paginacion.php';
+      ?>
     </div>
 
   </div>
 </main>
 
 <?php if (!empty($tasa["tasa_usd"])): ?>
-<script>
-  window.TASA_USD = <?= json_encode((float) $tasa["tasa_usd"]) ?>;
-</script>
-<script src="<?= assets("scripts/tasa-conversor.js") ?>"></script>
+  <script>
+    window.TASA_USD = <?= json_encode((float) $tasa["tasa_usd"]) ?>;
+  </script>
+  <script src="<?= assets("scripts/tasa-conversor.js") ?>"></script>
 <?php endif; ?>
 
 <?php include RUTA_APP . "/includes/footer.php"; ?>

@@ -12,14 +12,14 @@ class ProductosController extends BaseController
 
     public function listar()
     {
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $paginacion = $this->productoModel->listarPaginado($page, 15);
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->productoModel->listarPaginado($page, 10, $search);
         $productos = $paginacion['data'];
         $categorias = $this->productoModel->obtenerCategorias();
         $unidades = $this->productoModel->obtenerUnidades();
 
-        include RUTA_APP . '/views/productos/productos.php';
-        exit();
+        $this->render('productos/productos.php', compact('productos', 'paginacion', 'search', 'categorias', 'unidades'));
     }
 
     public function crear()
@@ -322,12 +322,13 @@ class ProductosController extends BaseController
 
         $existe = $this->productoModel->limpiarVerificarId($producto_id);
 
-        if ($existe) {
-            return $producto_id;
-        } else {
+        if (!$existe) {
             $this->setFlash('error', 'Producto no encontrado');
             $this->redirect('productos');
+            exit;
         }
+
+        return $producto_id;
     }
 }
 
