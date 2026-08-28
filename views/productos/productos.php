@@ -73,13 +73,14 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
           </div>
         </div>
 
-        <?php if (!empty($productos)): ?>
-          <div class="search w-full sm:w-64 ml-auto">
-            <label for="filtroInventario" class="sr-only">Filtrar productos por nombre, código o categoría</label>
-            <i class="ti ti-search search-icon" aria-hidden="true"></i>
-            <input type="search" id="filtroInventario" class="input" placeholder="Filtrar…" autocomplete="off">
-          </div>
-        <?php endif; ?>
+        <form method="GET" action="<?= url('productos') ?>" class="search w-full sm:w-64 ml-auto relative flex items-center">
+          <label for="filtroInventario" class="sr-only">Buscar por nombre, código o categoría</label>
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input type="text" id="filtroInventario" name="q" value="<?= htmlspecialchars($search ?? '') ?>" class="input pl-9 pr-8" placeholder="Buscar producto, código…" autocomplete="off">
+          <button type="button" class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" <?= empty($search) ? 'style="display:none;"' : '' ?>>
+            <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+          </button>
+        </form>
       </div>
 
       <div class="table-wrap">
@@ -103,12 +104,21 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
             <?php if (empty($productos)): ?>
               <tr>
                 <td colspan="8">
-                  <div class="empty">
-                    <i class="ti ti-package empty-icon" aria-hidden="true"></i>
-                    <p class="empty-title">No hay productos registrados</p>
-                    <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
-                    <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Nuevo producto</a>
-                  </div>
+                  <?php if (!empty($search)): ?>
+                    <div class="empty">
+                      <i class="ti ti-search-off empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Sin coincidencias para «<?= htmlspecialchars($search) ?>»</p>
+                      <p class="empty-sub">Ningún producto coincide con el término buscado.</p>
+                      <a href="<?= url('productos') ?>" class="btn btn-secondary btn-sm mt-2">Ver todos los productos</a>
+                    </div>
+                  <?php else: ?>
+                    <div class="empty">
+                      <i class="ti ti-package empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">No hay productos registrados</p>
+                      <p class="empty-sub">Crea el primero para poder venderlo y surtirlo.</p>
+                      <a href="<?= url('productos/crear') ?>" class="btn btn-primary mt-3">Nuevo producto</a>
+                    </div>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php else: ?>
@@ -147,6 +157,27 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
                   </td>
                   <td class="col-actions">
                     <div class="flex items-center gap-1 justify-end">
+                      <button type="button" class="btn-icon text-ink-3 hover:text-olive btn-ver-producto"
+                              data-producto='<?= htmlspecialchars(json_encode([
+                                'id' => (int)$producto['producto_id'],
+                                'codigo' => $producto['producto_codigo'] ?? '',
+                                'nombre' => $producto['producto_nombre'],
+                                'peso' => $producto['producto_peso'] ?? '',
+                                'categoria' => $categoria,
+                                'unidad' => $producto['unidad_nombre'] ?? '',
+                                'abreviatura' => $producto['unidad_abreviatura'] ?? '',
+                                'costo_usd' => usd($producto['producto_precio_costo']),
+                                'costo_bs' => bs($producto['producto_precio_costo']),
+                                'ganancia' => (float)$producto['producto_ganancia'],
+                                'iva' => (float)$producto['producto_iva'],
+                                'precio_usd' => usd($producto['producto_precio_venta']),
+                                'precio_bs' => bs($producto['producto_precio_venta']),
+                                'stock' => $stock,
+                              ]), ENT_QUOTES) ?>'
+                              title="Ver detalles de <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>"
+                              aria-label="Ver detalles de <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
+                        <i class="ti ti-eye text-base" aria-hidden="true"></i>
+                      </button>
                       <a href="<?= url('productos/editar/' . $producto['producto_id']) ?>"
                          class="btn-icon" title="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>" aria-label="Editar <?= htmlspecialchars($producto['producto_nombre'], ENT_QUOTES) ?>">
                         <i class="ti ti-pencil text-base" aria-hidden="true"></i>
@@ -175,18 +206,18 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
         </table>
       </div>
 
-      <?php if (!empty($productos)): ?>
-        <div class="card-foot">
-          <span id="conteoInventario" role="status"><?= count($productos) ?> productos</span>
-        </div>
-      <?php endif; ?>
+      <?php 
+        $label_items = 'productos';
+        $ruta_paginacion = 'productos';
+        include RUTA_APP . '/includes/paginacion.php'; 
+      ?>
     </div>
 
   </div>
 </main>
 
 <!-- Modal de confirmación para eliminar individual/masivo -->
-<div id="modalConfirmarEliminar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="modalEliminarTitulo">
+<div id="modalConfirmarEliminar" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="modalEliminarTitulo">
   <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 sm:p-7 relative my-auto">
     <div class="flex items-start justify-between gap-3">
       <div class="flex items-start gap-3.5">
@@ -210,7 +241,7 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
 </div>
 
 <!-- Modal para Ajuste Masivo de Precios (Estilo Mercado Libre) -->
-<div id="modalAjustarPrecios" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="modalAjustarTitulo">
+<div id="modalAjustarPrecios" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="modalAjustarTitulo">
   <div class="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 sm:p-8 relative my-auto">
     <form action="<?= url('productos/ajustarPreciosMasivo') ?>" method="POST" id="formAjustePreciosModal" class="flex flex-col gap-4">
       <input type="hidden" name="ids" id="inputIdsAjusteModal" value="[]">
@@ -275,6 +306,62 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
         <button type="submit" class="btn btn-primary w-full sm:w-auto">Aplicar ajuste</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal Detalle Completo de Producto -->
+<div id="modalVerProducto" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 items-center justify-center p-4 overflow-y-auto hidden" role="dialog" aria-modal="true" aria-labelledby="verProductoNombre">
+  <div class="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 sm:p-7 relative my-auto">
+    <div class="flex items-start justify-between gap-3 border-b border-gray-100 pb-4">
+      <div class="flex items-start gap-3.5">
+        <div class="w-11 h-11 rounded-xl bg-olive/10 text-olive flex items-center justify-center shrink-0">
+          <i class="ti ti-package text-2xl" aria-hidden="true"></i>
+        </div>
+        <div>
+          <span id="verBadgeCategoria" class="badge badge-olive text-[11px] font-semibold mb-1">Categoría</span>
+          <h3 id="verProductoNombre" class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Nombre del producto</h3>
+          <p id="verProductoCodigo" class="text-xs font-mono text-gray-500 mt-0.5">Código: —</p>
+        </div>
+      </div>
+      <button type="button" id="btnCerrarVerModal" class="text-gray-400 hover:text-gray-600 p-1.5 rounded-lg transition-colors cursor-pointer" aria-label="Cerrar modal">
+        <i class="ti ti-x text-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <!-- Contenido en Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 my-5">
+      <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex flex-col">
+        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Presentación</span>
+        <span id="verPresentacion" class="font-medium text-sm text-gray-900 mt-1">—</span>
+      </div>
+      <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex flex-col">
+        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Stock actual</span>
+        <span id="verStock" class="font-bold text-sm text-gray-900 mt-1">—</span>
+      </div>
+      <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex flex-col">
+        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Ganancia / IVA</span>
+        <span id="verMargen" class="font-medium text-sm text-gray-900 mt-1">—</span>
+      </div>
+      <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 flex flex-col">
+        <span class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Costo Neto</span>
+        <span id="verCostoUsd" class="font-bold text-sm text-gray-900 mt-1">$ 0,00</span>
+        <span id="verCostoBs" class="text-xs text-gray-500">Bs 0,00</span>
+      </div>
+      <div class="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200/80 flex flex-col col-span-2">
+        <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Precio Final de Venta</span>
+        <span id="verPrecioUsd" class="font-extrabold text-xl text-emerald-900 mt-0.5">$ 0,00</span>
+        <span id="verPrecioBs" class="text-xs font-semibold text-emerald-700">Bs 0,00 (tasa BCV)</span>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="flex items-center justify-end gap-2.5 border-t border-gray-100 pt-4">
+      <button type="button" id="btnCerrarVerModalFooter" class="btn btn-secondary cursor-pointer">Cerrar</button>
+      <a id="verBtnEditar" href="#" class="btn btn-primary cursor-pointer flex items-center gap-1.5">
+        <i class="ti ti-pencil text-base" aria-hidden="true"></i>
+        Editar producto
+      </a>
+    </div>
   </div>
 </div>
 
@@ -371,10 +458,12 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
       modalEliminarTexto.textContent = texto;
       accionPendiente = onConfirm;
       modalEliminar.classList.remove('hidden');
+      modalEliminar.classList.add('flex');
     }
 
     function cerrarModalEliminar() {
       modalEliminar.classList.add('hidden');
+      modalEliminar.classList.remove('flex');
       accionPendiente = null;
     }
 
@@ -454,18 +543,99 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
         if (ids.length === 0) return;
         actualizarExplicacion();
         modalAjustar.classList.remove('hidden');
+        modalAjustar.classList.add('flex');
       });
+    }
+
+    function cerrarModalAjuste() {
+      modalAjustar.classList.add('hidden');
+      modalAjustar.classList.remove('flex');
     }
 
     if (btnCancelarAjusteModal) {
-      btnCancelarAjusteModal.addEventListener('click', function () {
-        modalAjustar.classList.add('hidden');
-      });
+      btnCancelarAjusteModal.addEventListener('click', cerrarModalAjuste);
     }
 
     if (btnCerrarAjusteModal) {
-      btnCerrarAjusteModal.addEventListener('click', function () {
-        modalAjustar.classList.add('hidden');
+      btnCerrarAjusteModal.addEventListener('click', cerrarModalAjuste);
+    }
+
+    // Modal Ver Producto
+    var modalVer = document.getElementById('modalVerProducto');
+    var btnCerrarVerModal = document.getElementById('btnCerrarVerModal');
+    var btnCerrarVerModalFooter = document.getElementById('btnCerrarVerModalFooter');
+    var verBadgeCategoria = document.getElementById('verBadgeCategoria');
+    var verProductoNombre = document.getElementById('verProductoNombre');
+    var verProductoCodigo = document.getElementById('verProductoCodigo');
+    var verPresentacion = document.getElementById('verPresentacion');
+    var verStock = document.getElementById('verStock');
+    var verMargen = document.getElementById('verMargen');
+    var verCostoUsd = document.getElementById('verCostoUsd');
+    var verCostoBs = document.getElementById('verCostoBs');
+    var verPrecioUsd = document.getElementById('verPrecioUsd');
+    var verPrecioBs = document.getElementById('verPrecioBs');
+    var verBtnEditar = document.getElementById('verBtnEditar');
+
+    function abrirModalVer(p) {
+      if (!modalVer || !p) return;
+      verBadgeCategoria.textContent = p.categoria || 'Sin categoría';
+      verProductoNombre.textContent = p.nombre || '—';
+      verProductoCodigo.textContent = p.codigo ? 'Código: #' + p.codigo : 'Sin código de barras';
+      
+      var presentacion = '';
+      if (p.peso && parseFloat(p.peso) > 0) {
+        presentacion = parseFloat(p.peso) + ' ' + (p.abreviatura || p.unidad || '');
+      } else if (p.unidad) {
+        presentacion = p.unidad;
+      } else {
+        presentacion = 'Unidad';
+      }
+      verPresentacion.textContent = presentacion;
+      
+      var stockNum = parseInt(p.stock) || 0;
+      var abrev = p.abreviatura || 'unid.';
+      if (stockNum <= 0) {
+        verStock.innerHTML = '<span class="text-rose-600 font-bold">Agotado (0 ' + abrev + ')</span>';
+      } else if (stockNum <= 10) {
+        verStock.innerHTML = '<span class="text-amber-600 font-bold">' + stockNum + ' ' + abrev + ' (Bajo)</span>';
+      } else {
+        verStock.innerHTML = '<span class="text-emerald-700 font-bold">' + stockNum + ' ' + abrev + '</span>';
+      }
+
+      verMargen.textContent = (p.ganancia || 0) + '% ganancia | ' + (p.iva || 0) + '% IVA';
+      verCostoUsd.textContent = p.costo_usd || '$ 0,00';
+      verCostoBs.textContent = p.costo_bs || 'Bs 0,00';
+      verPrecioUsd.textContent = p.precio_usd || '$ 0,00';
+      verPrecioBs.textContent = p.precio_bs || 'Bs 0,00 (tasa BCV)';
+      
+      if (verBtnEditar) {
+        verBtnEditar.href = '<?= url("productos/editar/") ?>' + p.id;
+      }
+
+      modalVer.classList.remove('hidden');
+      modalVer.classList.add('flex');
+    }
+
+    function cerrarModalVer() {
+      if (modalVer) {
+        modalVer.classList.add('hidden');
+        modalVer.classList.remove('flex');
+      }
+    }
+
+    if (btnCerrarVerModal) btnCerrarVerModal.addEventListener('click', cerrarModalVer);
+    if (btnCerrarVerModalFooter) btnCerrarVerModalFooter.addEventListener('click', cerrarModalVer);
+
+    if (cuerpo) {
+      cuerpo.addEventListener('click', function(e) {
+        var btnVer = e.target.closest('.btn-ver-producto');
+        if (!btnVer) return;
+        try {
+          var pData = JSON.parse(btnVer.dataset.producto);
+          abrirModalVer(pData);
+        } catch(err) {
+          console.error(err);
+        }
       });
     }
 
@@ -473,15 +643,17 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
     document.querySelectorAll('.btn-cerrar-modal').forEach(function(btn) {
       btn.addEventListener('click', function() {
         cerrarModalEliminar();
+        cerrarModalVer();
       });
     });
 
     // Cerrar al hacer clic en el backdrop
-    [modalEliminar, modalAjustar].forEach(function(m) {
+    [modalEliminar, modalAjustar, modalVer].forEach(function(m) {
       if (!m) return;
       m.addEventListener('click', function(e) {
         if (e.target === m) {
           m.classList.add('hidden');
+          m.classList.remove('flex');
           if (m === modalEliminar) accionPendiente = null;
         }
       });
@@ -490,8 +662,12 @@ $tasa_act   = tasa_vigente()['tasa_usd'] ?? 0;
     // Cerrar con la tecla ESC
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
-        if (modalEliminar) modalEliminar.classList.add('hidden');
-        if (modalAjustar) modalAjustar.classList.add('hidden');
+        [modalEliminar, modalAjustar, modalVer].forEach(function(m) {
+          if (m) {
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+          }
+        });
         accionPendiente = null;
       }
     });

@@ -1,5 +1,24 @@
 <?php
 
+class ReportesPDF extends \FPDF
+{
+    /**
+     * Pie de página: número de página y marca.
+     */
+    public function Footer(): void
+    {
+        $this->SetY(-15);
+        $this->SetFillColor(245, 247, 245);
+        $this->Rect(0, $this->GetY(), 297, 15, 'F');
+        $this->SetFont('Helvetica', '', 7);
+        $this->SetTextColor(150, 150, 150);
+        $this->SetX(15);
+        $this->Cell(0, 10, 'Mi Bodega — Control de inventario', 0, 0, 'L');
+        $this->SetX(-15);
+        $this->Cell(0, 10, 'Página ' . $this->PageNo() . '/{nb}', 0, 0, 'R');
+    }
+}
+
 class ReportesController extends BaseController
 {
     private $ventaModel;
@@ -17,10 +36,27 @@ class ReportesController extends BaseController
         $fecha_desde = $_GET['fecha_desde'] ?? date('Y-m-01');
         $fecha_hasta = $_GET['fecha_hasta'] ?? date('Y-m-d');
 
+        $POR_PAGINA = 10;
+
+        // Paginación: Top Productos
+        $pageTop = max(1, (int) ($_GET['page_top'] ?? 1));
+        $totalTop = $this->ventaModel->contarTopProductos($fecha_desde, $fecha_hasta);
+        $totalPaginasTop = max(1, (int) ceil($totalTop / $POR_PAGINA));
+        $pageTop = min($pageTop, $totalPaginasTop);
+        $topProductos = $this->ventaModel->obtenerTopProductosPaginado($fecha_desde, $fecha_hasta, $pageTop, $POR_PAGINA);
+
+        // Paginación: Stock Bajo
+        $pageStock = max(1, (int) ($_GET['page_stock'] ?? 1));
+        $totalStock = $this->productoModel->contarProductosStockBajo();
+        $totalPaginasStock = max(1, (int) ceil($totalStock / $POR_PAGINA));
+        $pageStock = min($pageStock, $totalPaginasStock);
+        $productosBajos = $this->productoModel->obtenerProductosStockBajoPaginado($pageStock, $POR_PAGINA);
+
+        // Resumen general (sin paginación)
         $reporte = $this->ventaModel->obtenerReporteVentas($fecha_desde, $fecha_hasta);
-        $topProductos = $this->ventaModel->obtenerTopProductos($fecha_desde, $fecha_hasta);
+
+        // Métodos de pago (sin paginación — normalmente son pocos registros)
         $metodosPago = $this->ventaModel->obtenerVentasPorMetodoPago($fecha_desde, $fecha_hasta);
-        $productosBajos = $this->productoModel->obtenerProductosStockBajo();
 
         include RUTA_APP . '/views/reportes/reportes.php';
         exit();
@@ -131,7 +167,8 @@ class ReportesController extends BaseController
         $metodosPago    = $this->ventaModel->obtenerVentasPorMetodoPago($fecha_desde, $fecha_hasta);
         $productosBajos = $this->productoModel->obtenerProductosStockBajo();
 
-        $pdf = new \FPDF('L', 'mm', 'A4');
+        $pdf = new ReportesPDF('L', 'mm', 'A4');
+        $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 20);
         $pdf->SetMargins(15, 15, 15);
 
@@ -376,21 +413,5 @@ class ReportesController extends BaseController
             return mb_substr($text, 0, $maxLen - 1, 'UTF-8') . '…';
         }
         return $text;
-    }
-
-    /**
-     * Pie de página: número de página y marca.
-     */
-    public function Footer(): void
-    {
-        $this->SetY(-15);
-        $this->SetFillColor(245, 247, 245);
-        $this->Rect(0, $this->GetY(), 297, 15, 'F');
-        $this->SetFont('Helvetica', '', 7);
-        $this->SetTextColor(150, 150, 150);
-        $this->SetX(15);
-        $this->Cell(0, 10, 'Mi Bodega — Control de inventario', 0, 0, 'L');
-        $this->SetX(-15);
-        $this->Cell(0, 10, 'Página ' . $this->PageNo() . '/{nb}', 0, 0, 'R');
     }
 }

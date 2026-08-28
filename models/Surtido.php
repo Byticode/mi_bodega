@@ -54,17 +54,31 @@ class Surtido extends BaseModel
         return $this->fetchAll($sql);
     }
 
-    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    /**
+     * Listado paginado de surtidos con búsqueda por ID o proveedor.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
     {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE s.surtido_id LIKE ? OR p.proveedor_nombre LIKE ?";
+            $term = '%' . $search . '%';
+            $params = [$term, $term];
+        }
+
         $sql = "SELECT s.*, p.proveedor_nombre, 
                        (SELECT COUNT(*) FROM surtido_detalles WHERE surtido_id = s.surtido_id) as total_productos
                 FROM surtidos s
                 LEFT JOIN proveedores p ON s.proveedor_id = p.proveedor_id
+                {$where}
                 ORDER BY s.surtido_id DESC";
 
-        $countSql = "SELECT COUNT(*) FROM surtidos";
+        $countSql = "SELECT COUNT(*) FROM surtidos s
+                     LEFT JOIN proveedores p ON s.proveedor_id = p.proveedor_id
+                     {$where}";
 
-        return $this->paginate($sql, $countSql, [], $page, $perPage);
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
     }
 
     public function consultarPorId($surtido_id)

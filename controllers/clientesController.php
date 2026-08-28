@@ -12,10 +12,11 @@ class ClientesController extends BaseController
 
     public function listar()
     {
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $paginacion = $this->clienteModel->listarPaginado($page, 15);
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->clienteModel->listarPaginado($page, 10, $search);
         $clientes = $paginacion['data'];
-        $this->render('clientes/clientes.php', compact('clientes', 'paginacion'));
+        $this->render('clientes/clientes.php', compact('clientes', 'paginacion', 'search'));
     }
 
 
@@ -225,6 +226,7 @@ class ClientesController extends BaseController
         if (!is_numeric($id) || intval($id) <= 0) {
             $this->setFlash('error', 'ID no válido');
             $this->redirect('clientes');
+            exit;
         }
 
         $id = intval($id);
@@ -232,6 +234,7 @@ class ClientesController extends BaseController
         if (!$this->clienteModel->existsId($id)) {
             $this->setFlash('error', 'ID no encontrado');
             $this->redirect('clientes');
+            exit;
         }
 
         return $id;

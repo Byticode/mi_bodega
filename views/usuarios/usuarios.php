@@ -1,6 +1,6 @@
 <?php
 $page_title = 'Usuarios';
-$page_desc  = 'Administra los usuarios del sistema.';
+$page_desc = 'Administra los usuarios del sistema.';
 include RUTA_APP . '/includes/head.php';
 include RUTA_APP . '/includes/sidebar.php';
 ?>
@@ -35,8 +35,8 @@ include RUTA_APP . '/includes/sidebar.php';
 
         <div class="field">
           <label for="clave" class="label">Contraseña <span class="req" aria-hidden="true">*</span></label>
-          <input type="password" id="clave" name="clave" class="input" required autocomplete="new-password" minlength="6"
-                 aria-describedby="clave-hint">
+          <input type="password" id="clave" name="clave" class="input" required autocomplete="new-password"
+            minlength="6" aria-describedby="clave-hint">
           <p class="hint" id="clave-hint">Mínimo 6 caracteres.</p>
         </div>
 
@@ -57,8 +57,20 @@ include RUTA_APP . '/includes/sidebar.php';
 
     <!-- Tabla -->
     <div class="card overflow-hidden">
-      <div class="card-head">
+      <div class="card-head flex-wrap gap-3">
         <h2 class="section-title">Usuarios registrados</h2>
+        <form method="GET" action="<?= url('usuarios') ?>"
+          class="search w-full sm:w-64 ml-auto relative flex items-center">
+          <label for="filtroUsuarios" class="sr-only">Buscar usuario</label>
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input type="text" id="filtroUsuarios" name="q" value="<?= htmlspecialchars($search ?? '') ?>"
+            class="input pl-9 pr-8" placeholder="Buscar por nombre, usuario o rol…" autocomplete="off">
+          <button type="button"
+            class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors"
+            title="Limpiar búsqueda" aria-label="Limpiar búsqueda" <?= empty($search) ? 'style="display:none;"' : '' ?>>
+            <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+          </button>
+        </form>
       </div>
 
       <div class="table-wrap">
@@ -78,18 +90,27 @@ include RUTA_APP . '/includes/sidebar.php';
             <?php if (empty($usuarios)): ?>
               <tr>
                 <td colspan="6">
-                  <div class="empty">
-                    <p class="empty-title">No hay usuarios registrados</p>
-                    <p class="empty-sub">Crea el primero con el formulario de arriba.</p>
-                  </div>
+                  <?php if (!empty($search)): ?>
+                    <div class="empty">
+                      <i class="ti ti-search-off empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Sin resultados para «<?= htmlspecialchars($search) ?>»</p>
+                      <p class="empty-sub">Intenta con otro término o limpia el buscador.</p>
+                      <a href="<?= url('usuarios') ?>" class="btn btn-secondary btn-sm mt-2">Ver todos</a>
+                    </div>
+                  <?php else: ?>
+                    <div class="empty">
+                      <p class="empty-title">No hay usuarios registrados</p>
+                      <p class="empty-sub">Crea el primero con el formulario de arriba.</p>
+                    </div>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php else: ?>
-              <?php foreach ($usuarios as $usuario): 
+              <?php foreach ($usuarios as $usuario):
                 $es_admin = $usuario['usuario_rol'] === 'admin';
-                $es_activo = !isset($usuario['status']) || (int)$usuario['status'] === 1;
+                $es_activo = !isset($usuario['status']) || (int) $usuario['status'] === 1;
                 $es_mismo_usuario = $usuario['usuario_id'] == ($_SESSION['usuario']['usuario_id'] ?? 0);
-              ?>
+                ?>
                 <tr>
                   <td class="font-medium"><?= htmlspecialchars($usuario['usuario_nombre']) ?></td>
                   <td class="font-mono text-xs text-ink-2"><?= htmlspecialchars($usuario['usuario_username']) ?></td>
@@ -106,23 +127,22 @@ include RUTA_APP . '/includes/sidebar.php';
                   </td>
                   <td class="text-ink-2 whitespace-nowrap"><?= date('d/m/Y', strtotime($usuario['created_at'])) ?></td>
                   <td class="col-actions">
-                    <a href="<?= url('usuarios/editar/' . $usuario['usuario_id']) ?>"
-                       class="btn-icon" title="Editar usuario" aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                    <a href="<?= url('usuarios/editar/' . $usuario['usuario_id']) ?>" class="btn-icon"
+                      title="Editar usuario"
+                      aria-label="Editar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
                       <i class="ti ti-pencil text-base" aria-hidden="true"></i>
                     </a>
                     <?php if (!$es_mismo_usuario): ?>
                       <?php if ($es_activo): ?>
                         <a href="<?= url('usuarios/status/' . $usuario['usuario_id'] . '?status=0') ?>"
-                           class="btn-icon btn-icon--danger"
-                           title="Desactivar usuario"
-                           aria-label="Desactivar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                          class="btn-icon btn-icon--danger" title="Desactivar usuario"
+                          aria-label="Desactivar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
                           <i class="ti ti-user-x text-base" aria-hidden="true"></i>
                         </a>
                       <?php else: ?>
-                        <a href="<?= url('usuarios/status/' . $usuario['usuario_id'] . '?status=1') ?>"
-                           class="btn-icon"
-                           title="Activar usuario"
-                           aria-label="Activar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
+                        <a href="<?= url('usuarios/status/' . $usuario['usuario_id'] . '?status=1') ?>" class="btn-icon"
+                          title="Activar usuario"
+                          aria-label="Activar a <?= htmlspecialchars($usuario['usuario_nombre'], ENT_QUOTES) ?>">
                           <i class="ti ti-user-check text-base" aria-hidden="true"></i>
                         </a>
                       <?php endif; ?>
@@ -134,6 +154,12 @@ include RUTA_APP . '/includes/sidebar.php';
           </tbody>
         </table>
       </div>
+
+      <?php
+      $label_items = 'usuarios';
+      $ruta_paginacion = 'usuarios';
+      include RUTA_APP . '/includes/paginacion.php';
+      ?>
     </div>
 
   </div>

@@ -8,11 +8,34 @@ class Unidad extends BaseModel
         return $this->execute($sql, [$unidad_nombre, $unidad_abreviatura]);
     }
 
-    public function listar()
+    /**
+     * Catálogo completo de unidades sin paginación para selects de productos/formularios.
+     */
+    public function listar(): array
     {
         $sql = "SELECT * FROM unidades ORDER BY unidad_nombre ASC";
         return $this->fetchAll($sql);
     }
+
+    /**
+     * Listado paginado de unidades con búsqueda por nombre y abreviatura.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
+    {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE unidad_nombre LIKE ? OR unidad_abreviatura LIKE ?";
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+        }
+
+        $sql = "SELECT * FROM unidades{$where} ORDER BY unidad_id ASC";
+        $countSql = "SELECT COUNT(*) FROM unidades{$where}";
+
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
+    }
+
 
     public function editar($unidad_nombre, $unidad_abreviatura, $unidad_id)
     {

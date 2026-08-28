@@ -15,17 +15,33 @@ class Cliente extends BaseModel
         );
     }
 
+    /**
+     * Catálogo completo de clientes sin paginación para selects de ventas/formularios.
+     */
     public function listar(): array
     {
-        return $this->fetchAll("SELECT * FROM clientes ORDER BY cliente_id ASC");
+        return $this->fetchAll("SELECT * FROM clientes ORDER BY cliente_nombre ASC, cliente_apellido ASC");
     }
 
-    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    /**
+     * Listado paginado de clientes con búsqueda por nombre, apellido, cédula, teléfono o correo.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
     {
-        $sql = "SELECT * FROM clientes ORDER BY cliente_id ASC";
-        $countSql = "SELECT COUNT(*) FROM clientes";
-        return $this->paginate($sql, $countSql, [], $page, $perPage);
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE cliente_nombre LIKE ? OR cliente_apellido LIKE ? OR cliente_cedula LIKE ? OR cliente_telefono LIKE ? OR cliente_correo LIKE ?";
+            $term = '%' . $search . '%';
+            $params = [$term, $term, $term, $term, $term];
+        }
+
+        $sql = "SELECT * FROM clientes{$where} ORDER BY cliente_id ASC";
+        $countSql = "SELECT COUNT(*) FROM clientes{$where}";
+
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
     }
+
 
 
     public function editar(

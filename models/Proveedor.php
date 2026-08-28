@@ -10,17 +10,33 @@ class Proveedor extends BaseModel
         );
     }
 
+    /**
+     * Catálogo completo de proveedores sin paginación para selects de surtidos/formularios.
+     */
     public function listar(): array
     {
-        return $this->fetchAll("SELECT * FROM proveedores ORDER BY proveedor_id ASC");
+        return $this->fetchAll("SELECT * FROM proveedores ORDER BY proveedor_nombre ASC");
     }
 
-    public function listarPaginado(int $page = 1, int $perPage = 15): array
+    /**
+     * Listado paginado de proveedores con búsqueda por nombre y teléfono.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
     {
-        $sql = "SELECT * FROM proveedores ORDER BY proveedor_id ASC";
-        $countSql = "SELECT COUNT(*) FROM proveedores";
-        return $this->paginate($sql, $countSql, [], $page, $perPage);
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE proveedor_nombre LIKE ? OR proveedor_telefono LIKE ?";
+            $params[] = '%' . $search . '%';
+            $params[] = '%' . $search . '%';
+        }
+
+        $sql = "SELECT * FROM proveedores{$where} ORDER BY proveedor_id ASC";
+        $countSql = "SELECT COUNT(*) FROM proveedores{$where}";
+
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
     }
+
 
 
     public function editar(string $proveedor_nombre, string $proveedor_telefono, int $proveedor_id): bool

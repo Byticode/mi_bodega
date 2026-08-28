@@ -12,6 +12,7 @@ class BaseController
     protected function redirect(string $path = '')
     {
         redirect($path);
+        exit;
     }
 
     protected function setFlash(string $type, string $message)

@@ -10,10 +10,32 @@ class Categoria extends BaseModel
         );
     }
 
+    /**
+     * Catálogo completo de categorías sin paginación para select/formularios en otras vistas.
+     */
     public function listar(): array
     {
-        return $this->fetchAll("SELECT * FROM categorias ORDER BY categorias_id ASC");
+        return $this->fetchAll("SELECT * FROM categorias ORDER BY categorias_nombre ASC");
     }
+
+    /**
+     * Listado paginado con soporte para búsqueda.
+     */
+    public function listarPaginado(int $page = 1, int $perPage = 10, string $search = ''): array
+    {
+        $params = [];
+        $where = '';
+        if ($search !== '') {
+            $where = " WHERE categorias_nombre LIKE ?";
+            $params[] = '%' . $search . '%';
+        }
+
+        $sql = "SELECT * FROM categorias{$where} ORDER BY categorias_id ASC";
+        $countSql = "SELECT COUNT(*) FROM categorias{$where}";
+
+        return $this->paginate($sql, $countSql, $params, $page, $perPage);
+    }
+
 
     public function editar(string $categorias_nombre, int $categorias_id): bool
     {

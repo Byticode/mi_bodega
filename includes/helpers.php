@@ -109,3 +109,28 @@ function qty($amount) {
         ? number_format($n, 0, ',', '.')
         : rtrim(rtrim(number_format($n, 2, ',', '.'), '0'), ',');
 }
+
+/**
+ * Genera la URL para paginación conservando los parámetros GET existentes (como q/search).
+ */
+function url_paginacion(string $ruta, int $page = 1, ?string $search = null, array $extraParams = []): string {
+    $params = array_merge($_GET, $extraParams);
+    unset($params['url'], $params['controller'], $params['action']);
+    
+    if ($page > 1) {
+        $params['page'] = $page;
+    } else {
+        unset($params['page']);
+    }
+    
+    if ($search !== null) {
+        if ($search !== '') {
+            $params['q'] = $search;
+        } else {
+            unset($params['q'], $params['search']);
+        }
+    }
+    
+    $queryString = http_build_query($params);
+    return url($ruta) . ($queryString ? '?' . $queryString : '');
+}

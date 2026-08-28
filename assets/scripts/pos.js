@@ -161,8 +161,19 @@
     renderPaginacion();
   }
 
+  var btnLimpiarBuscarProducto = document.getElementById("btnLimpiarBuscarProducto");
+
+  function toggleClearProducto() {
+    if (btnLimpiarBuscarProducto && buscador) {
+      btnLimpiarBuscarProducto.style.display = buscador.value.trim() !== "" ? "flex" : "none";
+    }
+  }
+
   if (buscador) {
-    buscador.addEventListener("input", filtrar);
+    buscador.addEventListener("input", function () {
+      toggleClearProducto();
+      filtrar();
+    });
     buscador.addEventListener("keydown", function (e) {
       if (e.key !== "Enter") return;
       e.preventDefault();
@@ -172,6 +183,17 @@
       if (noAgotados.length === 1) {
         agregar(noAgotados[0]);
         buscador.select();
+      }
+    });
+  }
+
+  if (btnLimpiarBuscarProducto) {
+    btnLimpiarBuscarProducto.addEventListener("click", function () {
+      if (buscador) {
+        buscador.value = "";
+        toggleClearProducto();
+        filtrar();
+        buscador.focus();
       }
     });
   }
@@ -351,8 +373,9 @@
 
         var menos = document.createElement("button");
         menos.type = "button";
+        menos.className = "cursor-pointer";
         menos.setAttribute("aria-label", "Quitar una unidad de " + item.nombre);
-        menos.innerHTML = '<i class="ti ti-minus text-xs" aria-hidden="true"></i>';
+        menos.innerHTML = '<i class="ti ti-minus text-xs cursor-pointer" aria-hidden="true"></i>';
         menos.addEventListener("click", function (e) {
           e.stopPropagation();
           cambiar(item.id, -1);
@@ -363,9 +386,10 @@
 
         var mas = document.createElement("button");
         mas.type = "button";
+        mas.className = "cursor-pointer";
         mas.setAttribute("aria-label", "Agregar una unidad de " + item.nombre);
         mas.disabled = item.cantidad >= item.stock;
-        mas.innerHTML = '<i class="ti ti-plus text-xs" aria-hidden="true"></i>';
+        mas.innerHTML = '<i class="ti ti-plus text-xs cursor-pointer" aria-hidden="true"></i>';
         mas.addEventListener("click", function (e) {
           e.stopPropagation();
           cambiar(item.id, 1);
@@ -388,16 +412,17 @@
               "</span>"
             : "");
 
-        // Botón eliminar
+        // Botón eliminar de cada línea del ticket
         var quitar = document.createElement("button");
         quitar.type = "button";
         quitar.className =
-          "w-8 h-8 rounded-lg flex items-center justify-center text-ink-3 hover:text-danger hover:bg-danger-bg transition-colors";
+          "cursor-pointer w-8 h-8 rounded-lg flex items-center justify-center text-ink-3 hover:text-danger hover:bg-danger-bg transition-colors";
         quitar.setAttribute(
           "aria-label",
           "Eliminar " + item.nombre + " del ticket"
         );
-        quitar.innerHTML = '<i class="ti ti-trash text-base" aria-hidden="true"></i>';
+        quitar.setAttribute("title", "Eliminar " + item.nombre);
+        quitar.innerHTML = '<i class="ti ti-trash text-base cursor-pointer" aria-hidden="true"></i>';
         quitar.addEventListener("click", function (e) {
           e.stopPropagation();
           eliminar(item.id);
@@ -487,6 +512,19 @@
 
   if (grid) {
     grid.addEventListener("click", function (e) {
+      // 0. Botón de ver información resumida de producto
+      var infoBtn = e.target.closest(".btn-info-producto-pos");
+      if (infoBtn) {
+        e.stopPropagation();
+        try {
+          var pData = JSON.parse(infoBtn.dataset.producto);
+          abrirModalInfoPOS(pData);
+        } catch (err) {
+          console.error(err);
+        }
+        return;
+      }
+
       // 1. Botón de restar cantidad
       var minusBtn = e.target.closest(".pos-quick-minus");
       if (minusBtn) {
@@ -610,9 +648,17 @@
   /* ── 1. Buscador de Clientes en Tiempo Real ────────────────────────── */
   var buscarClienteInput = document.getElementById("buscarCliente");
   var clienteSelect = document.getElementById("cliente_id");
+  var btnLimpiarBuscarCliente = document.getElementById("btnLimpiarBuscarCliente");
+
+  function toggleClearCliente() {
+    if (btnLimpiarBuscarCliente && buscarClienteInput) {
+      btnLimpiarBuscarCliente.style.display = buscarClienteInput.value.trim() !== "" ? "flex" : "none";
+    }
+  }
 
   if (buscarClienteInput && clienteSelect) {
     buscarClienteInput.addEventListener("input", function () {
+      toggleClearCliente();
       var q = buscarClienteInput.value.trim().toLowerCase();
       var options = clienteSelect.querySelectorAll("option");
       var primeraCoincidencia = null;
@@ -633,6 +679,19 @@
       }
     });
 
+    if (btnLimpiarBuscarCliente) {
+      btnLimpiarBuscarCliente.addEventListener("click", function () {
+        buscarClienteInput.value = "";
+        toggleClearCliente();
+        var options = clienteSelect.querySelectorAll("option");
+        Array.prototype.forEach.call(options, function (opt) {
+          opt.hidden = false;
+        });
+        clienteSelect.value = "";
+        buscarClienteInput.focus();
+      });
+    }
+
     buscarClienteInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -646,6 +705,33 @@
           clienteSelect.value = optionsVisibles[0].value;
           anunciar("Cliente seleccionado: " + optionsVisibles[0].textContent);
         }
+      }
+    });
+  }
+
+  /* ── Validación del Formulario de Venta (Cliente y Carrito) ─────────── */
+  var ventaForm = document.getElementById("ventaForm");
+  if (ventaForm) {
+    ventaForm.addEventListener("submit", function (e) {
+      if (!clienteSelect || !clienteSelect.value || clienteSelect.value.trim() === "") {
+        e.preventDefault();
+        notificar("error", "<strong>Cliente requerido:</strong> Debe seleccionar un cliente antes de procesar la venta.");
+        if (buscarClienteInput) {
+          buscarClienteInput.focus();
+          buscarClienteInput.classList.add("ring-2", "ring-rose-500");
+          setTimeout(function () {
+            buscarClienteInput.classList.remove("ring-2", "ring-rose-500");
+          }, 2500);
+        } else if (clienteSelect) {
+          clienteSelect.focus();
+        }
+        return false;
+      }
+
+      if (carrito.length === 0) {
+        e.preventDefault();
+        notificar("error", "<strong>Ticket vacío:</strong> Debe agregar al menos un producto al ticket.");
+        return false;
       }
     });
   }
@@ -833,7 +919,7 @@
   if (btnPreviewTicket) {
     btnPreviewTicket.addEventListener("click", function () {
       if (carrito.length === 0) {
-        anunciar("Agrega al menos un producto al ticket para ver la vista previa.");
+        notificar("warn", "<strong>Ticket vacío:</strong> Agrega al menos un producto al ticket para ver la vista previa.");
         return;
       }
 
@@ -895,6 +981,92 @@
       window.print();
     });
   }
+
+  /* ── 5. Modal Detalle Resumido de Producto en POS ─────────────────── */
+  var modalInfoPOS = document.getElementById("modalInfoProductoPOS");
+  var btnCerrarInfoPOS = document.getElementById("btnCerrarInfoPOS");
+  var btnCerrarInfoPOSFooter = document.getElementById("btnCerrarInfoPOSFooter");
+  var btnAgregarDesdeInfoPOS = document.getElementById("btnAgregarDesdeInfoPOS");
+  var posInfoCategoria = document.getElementById("posInfoCategoria");
+  var posInfoNombre = document.getElementById("posInfoNombre");
+  var posInfoCodigo = document.getElementById("posInfoCodigo");
+  var posInfoPresentacion = document.getElementById("posInfoPresentacion");
+  var posInfoStock = document.getElementById("posInfoStock");
+  var posInfoPrecioUsd = document.getElementById("posInfoPrecioUsd");
+  var posInfoPrecioBs = document.getElementById("posInfoPrecioBs");
+  var productoSeleccionadoInfo = null;
+
+  function abrirModalInfoPOS(p) {
+    if (!modalInfoPOS || !p) return;
+    productoSeleccionadoInfo = p;
+    if (posInfoCategoria) posInfoCategoria.textContent = p.categoria || "Sin categoría";
+    if (posInfoNombre) posInfoNombre.textContent = p.nombre || "—";
+    if (posInfoCodigo) posInfoCodigo.textContent = p.codigo ? "Código: #" + p.codigo : "Sin código";
+
+    var pres = "";
+    if (p.peso && parseFloat(p.peso) > 0) {
+      pres = parseFloat(p.peso) + " " + (p.unidad || "");
+    } else {
+      pres = p.unidad || "Unidad";
+    }
+    if (posInfoPresentacion) posInfoPresentacion.textContent = pres;
+
+    var s = parseInt(p.stock) || 0;
+    if (posInfoStock) {
+      if (s <= 0) {
+        posInfoStock.innerHTML = '<span class="text-rose-600 font-bold">Agotado (0)</span>';
+      } else if (s <= 10) {
+        posInfoStock.innerHTML = '<span class="text-amber-600 font-bold">' + s + ' ' + (p.unidad || "") + ' (Bajo)</span>';
+      } else {
+        posInfoStock.innerHTML = '<span class="text-emerald-700 font-bold">' + s + ' ' + (p.unidad || "") + '</span>';
+      }
+    }
+
+    if (posInfoPrecioUsd) posInfoPrecioUsd.textContent = p.precio_usd || "$ 0,00";
+    if (posInfoPrecioBs) posInfoPrecioBs.textContent = p.precio_bs || "Bs 0,00";
+
+    if (btnAgregarDesdeInfoPOS) {
+      btnAgregarDesdeInfoPOS.disabled = s <= 0;
+    }
+
+    modalInfoPOS.classList.remove("hidden");
+    modalInfoPOS.classList.add("flex");
+  }
+
+  function cerrarModalInfoPOS() {
+    if (modalInfoPOS) {
+      modalInfoPOS.classList.add("hidden");
+      modalInfoPOS.classList.remove("flex");
+      productoSeleccionadoInfo = null;
+    }
+  }
+
+  if (btnCerrarInfoPOS) btnCerrarInfoPOS.addEventListener("click", cerrarModalInfoPOS);
+  if (btnCerrarInfoPOSFooter) btnCerrarInfoPOSFooter.addEventListener("click", cerrarModalInfoPOS);
+
+  if (btnAgregarDesdeInfoPOS) {
+    btnAgregarDesdeInfoPOS.addEventListener("click", function () {
+      if (!productoSeleccionadoInfo || !grid) return;
+      var itemEl = grid.querySelector('.pos-list-item[data-id="' + productoSeleccionadoInfo.id + '"], .pos-tile[data-id="' + productoSeleccionadoInfo.id + '"]');
+      if (itemEl && itemEl.getAttribute("aria-disabled") !== "true" && !itemEl.disabled) {
+        agregar(itemEl);
+        notificar("success", "<strong>" + productoSeleccionadoInfo.nombre + "</strong> agregado al ticket.");
+      }
+      cerrarModalInfoPOS();
+    });
+  }
+
+  if (modalInfoPOS) {
+    modalInfoPOS.addEventListener("click", function (e) {
+      if (e.target === modalInfoPOS) cerrarModalInfoPOS();
+    });
+  }
+
+  window.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      cerrarModalInfoPOS();
+    }
+  });
 
 })();
 

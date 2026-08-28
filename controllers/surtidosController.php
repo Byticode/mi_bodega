@@ -16,12 +16,12 @@ class SurtidosController extends BaseController
 
     public function listar()
     {
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $paginacion = $this->surtidoModel->listarPaginado($page, 15);
+        $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->surtidoModel->listarPaginado($page, 10, $search);
         $surtidos = $paginacion['data'];
 
-        include RUTA_APP . '/views/surtidos/surtidos.php';
-        exit();
+        $this->render('surtidos/surtidos.php', compact('surtidos', 'paginacion', 'search'));
     }
 
     public function crear()
@@ -103,11 +103,12 @@ class SurtidosController extends BaseController
 
         $resultado = $this->surtidoModel->limpiarVerificarId($surtido_id);
 
-        if ($resultado) {
-            return $surtido_id;
-        } else {
+        if (!$resultado) {
             $this->setFlash('error', 'Surtido no encontrado');
             $this->redirect('surtidos');
+            exit;
         }
+
+        return $surtido_id;
     }
 }

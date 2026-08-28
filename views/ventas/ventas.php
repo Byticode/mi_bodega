@@ -58,15 +58,16 @@ foreach ($ventas as $v) {
 
     <!-- Tabla -->
     <div class="card overflow-hidden">
-      <div class="card-head">
+      <div class="card-head flex-wrap gap-3">
         <h2 class="section-title">Historial</h2>
-        <?php if (!empty($ventas)): ?>
-          <div class="search w-full sm:w-64">
-            <label for="filtroVentas" class="sr-only">Filtrar ventas por número, cliente o método de pago</label>
-            <i class="ti ti-search search-icon" aria-hidden="true"></i>
-            <input type="search" id="filtroVentas" class="input" placeholder="Filtrar…" autocomplete="off">
-          </div>
-        <?php endif; ?>
+        <form method="GET" action="<?= url('ventas') ?>" class="search w-full sm:w-64 ml-auto relative flex items-center">
+          <label for="filtroVentas" class="sr-only">Buscar por número, cliente o método de pago</label>
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input type="text" id="filtroVentas" name="q" value="<?= htmlspecialchars($search ?? '') ?>" class="input pl-9 pr-8" placeholder="Buscar venta, cliente…" autocomplete="off">
+          <button type="button" class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" <?= empty($search) ? 'style="display:none;"' : '' ?>>
+            <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+          </button>
+        </form>
       </div>
 
       <div class="table-wrap">
@@ -88,12 +89,21 @@ foreach ($ventas as $v) {
             <?php if (empty($ventas)): ?>
               <tr>
                 <td colspan="8">
-                  <div class="empty">
-                    <i class="ti ti-shopping-cart empty-icon" aria-hidden="true"></i>
-                    <p class="empty-title">Todavía no hay ventas</p>
-                    <p class="empty-sub">Registra la primera desde el punto de venta.</p>
-                    <a href="<?= url('pos') ?>" class="btn btn-primary mt-3">Abrir punto de venta</a>
-                  </div>
+                  <?php if (!empty($search)): ?>
+                    <div class="empty">
+                      <i class="ti ti-search-off empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Sin coincidencias para «<?= htmlspecialchars($search) ?>»</p>
+                      <p class="empty-sub">Ninguna venta coincide con el término buscado.</p>
+                      <a href="<?= url('ventas') ?>" class="btn btn-secondary btn-sm mt-2">Ver todas las ventas</a>
+                    </div>
+                  <?php else: ?>
+                    <div class="empty">
+                      <i class="ti ti-shopping-cart empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Todavía no hay ventas</p>
+                      <p class="empty-sub">Registra la primera desde el punto de venta.</p>
+                      <a href="<?= url('pos') ?>" class="btn btn-primary mt-3">Abrir punto de venta</a>
+                    </div>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php else: ?>
@@ -151,12 +161,11 @@ foreach ($ventas as $v) {
         </table>
       </div>
 
-      <?php if (!empty($ventas)): ?>
-        <div class="card-foot">
-          <span id="conteoVentas" role="status"><?= count($ventas) ?> ventas registradas</span>
-          <span>Actualizado <?= date('d/m/Y H:i') ?></span>
-        </div>
-      <?php endif; ?>
+      <?php 
+        $label_items = 'ventas';
+        $ruta_paginacion = 'ventas';
+        include RUTA_APP . '/includes/paginacion.php'; 
+      ?>
     </div>
 
   </div>

@@ -12,8 +12,11 @@ class CategoriasController extends BaseController
 
     public function listar()
     {
-        $categorias = $this->categoriaModel->listar();
-        $this->render('categorias/categorias.php', compact('categorias'));
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->categoriaModel->listarPaginado($page, 10, $search);
+        $categorias = $paginacion['data'];
+        $this->render('categorias/categorias.php', compact('categorias', 'paginacion', 'search'));
     }
 
     public function crear()

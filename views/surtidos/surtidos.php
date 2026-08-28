@@ -46,8 +46,16 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
 
     <!-- Tabla -->
     <div class="card overflow-hidden">
-      <div class="card-head">
+      <div class="card-head flex-wrap gap-3">
         <h2 class="section-title">Historial de surtidos</h2>
+        <form method="GET" action="<?= url('surtidos') ?>" class="search w-full sm:w-64 ml-auto relative flex items-center">
+          <label for="filtroSurtidos" class="sr-only">Buscar surtido</label>
+          <i class="ti ti-search search-icon" aria-hidden="true"></i>
+          <input type="text" id="filtroSurtidos" name="q" value="<?= htmlspecialchars($search ?? '') ?>" class="input pl-9 pr-8" placeholder="Buscar surtido, proveedor…" autocomplete="off">
+          <button type="button" class="btn-clear-search absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink hover:bg-card-2 p-1 rounded-full flex items-center justify-center transition-colors" title="Limpiar búsqueda" aria-label="Limpiar búsqueda" <?= empty($search) ? 'style="display:none;"' : '' ?>>
+            <i class="ti ti-x text-xs cursor-pointer text-red-500"></i>
+          </button>
+        </form>
       </div>
 
       <div class="table-wrap">
@@ -67,12 +75,21 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
             <?php if (empty($surtidos)): ?>
               <tr>
                 <td colspan="6">
-                  <div class="empty">
-                    <i class="ti ti-truck-delivery empty-icon" aria-hidden="true"></i>
-                    <p class="empty-title">Todavía no hay surtidos</p>
-                    <p class="empty-sub">Registra una entrada de mercancía para aumentar el stock y llevar el costo.</p>
-                    <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary mt-3">Nuevo surtido</a>
-                  </div>
+                  <?php if (!empty($search)): ?>
+                    <div class="empty">
+                      <i class="ti ti-search-off empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Sin coincidencias para «<?= htmlspecialchars($search) ?>»</p>
+                      <p class="empty-sub">Ningún surtido coincide con el término buscado.</p>
+                      <a href="<?= url('surtidos') ?>" class="btn btn-secondary btn-sm mt-2">Ver todos los surtidos</a>
+                    </div>
+                  <?php else: ?>
+                    <div class="empty">
+                      <i class="ti ti-truck-delivery empty-icon" aria-hidden="true"></i>
+                      <p class="empty-title">Todavía no hay surtidos</p>
+                      <p class="empty-sub">Registra una entrada de mercancía para aumentar el stock y llevar el costo.</p>
+                      <a href="<?= url('surtidos/crear') ?>" class="btn btn-primary mt-3">Nuevo surtido</a>
+                    </div>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php else: ?>
@@ -91,7 +108,7 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
                   <td class="col-actions">
                     <a href="<?= url('surtidos/ver/' . $surtido['surtido_id']) ?>"
                        class="btn-icon" aria-label="Ver detalle del surtido #<?= (int) $surtido['surtido_id'] ?>">
-                      <i class="ti ti-eye text-base" aria-hidden="true"></i>
+                       <i class="ti ti-eye text-base" aria-hidden="true"></i>
                     </a>
                   </td>
                 </tr>
@@ -101,11 +118,11 @@ $ultimo    = !empty($surtidos) ? $surtidos[0]['surtido_fecha'] : null;
         </table>
       </div>
 
-      <?php if (!empty($surtidos)): ?>
-        <div class="card-foot">
-          <span><?= count($surtidos) ?> surtidos registrados</span>
-        </div>
-      <?php endif; ?>
+      <?php 
+        $label_items = 'surtidos';
+        $ruta_paginacion = 'surtidos';
+        include RUTA_APP . '/includes/paginacion.php'; 
+      ?>
     </div>
 
   </div>

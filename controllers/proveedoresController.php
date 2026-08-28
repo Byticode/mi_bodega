@@ -12,10 +12,11 @@ class ProveedoresController extends BaseController
 
     public function listar()
     {
-        $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
-        $paginacion = $this->proveedorModel->listarPaginado($page, 15);
+        $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+        $search = trim($_GET['q'] ?? $_GET['search'] ?? '');
+        $paginacion = $this->proveedorModel->listarPaginado($page, 10, $search);
         $proveedores = $paginacion['data'];
-        $this->render('proveedores/proveedores.php', compact('proveedores', 'paginacion'));
+        $this->render('proveedores/proveedores.php', compact('proveedores', 'paginacion', 'search'));
     }
 
 
