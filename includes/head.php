@@ -11,8 +11,12 @@ $page_desc  = $page_desc  ?? 'Control de mercancía, ventas y surtido para tu bo
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="<?= htmlspecialchars($page_desc) ?>">
+  <link rel="icon" href="<?= url(
+            "assets/images/logo.png",
+        ) ?>" type="image/x-icon">
   <meta name="theme-color" content="#3a6341">
   <meta name="color-scheme" content="light">
+  
   <title><?= htmlspecialchars($page_title) ?> · mi_bodega</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
